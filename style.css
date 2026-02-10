@@ -367,18 +367,18 @@ body {
     padding: 20px;
     text-align: center;
     font-size: 14px;
-    color: #666;
+    color: #fe5000;
     line-height: 1.8;
 }
 
 .footer-credit a {
-    color: #e15e16;
+    color: #fe5000;
     text-decoration: none;
     font-weight: 500;
     transition: color 0.3s;
 }
 
 .footer-credit a:hover {
-    color: #e15e16;
+    color: #fe5000;
     text-decoration: underline;
 }
