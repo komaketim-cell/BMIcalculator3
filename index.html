@@ -2,267 +2,143 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>محاسبه BMI، BMR و TDEE</title>
+    <title>محاسبه‌گر BMI و کالری</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-    <!-- ===== صفحه ورودی ===== -->
-    <div class="page active" id="input-page">
-        <div class="container">
-            <div class="header">
-                <h1>محاسبه شاخص‌های سلامت</h1>
-                <p id="motivation-text"></p>
-            </div>
+<div class="container">
 
-            <div class="card">
-                <div id="error-message" class="error"></div>
+    <div class="card" id="input-section">
+        <h1>محاسبه‌گر BMI و کالری</h1>
 
-                <div class="input-group">
-                    <label>جنسیت:</label>
-                    <select id="gender">
-                        <option value="مرد">مرد</option>
-                        <option value="زن">زن</option>
-                    </select>
-                </div>
-
-                <div class="input-group">
-                    <label>تاریخ تولد (شمسی):</label>
-                    <div style="display: flex; gap: 10px;">
-                        <select id="birth-year" style="flex: 2;">
-                            <option value="">سال</option>
-                        </select>
-                        <select id="birth-month" style="flex: 1;">
-                            <option value="">ماه</option>
-                            <option value="1">فروردین</option>
-                            <option value="2">اردیبهشت</option>
-                            <option value="3">خرداد</option>
-                            <option value="4">تیر</option>
-                            <option value="5">مرداد</option>
-                            <option value="6">شهریور</option>
-                            <option value="7">مهر</option>
-                            <option value="8">آبان</option>
-                            <option value="9">آذر</option>
-                            <option value="10">دی</option>
-                            <option value="11">بهمن</option>
-                            <option value="12">اسفند</option>
-                        </select>
-                        <select id="birth-day" style="flex: 1;">
-                            <option value="">روز</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="input-group">
-                    <label>قد (سانتی‌متر):</label>
-                    <input type="number" id="height" min="50" max="250" placeholder="مثال: 175">
-                </div>
-
-                <div class="input-group">
-                    <label>وزن (کیلوگرم):</label>
-                    <input type="number" id="weight" min="2" max="300" step="0.1" placeholder="مثال: 70">
-                </div>
-
-                <div class="input-group">
-                    <label>سطح فعالیت:</label>
-                    <select id="activity">
-                        <option value="1.2">کم‌تحرک (بدون ورزش)</option>
-                        <option value="1.375">فعالیت سبک (1-3 روز در هفته)</option>
-                        <option value="1.55" selected>فعالیت متوسط (3-5 روز در هفته)</option>
-                        <option value="1.725">فعالیت زیاد (6-7 روز در هفته)</option>
-                        <option value="1.9">فعالیت بسیار زیاد (ورزشکار حرفه‌ای)</option>
-                    </select>
-                </div>
-
-                <button id="calc-btn" class="btn-primary">محاسبه</button>
-                <button id="help-btn" class="btn-secondary">راهنما</button>
-            </div>
-
-            <!-- فوتر صفحه ورود -->
-            <div class="footer-credit">
-                توسعه یافته توسط تیم «کمکتیم»<br>
-                <a href="https://Komaketim.ir" target="_blank">Komaketim.ir</a>
+        <div class="form-group">
+            <label>جنسیت</label>
+            <div class="radio-group">
+                <label><input type="radio" name="gender" value="male" checked> مرد</label>
+                <label><input type="radio" name="gender" value="female"> زن</label>
             </div>
         </div>
-    </div>
 
-    <!-- ===== صفحه نتایج ===== -->
-    <div class="page" id="results-page">
-        <div class="container">
-            <div class="header">
-                <h1>نتایج محاسبات</h1>
-            </div>
-
-            <!-- اطلاعات کلی -->
-            <div class="card info-card">
-                <h3>اطلاعات شما</h3>
-                <div class="info-grid">
-                    <div><strong>جنسیت:</strong> <span id="r-gender"></span></div>
-                    <div><strong>سن:</strong> <span id="r-age"></span></div>
-                    <div><strong>قد:</strong> <span id="r-height"></span></div>
-                    <div><strong>وزن:</strong> <span id="r-weight"></span></div>
-                </div>
-            </div>
-
-            <!-- شاخص توده بدنی (BMI) -->
-            <div class="card bmi-card">
-                <h3>شاخص توده بدنی (BMI)</h3>
-                <div class="bmi-display">
-                    <div id="bmi-circle" class="bmi-circle">
-                        <span id="bmi-value">--</span>
-                    </div>
-                    <div class="bmi-details">
-                        <div class="bmi-status">
-                            <strong>وضعیت:</strong> <span id="bmi-status-text"></span>
-                        </div>
-                        <div class="bmi-difference">
-                            <span id="bmi-difference-text"></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- محدوده وزن سالم -->
-            <div class="card result-card">
-                <h3>محدوده وزن سالم</h3>
-                <div class="result-value" id="r-healthy">--</div>
-            </div>
-
-            <!-- کارت‌های BMR و TDEE -->
-            <div class="results-grid">
-                <div class="card result-card">
-                    <h3>BMR</h3>
-                    <p class="result-label">متابولیسم پایه</p>
-                    <div class="result-value" id="r-bmr">--</div>
-                </div>
-
-                <div class="card result-card">
-                    <h3>TDEE</h3>
-                    <p class="result-label">کالری روزانه</p>
-                    <div class="result-value" id="r-tdee">--</div>
-                </div>
-            </div>
-
-            <!-- توصیه‌های کالری -->
-            <div class="card">
-                <h3>توصیه‌های کالری</h3>
-                <div class="calorie-recommendations">
-                    <div class="calorie-item">
-                        <span class="calorie-label">کالری ثابت نگه داشتن وزن:</span>
-                        <span class="calorie-value" id="maintain-calories">--</span>
-                    </div>
-                    <div class="calorie-item">
-                        <span class="calorie-label">کالری افزایش وزن و حجم عضلات:</span>
-                        <span class="calorie-value" id="gain-calories">--</span>
-                    </div>
-                    <div class="calorie-item">
-                        <span class="calorie-label">کالری کاهش وزن بدون افت عضلات:</span>
-                        <span class="calorie-value" id="loss-calories">--</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- توصیه‌ها -->
-            <div class="card">
-                <h3>توصیه‌های تغذیه‌ای</h3>
-                <div id="r-recommend" style="white-space: pre-line; line-height: 1.8;"></div>
-            </div>
-
-            <div style="display: flex; gap: 10px; margin-top: 20px;">
-                <button id="back-btn" class="btn-primary" style="flex: 1;">محاسبه مجدد</button>
-                <button id="help-btn2" class="btn-secondary" style="flex: 1;">راهنما</button>
+        <div class="form-group">
+            <label>تاریخ تولد (شمسی)</label>
+            <div class="date-inputs">
+                <select id="birth-year"></select>
+                <select id="birth-month">
+                    <option value="">ماه</option>
+                    <option value="1">فروردین</option>
+                    <option value="2">اردیبهشت</option>
+                    <option value="3">خرداد</option>
+                    <option value="4">تیر</option>
+                    <option value="5">مرداد</option>
+                    <option value="6">شهریور</option>
+                    <option value="7">مهر</option>
+                    <option value="8">آبان</option>
+                    <option value="9">آذر</option>
+                    <option value="10">دی</option>
+                    <option value="11">بهمن</option>
+                    <option value="12">اسفند</option>
+                </select>
+                <select id="birth-day"></select>
             </div>
         </div>
-    </div>
 
-    <!-- ===== صفحه راهنما ===== -->
-    <div class="page" id="guide-page">
-        <div class="container">
-            <div class="header">
-                <h1>راهنمای استفاده</h1>
-            </div>
-
-            <div class="card">
-                <h3>📊 شاخص توده بدنی (BMI)</h3>
-                <p>نسبت وزن به مجذور قد که وضعیت وزن را نشان می‌دهد.</p>
-                <ul>
-                    <li><strong>کودکان و نوجوانان (5-19 سال):</strong> براساس نمودارهای رشد WHO</li>
-                    <li><strong>بزرگسالان:</strong> کمتر از 18.5 (کم‌وزن)، 18.5-24.9 (نرمال)، 25-29.9 (اضافه‌وزن)، بالای 30 (چاقی)</li>
-                </ul>
-
-                <h3>🔥 BMR (متابولیسم پایه)</h3>
-                <p>کالری مورد نیاز بدن در حالت استراحت کامل.</p>
-
-                <h3>⚡ TDEE (کالری روزانه)</h3>
-                <p>کالری کل مورد نیاز با در نظر گرفتن سطح فعالیت.</p>
-
-                <h3>🎯 توصیه‌های کالری</h3>
-                <ul>
-                    <li><strong>کاهش وزن:</strong> 500 کالری کمتر از TDEE</li>
-                    <li><strong>حفظ وزن:</strong> برابر با TDEE</li>
-                    <li><strong>افزایش وزن:</strong> 300 کالری بیشتر از TDEE</li>
-                </ul>
-
-                <h3>⚠️ نکات مهم</h3>
-                <ul>
-                    <li>این محاسبات تخمینی هستند و نباید جایگزین مشاوره پزشکی شوند</li>
-                    <li>برای کودکان و نوجوانان حتماً با متخصص تغذیه مشورت کنید</li>
-                    <li>تغییرات وزن باید تدریجی و با نظارت پزشک باشد</li>
-                </ul>
-            </div>
-
-            <button id="back-guide-btn" class="btn-primary">بازگشت</button>
+        <div class="form-group">
+            <label>قد (سانتی‌متر)</label>
+            <input type="number" id="height" min="50" max="250">
         </div>
+
+        <div class="form-group">
+            <label>وزن (کیلوگرم)</label>
+            <input type="number" id="weight" step="0.1" min="10" max="300">
+        </div>
+
+        <div class="form-group">
+            <label>سطح فعالیت</label>
+            <select id="activity">
+                <option value="1.2">کم‌تحرک</option>
+                <option value="1.375">فعالیت سبک</option>
+                <option value="1.55" selected>فعالیت متوسط</option>
+                <option value="1.725">فعالیت سنگین</option>
+                <option value="1.9">فعالیت بسیار سنگین</option>
+            </select>
+        </div>
+
+        <button class="btn" onclick="calculateBMI()">محاسبه</button>
+        <p id="error-message"></p>
     </div>
 
-    <script src="who-data.js"></script>
-    <script src="bmi.js"></script>
- <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // پر کردن سال‌ها (1300 تا 1450)
-    const yearSelect = document.getElementById('birth-year');
-    if (yearSelect) {
-        // پاک کردن گزینه‌های قبلی (اگر وجود دارد)
-        yearSelect.innerHTML = '<option value="">سال</option>';
-        <select id="birth-year">
-    <option value="">سال</option>
-</select>
+    <div class="card" id="result-section">
+        <h2>نتایج</h2>
+        <div id="age-display"></div>
+        <p id="motivation-text"></p>
+
+        <div class="result-grid">
+            <div class="result-card bmi-card">
+                <h3>BMI</h3>
+                <div id="bmi-value">-</div>
+                <div id="bmi-status">-</div>
+                <div id="bmi-details"></div>
+            </div>
+
+            <div class="result-card">
+                <h3>محدوده وزن سلامت</h3>
+                <div id="healthy-weight">-</div>
+            </div>
+
+            <div class="result-card">
+                <h3>BMR</h3>
+                <div id="bmr-value">-</div>
+            </div>
+
+            <div class="result-card">
+                <h3>TDEE</h3>
+                <div id="tdee-value">-</div>
+            </div>
+        </div>
+
+        <div class="calorie-recommendations">
+            <div class="calorie-card maintain">
+                <h4>کالری ثابت نگه داشتن وزن</h4>
+                <div id="maintain-calories">-</div>
+            </div>
+            <div class="calorie-card gain">
+                <h4>کالری افزایش وزن و حجم عضلات</h4>
+                <div id="gain-calories">-</div>
+            </div>
+            <div class="calorie-card lose">
+                <h4>کالری کاهش وزن بدون افت عضلات</h4>
+                <div id="lose-calories">-</div>
+            </div>
+        </div>
+
+        <button class="btn btn-secondary" onclick="resetForm()">محاسبه مجدد</button>
+    </div>
+
+    <div class="footer-credit">
+        توسعه یافته توسط تیم «کمکتیم»<br>
+        <a href="https://Komaketim.ir" target="_blank">Komaketim.ir</a>
+    </div>
+
+</div>
+
+<script src="who-data.js"></script>
+<script src="bmi.js"></script>
 
 <script>
-    (function() {
-        const yearSelect = document.getElementById('birth-year');
-        yearSelect.innerHTML = '<option value="">سال</option>';
-        
-        for (let y = 1450; y >= 1300; y--) {
-            const opt = document.createElement('option');
-            opt.value = y;
-            opt.textContent = y;
-            yearSelect.appendChild(opt);
-        }
-    })();
-</script>
-        
-        for (let y = 1450; y >= 1300; y--) {
-            const opt = document.createElement('option');
-            opt.value = y;
-            opt.textContent = y;
-            yearSelect.appendChild(opt);
-        }
+    const yearSelect = document.getElementById('birth-year');
+    yearSelect.innerHTML = '<option value="">سال</option>';
+    for (let y = 1450; y >= 1300; y--) {
+        yearSelect.innerHTML += `<option value="${y}">${y}</option>`;
     }
 
-    // پر کردن روزها (1 تا 31)
     const daySelect = document.getElementById('birth-day');
-    if (daySelect) {
-        daySelect.innerHTML = '<option value="">روز</option>';
-        
-        for (let d = 1; d <= 31; d++) {
-            const opt = document.createElement('option');
-            opt.value = d;
-            opt.textContent = d;
-            daySelect.appendChild(opt);
-        }
+    daySelect.innerHTML = '<option value="">روز</option>';
+    for (let d = 1; d <= 31; d++) {
+        daySelect.innerHTML += `<option value="${d}">${d}</option>`;
     }
-});
 </script>
+
 </body>
 </html>
