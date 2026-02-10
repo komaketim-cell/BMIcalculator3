@@ -362,3 +362,23 @@ body {
         grid-template-columns: 1fr;
     }
 }
+.footer-credit {
+    margin-top: 30px;
+    padding: 20px;
+    text-align: center;
+    font-size: 14px;
+    color: #666;
+    line-height: 1.8;
+}
+
+.footer-credit a {
+    color: #4CAF50;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+.footer-credit a:hover {
+    color: #45a049;
+    text-decoration: underline;
+}
