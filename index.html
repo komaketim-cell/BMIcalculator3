@@ -3,216 +3,204 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>محاسبه‌گر BMI | کمکتیم</title>
+    <title>محاسبه‌گر سلامتی - BMI، BMR، TDEE</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
         <!-- صفحه ورودی -->
         <div id="input-page" class="page active">
-            <h1 class="main-title">محاسبه‌گر BMR، BMI و TDEE و سن دقیق</h1>
-            
-            <div class="card form-card">
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label>جنسیت</label>
-                        <select id="gender">
-                            <option value="مرد">مرد</option>
-                            <option value="زن">زن</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label>سال تولد</label>
-                        <input type="number" id="birth-year" placeholder="1380" min="1300" max="1410">
-                    </div>
-
-                    <div class="form-group">
-                        <label>ماه تولد</label>
-                        <select id="birth-month">
-                            <option value="1">فروردین</option>
-                            <option value="2">اردیبهشت</option>
-                            <option value="3">خرداد</option>
-                            <option value="4">تیر</option>
-                            <option value="5">مرداد</option>
-                            <option value="6">شهریور</option>
-                            <option value="7">مهر</option>
-                            <option value="8">آبان</option>
-                            <option value="9">آذر</option>
-                            <option value="10">دی</option>
-                            <option value="11">بهمن</option>
-                            <option value="12">اسفند</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label>روز تولد</label>
-                        <input type="number" id="birth-day" placeholder="15" min="1" max="31">
-                    </div>
-
-                    <div class="form-group">
-                        <label>قد (سانتی‌متر)</label>
-                        <input type="number" id="height" placeholder="175" step="0.1">
-                    </div>
-
-                    <div class="form-group">
-                        <label>وزن (کیلوگرم)</label>
-                        <input type="number" id="weight" placeholder="72" step="0.1">
-                    </div>
-
-                    <div class="form-group full-width">
-                        <label>سطح فعالیت</label>
-                        <select id="activity">
-                            <option value="1.2">کم‌تحرک (بدون ورزش)</option>
-                            <option value="1.375">فعالیت سبک (ورزش ۱-۳ روز در هفته)</option>
-                            <option value="1.55">فعالیت متوسط (ورزش ۳-۵ روز در هفته)</option>
-                            <option value="1.725">فعالیت زیاد (ورزش ۶-۷ روز در هفته)</option>
-                            <option value="1.9">بسیار فعال (ورزش شدید روزانه)</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="button-group">
-                    <button id="calc-btn" class="btn btn-primary">محاسبه</button>
-                    <button id="help-btn" class="btn btn-secondary">راهنما</button>
-                </div>
-
-                <div id="error-message" class="error-message"></div>
+            <div class="header">
+                <h1>محاسبه‌گر سلامتی</h1>
+                <p class="subtitle">محاسبه BMI، BMR و TDEE بر اساس استانداردهای WHO</p>
             </div>
 
-            <p class="motivation-text" id="motivation-text"></p>
+            <div class="card">
+                <h2>اطلاعات شخصی</h2>
+                
+                <div class="form-group">
+                    <label>جنسیت:</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="gender" value="male" checked>
+                            <span>مرد</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="gender" value="female">
+                            <span>زن</span>
+                        </label>
+                    </div>
+                </div>
 
-            <div class="footer">
-                <p class="footer-text-fa">توسعه یافته توسط تیم «کمکتیم»</p>
-                <p class="footer-text-en"><a href="https://komaketim.ir" target="_blank">Komaketim.ir</a></p>
+                <div class="form-group">
+                    <label>تاریخ تولد (شمسی):</label>
+                    <div class="date-inputs">
+                        <input type="number" id="birth-year" placeholder="سال" min="1300" max="1404">
+                        <input type="number" id="birth-month" placeholder="ماه" min="1" max="12">
+                        <input type="number" id="birth-day" placeholder="روز" min="1" max="31">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="height">قد (سانتی‌متر):</label>
+                    <input type="number" id="height" placeholder="مثال: 170" min="50" max="250" step="0.1">
+                </div>
+
+                <div class="form-group">
+                    <label for="weight">وزن (کیلوگرم):</label>
+                    <input type="number" id="weight" placeholder="مثال: 70" min="10" max="300" step="0.1">
+                </div>
+
+                <div class="form-group">
+                    <label for="activity">سطح فعالیت:</label>
+                    <select id="activity">
+                        <option value="1.2">بدون فعالیت (کار نشسته)</option>
+                        <option value="1.375">فعالیت سبک (ورزش ۱-۳ روز در هفته)</option>
+                        <option value="1.55" selected>فعالیت متوسط (ورزش ۳-۵ روز در هفته)</option>
+                        <option value="1.725">فعالیت سنگین (ورزش ۶-۷ روز در هفته)</option>
+                        <option value="1.9">فعالیت بسیار سنگین (ورزش حرفه‌ای)</option>
+                    </select>
+                </div>
+
+                <button class="btn-primary" onclick="calculateAndShow()">محاسبه و نمایش نتایج</button>
+            </div>
+
+            <div class="motivation-quote">
+                <p id="quote-text">"سلامتی سرمایه‌ای است که هرگز از بین نمی‌رود"</p>
             </div>
         </div>
 
         <!-- صفحه نتایج -->
         <div id="results-page" class="page">
-            <h1 class="main-title">نتایج محاسبه</h1>
+            <div class="header">
+                <h1>نتایج محاسبات</h1>
+                <button class="btn-back" onclick="goBack()">← بازگشت</button>
+            </div>
 
-            <div class="results-grid">
-                <!-- کارت مشخصات -->
-                <div class="card summary-card">
-                    <div class="card-header">
-                        <span class="card-icon">🧍</span>
-                        <h3>مشخصات</h3>
+            <!-- کارت اطلاعات فرد -->
+            <div class="card info-card">
+                <h3>اطلاعات فرد</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">جنسیت:</span>
+                        <span id="result-gender"></span>
                     </div>
-                    <div class="summary-grid">
-                        <div class="summary-item">
-                            <span class="label">جنسیت:</span>
-                            <span class="value" id="r-gender">—</span>
-                        </div>
-                        <div class="summary-item">
-                            <span class="label">قد:</span>
-                            <span class="value" id="r-height">—</span>
-                        </div>
-                        <div class="summary-item">
-                            <span class="label">سن دقیق:</span>
-                            <span class="value" id="r-age">—</span>
-                        </div>
-                        <div class="summary-item">
-                            <span class="label">وزن:</span>
-                            <span class="value" id="r-weight">—</span>
-                        </div>
+                    <div class="info-item">
+                        <span class="info-label">سن دقیق:</span>
+                        <span id="result-age"></span>
                     </div>
-                </div>
-
-                <!-- کارت BMI -->
-                <div class="card bmi-card">
-                    <div class="card-header">
-                        <span class="card-icon">⚖️</span>
-                        <h3 id="bmi-title">شاخص توده بدنی (BMI)</h3>
+                    <div class="info-item">
+                        <span class="info-label">قد:</span>
+                        <span id="result-height"></span>
                     </div>
-                    <div class="bmi-display">
-                        <div class="bmi-circle" id="bmi-circle"></div>
-                        <div class="bmi-value" id="bmi-value">—</div>
+                    <div class="info-item">
+                        <span class="info-label">وزن:</span>
+                        <span id="result-weight"></span>
                     </div>
-                </div>
-
-                <!-- کارت محدوده وزن سلامت -->
-                <div class="card healthy-card">
-                    <div class="card-header">
-                        <span class="card-icon">✅</span>
-                        <h3>محدوده وزن سلامت</h3>
-                    </div>
-                    <p class="card-content" id="r-healthy">—</p>
-                </div>
-
-                <!-- کارت BMR -->
-                <div class="card bmr-card">
-                    <div class="card-header">
-                        <span class="card-icon">🔥</span>
-                        <h3>سوخت‌وساز پایه (BMR)</h3>
-                    </div>
-                    <p class="card-content" id="r-bmr">—</p>
-                </div>
-
-                <!-- کارت TDEE -->
-                <div class="card tdee-card">
-                    <div class="card-header">
-                        <span class="card-icon">🏃‍♂️</span>
-                        <h3>انرژی مصرفی روزانه (TDEE)</h3>
-                    </div>
-                    <p class="card-content" id="r-tdee">—</p>
-                </div>
-
-                <!-- کارت توصیه کالری -->
-                <div class="card calorie-card">
-                    <div class="card-header">
-                        <span class="card-icon">🍽️</span>
-                        <h3>توصیه کالری</h3>
-                    </div>
-                    <div class="card-content calorie-content" id="r-calorie">—</div>
-                </div>
-
-                <!-- کارت توصیه کاربردی -->
-                <div class="card recommend-card">
-                    <div class="card-header">
-                        <span class="card-icon">💡</span>
-                        <h3>توصیه کاربردی</h3>
-                    </div>
-                    <div class="card-content recommend-content" id="r-recommend">—</div>
                 </div>
             </div>
 
-            <div class="button-group">
-                <button id="back-btn" class="btn btn-primary">بازگشت به ورود</button>
-                <button id="help-btn2" class="btn btn-secondary">راهنما</button>
-                <button id="export-btn" class="btn btn-secondary">دریافت گزارش</button>
+            <!-- کارت BMI -->
+            <div class="card bmi-card">
+                <h3>شاخص توده بدنی (BMI)</h3>
+                <div class="bmi-value-container">
+                    <div class="bmi-number" id="bmi-value">0</div>
+                    <div class="bmi-details">
+                        <div class="bmi-status" id="bmi-category"></div>
+                        <div class="bmi-weight-diff" id="weight-difference"></div>
+                    </div>
+                </div>
+                <div class="bmi-bar">
+                    <div class="bmi-indicator" id="bmi-indicator"></div>
+                </div>
+                <div class="bmi-labels">
+                    <span>کم‌وزن</span>
+                    <span>نرمال</span>
+                    <span>اضافه‌وزن</span>
+                    <span>چاقی</span>
+                </div>
             </div>
+
+            <!-- کارت محدوده وزن سلامت -->
+            <div class="card healthy-weight-card">
+                <h3>محدوده وزن سلامت</h3>
+                <div class="healthy-weight-range">
+                    <div class="weight-range-item">
+                        <span class="range-label">حداقل وزن سالم:</span>
+                        <span class="range-value" id="min-healthy-weight">0 کیلوگرم</span>
+                    </div>
+                    <div class="weight-range-item">
+                        <span class="range-label">حداکثر وزن سالم:</span>
+                        <span class="range-value" id="max-healthy-weight">0 کیلوگرم</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- کارت‌های BMR و TDEE -->
+            <div class="cards-row">
+                <div class="card metric-card">
+                    <h3>BMR</h3>
+                    <p class="metric-description">نرخ متابولیسم پایه</p>
+                    <div class="metric-value" id="bmr-value">0</div>
+                    <p class="metric-unit">کالری در روز</p>
+                </div>
+
+                <div class="card metric-card">
+                    <h3>TDEE</h3>
+                    <p class="metric-description">کل انرژی مصرفی روزانه</p>
+                    <div class="metric-value" id="tdee-value">0</div>
+                    <p class="metric-unit">کالری در روز</p>
+                </div>
+            </div>
+
+            <!-- کارت توصیه‌های کالری -->
+            <div class="card recommendations-card">
+                <h3>توصیه‌های کالری روزانه</h3>
+                <div class="recommendation-item">
+                    <span class="rec-label">کالری نگه‌داشتن وزن:</span>
+                    <span class="rec-value" id="maintain-calories">0 کالری</span>
+                </div>
+                <div class="recommendation-item">
+                    <span class="rec-label">کالری افزایش وزن و حجم عضلات:</span>
+                    <span class="rec-value" id="gain-calories">0 کالری</span>
+                </div>
+                <div class="recommendation-item">
+                    <span class="rec-label">کالری کاهش وزن بدون افت عضلات:</span>
+                    <span class="rec-value" id="lose-calories">0 کالری</span>
+                </div>
+            </div>
+
+            <!-- دکمه PDF -->
+            <button class="btn-primary btn-pdf" onclick="exportToPDF()">📄 دریافت گزارش PDF</button>
         </div>
 
         <!-- صفحه راهنما -->
         <div id="guide-page" class="page">
-            <h1 class="main-title">راهنمای محاسبات</h1>
+            <div class="header">
+                <h1>راهنمای استفاده</h1>
+                <button class="btn-back" onclick="goBack()">← بازگشت</button>
+            </div>
 
-            <div class="card guide-card">
-                <div class="guide-content">
-                    <p><strong>محاسبه‌گر سلامت «کمکتیم»</strong> از استاندارد WHO برای تفسیر BMI کودکان و نوجوانان ۵ تا ۱۹ سال (BMI-for-age Z-Score) استفاده می‌کند. برای افراد ۱۹ سال و بالاتر، معیارهای استاندارد بزرگسالان اعمال می‌شود.</p>
+            <div class="card">
+                <h2>درباره این محاسبه‌گر</h2>
+                <p>این برنامه با استفاده از استانداردهای WHO (سازمان جهانی بهداشت) برای محاسبه شاخص‌های سلامت طراحی شده است.</p>
+                
+                <h3>شاخص توده بدنی (BMI)</h3>
+                <p>برای افراد ۵ تا ۱۹ سال از روش LMS استاندارد WHO استفاده می‌شود که سن، جنسیت و رشد طبیعی را در نظر می‌گیرد.</p>
+                <p>برای افراد بالای ۱۹ سال از فرمول استاندارد BMI استفاده می‌شود.</p>
 
-                    <ul>
-                        <li><strong>BMI-for-age (۵–۱۹ سال):</strong> دسته‌بندی براساس Z-Score (WHO): لاغری شدید، لاغری، نرمال، اضافه‌وزن، چاقی.</li>
-                        <li><strong>بازه وزن سالم در ۵–۱۹ سال:</strong> متناظر با Z = -2 تا Z = +1 محاسبه و به وزن تبدیل می‌شود.</li>
-                        <li><strong>نکته:</strong> برای اجرای دقیق استانداردهای WHO داده‌های LMS داخل برنامه تعبیه شده‌اند.</li>
-                        <li><strong>شاخص BMI:</strong> نشان می‌دهد وزن شما نسبت به قد در محدوده کم‌وزن، سالم یا اضافه‌وزن قرار دارد و نقطه شروع خوبی برای شناخت وضعیت جسمی است.</li>
-                        <li><strong>BMR:</strong> مقدار کالری پایه‌ای است که بدن حتی در حالت استراحت برای زنده ماندن مصرف می‌کند.</li>
-                        <li><strong>TDEE:</strong> وقتی سطح فعالیت روزانه به BMR اضافه می‌شود، TDEE نشان‌دهنده مصرف واقعی انرژی بدن در طول روز است.</li>
-                        <li><strong>برای لاغری اصولی:</strong> باید کمی کمتر از TDEE غذا بخورید اما مصرف پروتئین را بالا نگه دارید تا عضلات حفظ شوند.</li>
-                        <li><strong>برای عضله‌سازی:</strong> بدن به کالری بیشتر همراه با تمرین قدرتی نیاز دارد.</li>
-                    </ul>
+                <h3>نرخ متابولیسم پایه (BMR)</h3>
+                <p>مقدار انرژی که بدن در حالت استراحت کامل مصرف می‌کند. این مقدار با استفاده از فرمول Mifflin-St Jeor محاسبه می‌شود.</p>
 
-                    <p class="guide-footer">سلامت و پرانرژی باشید (تیم کمکتیم)</p>
-                </div>
-
-                <button id="back-guide-btn" class="btn btn-secondary">بازگشت</button>
+                <h3>کل انرژی مصرفی روزانه (TDEE)</h3>
+                <p>مجموع کالری که بدن در طول یک روز با فعالیت‌های معمول مصرف می‌کند.</p>
             </div>
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="who-data.js"></script>
     <script src="bmi.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </body>
 </html>
