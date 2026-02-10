@@ -217,24 +217,35 @@
 
     <script src="who-data.js"></script>
     <script src="bmi.js"></script>
-  <script>
+ <script>
+document.addEventListener('DOMContentLoaded', function() {
     // پر کردن سال‌ها (1300 تا 1450)
     const yearSelect = document.getElementById('birth-year');
-    for (let y = 1450; y >= 1300; y--) {
-        const opt = document.createElement('option');
-        opt.value = y;
-        opt.textContent = y;
-        yearSelect.appendChild(opt);
+    if (yearSelect) {
+        // پاک کردن گزینه‌های قبلی (اگر وجود دارد)
+        yearSelect.innerHTML = '<option value="">سال</option>';
+        
+        for (let y = 1450; y >= 1300; y--) {
+            const opt = document.createElement('option');
+            opt.value = y;
+            opt.textContent = y;
+            yearSelect.appendChild(opt);
+        }
     }
 
     // پر کردن روزها (1 تا 31)
     const daySelect = document.getElementById('birth-day');
-    for (let d = 1; d <= 31; d++) {
-        const opt = document.createElement('option');
-        opt.value = d;
-        opt.textContent = d;
-        daySelect.appendChild(opt);
+    if (daySelect) {
+        daySelect.innerHTML = '<option value="">روز</option>';
+        
+        for (let d = 1; d <= 31; d++) {
+            const opt = document.createElement('option');
+            opt.value = d;
+            opt.textContent = d;
+            daySelect.appendChild(opt);
+        }
     }
+});
 </script>
 </body>
 </html>
