@@ -367,18 +367,19 @@ body {
     padding: 20px;
     text-align: center;
     font-size: 14px;
-    color: #fe5000;
+    color: #FF9800; /* نارنجی خوش‌رنگ */
     line-height: 1.8;
+    font-weight: 500;
 }
 
 .footer-credit a {
-    color: #fe5000;
+    color: #FF9800; /* نارنجی خوش‌رنگ */
     text-decoration: none;
-    font-weight: 500;
-    transition: color 0.3s;
+    font-weight: 600;
+    transition: all 0.3s;
 }
 
 .footer-credit a:hover {
-    color: #fe5000;
+    color: #FFB74D; /* نارنجی روشن‌تر هنگام hover */
     text-decoration: underline;
 }
