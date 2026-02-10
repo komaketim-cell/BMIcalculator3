@@ -1,4 +1,3 @@
-/* ========== Reset & Base ========== */
 * {
     margin: 0;
     padding: 0;
@@ -6,432 +5,419 @@
 }
 
 body {
-    font-family: 'Vazirmatn', 'Tahoma', 'Arial', sans-serif;
-    background: linear-gradient(135deg, #F7F8FA 0%, #E6E8EF 100%);
-    color: #1F2937;
-    direction: rtl;
-    line-height: 1.6;
+    font-family: 'Vazirmatn', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     min-height: 100vh;
-}
-
-/* ========== Container ========== */
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
     padding: 20px;
+    direction: rtl;
 }
 
-/* ========== Pages ========== */
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
 .page {
     display: none;
-    animation: fadeIn 0.5s ease;
 }
 
 .page.active {
     display: block;
 }
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* ========== Typography ========== */
-.main-title {
+.header {
     text-align: center;
-    font-size: 28px;
-    font-weight: 700;
-    color: #111827;
-    margin-bottom: 24px;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    color: white;
+    margin-bottom: 30px;
+    position: relative;
 }
 
-/* ========== Cards ========== */
+.header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+}
+
+.subtitle {
+    font-size: 1.1rem;
+    opacity: 0.95;
+    font-weight: 300;
+}
+
+.btn-back {
+    position: absolute;
+    right: 0;
+    top: 10px;
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 1rem;
+    transition: all 0.3s;
+}
+
+.btn-back:hover {
+    background: rgba(255,255,255,0.3);
+    transform: translateX(-5px);
+}
+
 .card {
-    background-color: #FFFFFF;
-    border: 1px solid #E6E8EF;
-    border-radius: 16px;
-    padding: 20px;
-    margin-bottom: 16px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
-    transition: all 0.3s ease;
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    transition: transform 0.3s;
 }
 
 .card:hover {
-    border-color: #D4D8E4;
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
-    transform: translateY(-2px);
+    transform: translateY(-5px);
 }
 
-/* Card Accents */
-.summary-card { border-right: 4px solid #64748B; }
-.bmi-card { border-right: 4px solid #6366F1; }
-.healthy-card { border-right: 4px solid #14B8A6; }
-.bmr-card { border-right: 4px solid #F59E0B; }
-.tdee-card { border-right: 4px solid #3B82F6; }
-.calorie-card { border-right: 4px solid #F43F5E; }
-.recommend-card { border-right: 4px solid #FACC15; }
-.guide-card { border-right: 4px solid #64748B; }
-
-.card-header {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    margin-bottom: 16px;
-}
-
-.card-icon {
-    font-size: 24px;
-    width: 38px;
-    height: 38px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 10px;
-    background-color: #F1F5F9;
-}
-
-.card-header h3 {
-    font-size: 16px;
-    font-weight: 700;
-    color: #111827;
-}
-
-.card-content {
+.card h2 {
+    color: #667eea;
+    margin-bottom: 25px;
+    font-size: 1.8rem;
     text-align: center;
-    font-size: 15px;
-    font-weight: 500;
-    color: #1F2937;
-    line-height: 1.8;
 }
 
-/* ========== Form ========== */
-.form-card {
-    max-width: 800px;
-    margin: 0 auto 24px;
-}
-
-.form-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 16px;
+.card h3 {
+    color: #667eea;
     margin-bottom: 20px;
+    font-size: 1.4rem;
 }
 
 .form-group {
-    display: flex;
-    flex-direction: column;
-}
-
-.form-group.full-width {
-    grid-column: 1 / -1;
+    margin-bottom: 20px;
 }
 
 .form-group label {
-    margin-bottom: 6px;
-    font-weight: 600;
-    font-size: 14px;
-    color: #374151;
+    display: block;
+    margin-bottom: 8px;
+    color: #333;
+    font-weight: 500;
+    font-size: 1rem;
 }
 
 .form-group input,
 .form-group select {
-    padding: 10px 14px;
-    border: 1px solid #DADCE5;
-    border-radius: 8px;
-    font-size: 15px;
-    font-family: inherit;
-    background: #FFFFFF;
-    transition: all 0.2s;
-    text-align: center;
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-family: 'Vazirmatn', sans-serif;
+    transition: border-color 0.3s;
 }
 
 .form-group input:focus,
 .form-group select:focus {
     outline: none;
-    border-color: #5B8DEF;
-    box-shadow: 0 0 0 3px rgba(91, 141, 239, 0.1);
+    border-color: #667eea;
 }
 
-/* ========== Buttons ========== */
-.button-group {
+.radio-group {
     display: flex;
-    gap: 12px;
-    justify-content: center;
-    margin-top: 20px;
-    flex-wrap: wrap;
+    gap: 20px;
 }
 
-.btn {
-    padding: 12px 24px;
-    border: none;
-    border-radius: 10px;
-    font-size: 15px;
-    font-weight: 600;
-    font-family: inherit;
+.radio-label {
+    display: flex;
+    align-items: center;
     cursor: pointer;
-    transition: all 0.2s;
+    font-size: 1rem;
+}
+
+.radio-label input {
+    width: auto;
+    margin-left: 8px;
+    cursor: pointer;
+}
+
+.date-inputs {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 10px;
 }
 
 .btn-primary {
-    background-color: #4F46E5;
-    color: #FFFFFF;
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-family: 'Vazirmatn', sans-serif;
+    margin-top: 10px;
 }
 
 .btn-primary:hover {
-    background-color: #4338CA;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
 }
 
-.btn-primary:active {
-    background-color: #3730A3;
-    transform: translateY(0);
-}
-
-.btn-secondary {
-    background-color: transparent;
-    color: #334155;
-    border: 1px solid #CBD5E1;
-}
-
-.btn-secondary:hover {
-    background-color: #F1F5F9;
-    border-color: #94A3B8;
-}
-
-.btn-secondary:active {
-    background-color: #E2E8F0;
-    border-color: #64748B;
-}
-
-/* ========== Error Message ========== */
-.error-message {
-    color: #EF4444;
-    font-weight: 600;
-    font-size: 14px;
+.motivation-quote {
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 20px;
     text-align: center;
-    margin-top: 12px;
-    min-height: 20px;
+    color: white;
+    font-size: 1.2rem;
+    font-weight: 300;
+    margin-top: 20px;
 }
 
-/* ========== Motivation ========== */
-.motivation-text {
+/* صفحه نتایج */
+.info-card {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+}
+
+.info-card h3 {
+    color: white;
     text-align: center;
-    font-size: 18px;
-    font-weight: 700;
-    color: #E11D48;
-    margin: 30px 0;
-    animation: pulse 2s ease-in-out infinite;
 }
 
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
-}
-
-/* ========== Footer ========== */
-.footer {
-    text-align: center;
-    margin-top: 40px;
-}
-
-.footer-text-fa {
-    font-size: 17px;
-    font-weight: 800;
-    color: #F96E2A;
-    margin-bottom: 8px;
-}
-
-.footer-text-en {
-    font-size: 14px;
-    font-weight: 700;
-}
-
-.footer-text-en a {
-    color: #F96E2A;
-    text-decoration: none;
-    transition: color 0.2s;
-}
-
-.footer-text-en a:hover {
-    color: #DC5A1F;
-    text-decoration: underline;
-}
-
-/* ========== Results Grid ========== */
-.results-grid {
-    display: grid;
-    gap: 16px;
-    margin-bottom: 30px;
-}
-
-/* Summary Card */
-.summary-card {
-    grid-column: 1 / -1;
-}
-
-.summary-grid {
+.info-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    gap: 15px;
 }
 
-.summary-item {
+.info-item {
+    background: rgba(255,255,255,0.2);
+    padding: 12px;
+    border-radius: 10px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 8px;
-    background: #F8FAFC;
-    border-radius: 8px;
 }
 
-.summary-item .label {
-    font-weight: 600;
-    color: #64748B;
+.info-label {
+    font-weight: 500;
 }
 
-.summary-item .value {
-    font-weight: 700;
-    color: #1F2937;
+/* کارت BMI */
+.bmi-card {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: white;
 }
 
-/* BMI Display */
-.bmi-display {
+.bmi-card h3 {
+    color: white;
+    text-align: center;
+}
+
+.bmi-value-container {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 16px;
+    gap: 30px;
+    margin-bottom: 25px;
 }
 
-.bmi-circle {
-    width: 40px;
+.bmi-number {
+    font-size: 4rem;
+    font-weight: 700;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+}
+
+.bmi-details {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.bmi-status {
+    font-size: 1.3rem;
+    font-weight: 600;
+    background: rgba(255,255,255,0.3);
+    padding: 8px 16px;
+    border-radius: 8px;
+}
+
+.bmi-weight-diff {
+    font-size: 1.1rem;
+    font-weight: 500;
+    background: rgba(255,255,255,0.2);
+    padding: 6px 12px;
+    border-radius: 6px;
+}
+
+.bmi-bar {
+    height: 30px;
+    background: linear-gradient(to left, 
+        #ff4444 0%, 
+        #ff8844 25%, 
+        #44ff44 50%, 
+        #ffff44 75%, 
+        #4444ff 100%
+    );
+    border-radius: 15px;
+    position: relative;
+    margin-bottom: 10px;
+}
+
+.bmi-indicator {
+    position: absolute;
+    width: 4px;
     height: 40px;
-    border-radius: 50%;
-    background-color: #6366F1;
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-    animation: scaleIn 0.5s ease;
+    background: white;
+    top: -5px;
+    border-radius: 2px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    transition: left 0.5s ease;
 }
 
-@keyframes scaleIn {
-    from {
-        transform: scale(0);
-    }
-    to {
-        transform: scale(1);
-    }
+.bmi-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    opacity: 0.9;
 }
 
-.bmi-value {
-    font-size: 28px;
-    font-weight: 800;
-    color: #1F2937;
+/* کارت محدوده وزن سلامت */
+.healthy-weight-card {
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    color: white;
 }
 
-/* Calorie & Recommend Cards */
-.calorie-content,
-.recommend-content {
-    white-space: pre-line;
-    line-height: 2;
-}
-
-.recommend-content {
-    font-weight: 700;
-    text-align: right;
-}
-
-/* ========== Guide ========== */
-.guide-card {
-    max-width: 900px;
-    margin: 0 auto;
-}
-
-.guide-content {
-    text-align: right;
-    line-height: 2;
-}
-
-.guide-content p {
-    margin-bottom: 16px;
-}
-
-.guide-content ul {
-    list-style-position: inside;
-    margin: 16px 0;
-}
-
-.guide-content li {
-    margin-bottom: 12px;
-}
-
-.guide-footer {
+.healthy-weight-card h3 {
+    color: white;
     text-align: center;
+}
+
+.healthy-weight-range {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.weight-range-item {
+    background: rgba(255,255,255,0.2);
+    padding: 15px;
+    border-radius: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.range-label {
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.range-value {
+    font-size: 1.3rem;
     font-weight: 700;
-    color: #F97316;
-    margin-top: 24px;
 }
 
-/* ========== Responsive ========== */
+/* کارت‌های BMR و TDEE */
+.cards-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.metric-card {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    color: white;
+    text-align: center;
+}
+
+.metric-card h3 {
+    color: white;
+    font-size: 1.5rem;
+    margin-bottom: 5px;
+}
+
+.metric-description {
+    font-size: 0.9rem;
+    opacity: 0.9;
+    margin-bottom: 15px;
+}
+
+.metric-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.metric-unit {
+    font-size: 0.95rem;
+    opacity: 0.9;
+}
+
+/* کارت توصیه‌های کالری */
+.recommendations-card {
+    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+}
+
+.recommendation-item {
+    background: rgba(255,255,255,0.5);
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.recommendation-item:last-child {
+    margin-bottom: 0;
+}
+
+.rec-label {
+    font-size: 1.05rem;
+    font-weight: 500;
+    color: #333;
+}
+
+.rec-value {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #667eea;
+}
+
+.btn-pdf {
+    margin-top: 10px;
+    font-size: 1.2rem;
+}
+
+/* ریسپانسیو */
 @media (max-width: 768px) {
-    .form-grid {
+    .header h1 {
+        font-size: 2rem;
+    }
+    
+    .date-inputs {
         grid-template-columns: 1fr;
     }
     
-    .summary-grid {
+    .info-grid {
         grid-template-columns: 1fr;
     }
     
-    .button-group {
+    .cards-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .bmi-value-container {
         flex-direction: column;
+        gap: 15px;
     }
     
-    .btn {
-        width: 100%;
-    }
-    
-    .main-title {
-        font-size: 22px;
-    }
-}
-
-@media (min-width: 769px) {
-    .results-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-    
-    .bmi-card {
-        grid-column: 2;
-        grid-row: 1;
-    }
-    
-    .calorie-card,
-    .recommend-card {
-        grid-column: span 1;
-    }
-}
-
-@media (min-width: 1024px) {
-    .results-grid {
-        grid-template-columns: repeat(3, 1fr);
-    }
-    
-    .summary-card,
-    .bmi-card {
-        grid-column: span 1;
-    }
-    
-    .calorie-card {
-        grid-column: 1;
-    }
-    
-    .recommend-card {
-        grid-column: 2 / 4;
+    .bmi-number {
+        font-size: 3rem;
     }
 }
