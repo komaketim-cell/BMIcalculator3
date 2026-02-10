@@ -1,44 +1,364 @@
-@media (min-width: 769px) {
-    .results-grid {
-        grid-template-columns: repeat(2, 1fr);
+@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Vazirmatn', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+    direction: rtl;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.header {
+    text-align: center;
+    color: white;
+    margin-bottom: 30px;
+}
+
+.header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+}
+
+.header p {
+    font-size: 1.1rem;
+    opacity: 0.95;
+    font-weight: 400;
+}
+
+.page {
+    display: none;
+}
+
+.page.active {
+    display: block;
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
     }
-    
-    /* ردیف اول: خلاصه اطلاعات + BMI */
-    .summary-card {
-        grid-column: 1;
-        grid-row: 1;
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
-    
-    .bmi-card {
-        grid-column: 2;
-        grid-row: 1;
+}
+
+.card {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    margin-bottom: 20px;
+}
+
+.input-group {
+    margin-bottom: 25px;
+}
+
+.input-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #333;
+    font-size: 1rem;
+}
+
+.input-group input,
+.input-group select {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-family: 'Vazirmatn', sans-serif;
+    transition: all 0.3s ease;
+    background: #f8f9fa;
+}
+
+.input-group input:focus,
+.input-group select:focus {
+    outline: none;
+    border-color: #667eea;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.btn-primary,
+.btn-secondary {
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    font-family: 'Vazirmatn', sans-serif;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    margin-bottom: 10px;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+}
+
+.btn-secondary {
+    background: white;
+    color: #667eea;
+    border: 2px solid #667eea;
+}
+
+.btn-secondary:hover {
+    background: #f8f9fa;
+    transform: translateY(-2px);
+}
+
+.error {
+    background: #fee;
+    color: #c33;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-weight: 500;
+    display: none;
+}
+
+.error:not(:empty) {
+    display: block;
+}
+
+/* اطلاعات کلی */
+.info-card h3 {
+    color: #667eea;
+    margin-bottom: 20px;
+    font-size: 1.3rem;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.info-grid div {
+    padding: 12px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    font-size: 1rem;
+}
+
+.info-grid strong {
+    color: #555;
+    margin-left: 8px;
+}
+
+/* کارت BMI با نمایش وضعیت */
+.bmi-card h3 {
+    color: #667eea;
+    margin-bottom: 20px;
+    font-size: 1.3rem;
+    text-align: center;
+}
+
+.bmi-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap;
+}
+
+.bmi-circle {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: white;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    transition: all 0.3s ease;
+}
+
+.bmi-details {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    flex: 1;
+    min-width: 250px;
+}
+
+.bmi-status,
+.bmi-difference {
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    font-size: 1.1rem;
+}
+
+.bmi-status strong,
+.bmi-difference strong {
+    color: #555;
+    margin-left: 8px;
+}
+
+.bmi-status span {
+    font-weight: 600;
+    font-size: 1.2rem;
+}
+
+.bmi-difference span {
+    font-weight: 600;
+    color: #667eea;
+}
+
+/* کارت‌های نتیجه */
+.result-card {
+    text-align: center;
+}
+
+.result-card h3 {
+    color: #667eea;
+    margin-bottom: 8px;
+    font-size: 1.3rem;
+}
+
+.result-label {
+    color: #888;
+    font-size: 0.95rem;
+    margin-bottom: 15px;
+}
+
+.result-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #333;
+}
+
+.results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+/* توصیه‌های کالری */
+.calorie-recommendations {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.calorie-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.calorie-item:hover {
+    background: #e9ecef;
+    transform: translateX(-5px);
+}
+
+.calorie-label {
+    font-weight: 500;
+    color: #555;
+    font-size: 1rem;
+}
+
+.calorie-value {
+    font-weight: 700;
+    color: #667eea;
+    font-size: 1.2rem;
+}
+
+/* راهنما */
+#guide-page .card h3 {
+    color: #667eea;
+    margin: 25px 0 15px 0;
+    font-size: 1.3rem;
+}
+
+#guide-page .card h3:first-child {
+    margin-top: 0;
+}
+
+#guide-page .card p {
+    line-height: 1.8;
+    color: #555;
+    margin-bottom: 10px;
+}
+
+#guide-page .card ul {
+    margin: 15px 0 15px 20px;
+    line-height: 1.8;
+}
+
+#guide-page .card ul li {
+    margin-bottom: 8px;
+    color: #555;
+}
+
+#guide-page .card ul li strong {
+    color: #333;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .header h1 {
+        font-size: 1.8rem;
     }
-    
-    /* ردیف دوم: محدوده وزن سلامت + BMR */
-    .healthy-card {
-        grid-column: 1;
-        grid-row: 2;
+
+    .header p {
+        font-size: 1rem;
     }
-    
-    .bmr-card {
-        grid-column: 2;
-        grid-row: 2;
+
+    .card {
+        padding: 20px;
     }
-    
-    /* ردیف سوم: TDEE + توصیه‌های کالری */
-    .tdee-card {
-        grid-column: 1;
-        grid-row: 3;
+
+    .bmi-circle {
+        width: 120px;
+        height: 120px;
+        font-size: 2rem;
     }
-    
-    .calorie-card {
-        grid-column: 2;
-        grid-row: 3;
+
+    .result-value {
+        font-size: 1.5rem;
     }
-    
-    /* ردیف چهارم: توصیه‌های سلامت (تمام عرض) */
-    .recommend-card {
-        grid-column: 1 / -1;
-        grid-row: 4;
+
+    .calorie-item {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+    }
+
+    .info-grid {
+        grid-template-columns: 1fr;
     }
 }
