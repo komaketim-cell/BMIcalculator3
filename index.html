@@ -224,6 +224,23 @@ document.addEventListener('DOMContentLoaded', function() {
     if (yearSelect) {
         // پاک کردن گزینه‌های قبلی (اگر وجود دارد)
         yearSelect.innerHTML = '<option value="">سال</option>';
+        <select id="birth-year">
+    <option value="">سال</option>
+</select>
+
+<script>
+    (function() {
+        const yearSelect = document.getElementById('birth-year');
+        yearSelect.innerHTML = '<option value="">سال</option>';
+        
+        for (let y = 1450; y >= 1300; y--) {
+            const opt = document.createElement('option');
+            opt.value = y;
+            opt.textContent = y;
+            yearSelect.appendChild(opt);
+        }
+    })();
+</script>
         
         for (let y = 1450; y >= 1300; y--) {
             const opt = document.createElement('option');
