@@ -1,7 +1,7 @@
 /* =========================================
  * Core BMI / BMR / TDEE Logic
  * WHO LMS + Adult BMI
- * Jalali Age Calculation
+ * Exact Jalali Age
  * ========================================= */
 
 /* ---------- Motivation Quotes ---------- */
@@ -20,33 +20,42 @@ function showPage(id) {
 }
 
 function showError(msg) {
-    document.getElementById("error-message").textContent = msg;
+    const el = document.getElementById("error-message");
+    el.textContent = msg;
 }
 
 function clearError() {
     showError("");
 }
 
-/* ---------- Jalali Age Calculation ---------- */
+/* ---------- Exact Jalali Age ---------- */
 function calculateExactAge(jy, jm, jd) {
     const today = new Date();
     const gy = today.getFullYear();
     const gm = today.getMonth() + 1;
     const gd = today.getDate();
 
-    // تبدیل ساده جلالی به میلادی (کافی برای محاسبه سن)
-    const ageYears = gy - (jy + 621);
-    let ageMonths = ageYears * 12 + (gm - jm);
-    if (gd < jd) ageMonths -= 1;
+    // تبدیل ساده ولی پایدار
+    let by = jy + 621;
+    let bm = jm;
+    let bd = jd;
 
-    const years = Math.floor(ageMonths / 12);
-    const months = ageMonths % 12;
+    let years = gy - by;
+    let months = gm - bm;
+    let days = gd - bd;
 
-    return {
-        years,
-        months,
-        totalMonths: ageMonths
-    };
+    if (days < 0) {
+        days += 30;
+        months -= 1;
+    }
+    if (months < 0) {
+        months += 12;
+        years -= 1;
+    }
+
+    const totalMonths = years * 12 + months;
+
+    return { years, months, days, totalMonths };
 }
 
 /* ---------- BMI ---------- */
@@ -57,50 +66,38 @@ function calculateBMI(weight, heightCm) {
 
 /* ---------- WHO Z-Score ---------- */
 function calculateZScore(bmi, L, M, S) {
-    if (L === 0) {
-        return Math.log(bmi / M) / S;
-    }
+    if (L === 0) return Math.log(bmi / M) / S;
     return (Math.pow(bmi / M, L) - 1) / (L * S);
 }
 
 function classifyWHO(z) {
-    if (z < -3) return { label: "لاغری شدید", color: "#EF4444" };
-    if (z < -2) return { label: "لاغری", color: "#F97316" };
-    if (z <= 1) return { label: "نرمال", color: "#22C55E" };
-    if (z <= 2) return { label: "اضافه‌وزن", color: "#EAB308" };
-    return { label: "چاقی", color: "#DC2626" };
+    if (z < -3) return { label: "لاغری شدید", color: "#EF4444", zMin: -2 };
+    if (z < -2) return { label: "لاغری", color: "#F97316", zMin: -2 };
+    if (z <= 1) return { label: "نرمال", color: "#22C55E", zMin: -2 };
+    if (z <= 2) return { label: "اضافه‌وزن", color: "#EAB308", zMin: 1 };
+    return { label: "چاقی", color: "#DC2626", zMin: 1 };
 }
 
 /* ---------- Adult BMI ---------- */
 function classifyAdultBMI(bmi) {
-    if (bmi < 18.5) return { label: "کم‌وزن", color: "#F97316" };
-    if (bmi < 25) return { label: "نرمال", color: "#22C55E" };
-    if (bmi < 30) return { label: "اضافه‌وزن", color: "#EAB308" };
-    return { label: "چاقی", color: "#DC2626" };
+    if (bmi < 18.5) return { label: "کم‌وزن", color: "#F97316", target: 18.5 };
+    if (bmi < 25) return { label: "نرمال", color: "#22C55E", target: 24.9 };
+    if (bmi < 30) return { label: "اضافه‌وزن", color: "#EAB308", target: 24.9 };
+    return { label: "چاقی", color: "#DC2626", target: 24.9 };
 }
 
 /* ---------- BMR & TDEE ---------- */
 function calculateBMR(gender, weight, height, ageYears) {
-    if (gender === "مرد") {
-        return 10 * weight + 6.25 * height - 5 * ageYears + 5;
-    }
-    return 10 * weight + 6.25 * height - 5 * ageYears - 161;
+    return gender === "مرد"
+        ? 10 * weight + 6.25 * height - 5 * ageYears + 5
+        : 10 * weight + 6.25 * height - 5 * ageYears - 161;
 }
 
 function calculateTDEE(bmr, activity) {
     return bmr * activity;
 }
 
-/* ---------- Healthy Weight Range ---------- */
-function healthyAdultRange(heightCm) {
-    const h = heightCm / 100;
-    return {
-        min: 18.5 * h * h,
-        max: 24.9 * h * h
-    };
-}
-
-/* ---------- Main Calculation ---------- */
+/* ---------- Main ---------- */
 function calculateAndGo() {
     clearError();
 
@@ -119,52 +116,90 @@ function calculateAndGo() {
 
     const age = calculateExactAge(jy, jm, jd);
     const bmi = calculateBMI(weight, height);
+    const h = height / 100;
 
-    let bmiResult, healthyText;
+    let statusText = "";
+    let diffText = "";
+    let healthyText = "";
+    let color = "";
 
+    /* ---------- WHO Children & Teens ---------- */
     if (age.totalMonths >= 60 && age.totalMonths <= 228) {
         const lms = getLMS(gender, age.totalMonths);
         if (!lms) {
             showError("داده WHO برای این سن موجود نیست.");
             return;
         }
-        const z = calculateZScore(bmi, lms.L, lms.M, lms.S);
-        bmiResult = classifyWHO(z);
 
-        const minBMI = lms.M * Math.pow(1 + lms.L * lms.S * (-2), 1 / lms.L);
-        const maxBMI = lms.M * Math.pow(1 + lms.L * lms.S * (1), 1 / lms.L);
-        const h = height / 100;
-        healthyText = `${(minBMI * h * h).toFixed(1)} تا ${(maxBMI * h * h).toFixed(1)} کیلوگرم`;
-    } else {
-        bmiResult = classifyAdultBMI(bmi);
-        const r = healthyAdultRange(height);
-        healthyText = `${r.min.toFixed(1)} تا ${r.max.toFixed(1)} کیلوگرم`;
+        const z = calculateZScore(bmi, lms.L, lms.M, lms.S);
+        const cls = classifyWHO(z);
+        color = cls.color;
+        statusText = cls.label;
+
+        const healthyMinBMI =
+            lms.M * Math.pow(1 + lms.L * lms.S * (-2), 1 / lms.L);
+        const healthyMaxBMI =
+            lms.M * Math.pow(1 + lms.L * lms.S * (1), 1 / lms.L);
+
+        const healthyMinW = healthyMinBMI * h * h;
+        const healthyMaxW = healthyMaxBMI * h * h;
+
+        healthyText = `${healthyMinW.toFixed(1)} تا ${healthyMaxW.toFixed(1)} کیلوگرم`;
+
+        if (bmi < healthyMinBMI) {
+            diffText = `کمبود وزن: ${(healthyMinW - weight).toFixed(1)} کیلوگرم`;
+        } else if (bmi > healthyMaxBMI) {
+            diffText = `اضافه وزن: ${(weight - healthyMaxW).toFixed(1)} کیلوگرم`;
+        } else {
+            diffText = "در محدوده سالم قرار دارید ✅";
+        }
+    }
+
+    /* ---------- Adults ---------- */
+    else {
+        const cls = classifyAdultBMI(bmi);
+        color = cls.color;
+        statusText = cls.label;
+
+        const targetWeight = cls.target * h * h;
+        const minW = 18.5 * h * h;
+        const maxW = 24.9 * h * h;
+        healthyText = `${minW.toFixed(1)} تا ${maxW.toFixed(1)} کیلوگرم`;
+
+        if (bmi < 18.5) {
+            diffText = `کمبود وزن: ${(targetWeight - weight).toFixed(1)} کیلوگرم`;
+        } else if (bmi > 24.9) {
+            diffText = `اضافه وزن: ${(weight - targetWeight).toFixed(1)} کیلوگرم`;
+        } else {
+            diffText = "در محدوده سالم قرار دارید ✅";
+        }
     }
 
     const bmr = calculateBMR(gender, weight, height, age.years);
     const tdee = calculateTDEE(bmr, activity);
 
-    /* ---------- UI Update ---------- */
+    /* ---------- UI ---------- */
     document.getElementById("r-gender").textContent = gender;
     document.getElementById("r-height").textContent = `${height} سانتی‌متر`;
     document.getElementById("r-weight").textContent = `${weight} کیلوگرم`;
-    document.getElementById("r-age").textContent = `${age.years} سال و ${age.months} ماه`;
+    document.getElementById("r-age").textContent =
+        `${age.years} سال، ${age.months} ماه و ${age.days} روز`;
 
     document.getElementById("bmi-value").textContent = bmi.toFixed(2);
-    document.getElementById("bmi-circle").style.backgroundColor = bmiResult.color;
+    document.getElementById("bmi-circle").style.backgroundColor = color;
+    document.getElementById("bmi-status-text").textContent = statusText;
+    document.getElementById("bmi-difference-text").textContent = diffText;
 
     document.getElementById("r-healthy").textContent = healthyText;
-    document.getElementById("r-bmr").textContent = `${Math.round(bmr)} کیلوکالری`;
-    document.getElementById("r-tdee").textContent = `${Math.round(tdee)} کیلوکالری`;
+    document.getElementById("r-bmr").textContent = `${Math.round(bmr)} kcal`;
+    document.getElementById("r-tdee").textContent = `${Math.round(tdee)} kcal`;
 
-    document.getElementById("r-calorie").textContent =
-        `برای کاهش وزن: ${Math.round(tdee - 500)}\n` +
-        `برای حفظ وزن: ${Math.round(tdee)}\n` +
-        `برای افزایش وزن: ${Math.round(tdee + 300)}`;
-
-    document.getElementById("r-recommend").textContent =
-        `وضعیت شما: ${bmiResult.label}\n` +
-        `تمرکز روی تغذیه متعادل، پروتئین کافی و فعالیت منظم توصیه می‌شود.`;
+    document.getElementById("maintain-calories").textContent =
+        `${Math.round(tdee)} kcal`;
+    document.getElementById("gain-calories").textContent =
+        `${Math.round(tdee + 300)} kcal`;
+    document.getElementById("loss-calories").textContent =
+        `${Math.round(tdee - 500)} kcal`;
 
     showPage("results-page");
 }
