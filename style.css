@@ -1,0 +1,437 @@
+/* ========== Reset & Base ========== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Vazirmatn', 'Tahoma', 'Arial', sans-serif;
+    background: linear-gradient(135deg, #F7F8FA 0%, #E6E8EF 100%);
+    color: #1F2937;
+    direction: rtl;
+    line-height: 1.6;
+    min-height: 100vh;
+}
+
+/* ========== Container ========== */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* ========== Pages ========== */
+.page {
+    display: none;
+    animation: fadeIn 0.5s ease;
+}
+
+.page.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ========== Typography ========== */
+.main-title {
+    text-align: center;
+    font-size: 28px;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 24px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* ========== Cards ========== */
+.card {
+    background-color: #FFFFFF;
+    border: 1px solid #E6E8EF;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    border-color: #D4D8E4;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+}
+
+/* Card Accents */
+.summary-card { border-right: 4px solid #64748B; }
+.bmi-card { border-right: 4px solid #6366F1; }
+.healthy-card { border-right: 4px solid #14B8A6; }
+.bmr-card { border-right: 4px solid #F59E0B; }
+.tdee-card { border-right: 4px solid #3B82F6; }
+.calorie-card { border-right: 4px solid #F43F5E; }
+.recommend-card { border-right: 4px solid #FACC15; }
+.guide-card { border-right: 4px solid #64748B; }
+
+.card-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.card-icon {
+    font-size: 24px;
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background-color: #F1F5F9;
+}
+
+.card-header h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.card-content {
+    text-align: center;
+    font-size: 15px;
+    font-weight: 500;
+    color: #1F2937;
+    line-height: 1.8;
+}
+
+/* ========== Form ========== */
+.form-card {
+    max-width: 800px;
+    margin: 0 auto 24px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-group label {
+    margin-bottom: 6px;
+    font-weight: 600;
+    font-size: 14px;
+    color: #374151;
+}
+
+.form-group input,
+.form-group select {
+    padding: 10px 14px;
+    border: 1px solid #DADCE5;
+    border-radius: 8px;
+    font-size: 15px;
+    font-family: inherit;
+    background: #FFFFFF;
+    transition: all 0.2s;
+    text-align: center;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #5B8DEF;
+    box-shadow: 0 0 0 3px rgba(91, 141, 239, 0.1);
+}
+
+/* ========== Buttons ========== */
+.button-group {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+.btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-primary {
+    background-color: #4F46E5;
+    color: #FFFFFF;
+}
+
+.btn-primary:hover {
+    background-color: #4338CA;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+}
+
+.btn-primary:active {
+    background-color: #3730A3;
+    transform: translateY(0);
+}
+
+.btn-secondary {
+    background-color: transparent;
+    color: #334155;
+    border: 1px solid #CBD5E1;
+}
+
+.btn-secondary:hover {
+    background-color: #F1F5F9;
+    border-color: #94A3B8;
+}
+
+.btn-secondary:active {
+    background-color: #E2E8F0;
+    border-color: #64748B;
+}
+
+/* ========== Error Message ========== */
+.error-message {
+    color: #EF4444;
+    font-weight: 600;
+    font-size: 14px;
+    text-align: center;
+    margin-top: 12px;
+    min-height: 20px;
+}
+
+/* ========== Motivation ========== */
+.motivation-text {
+    text-align: center;
+    font-size: 18px;
+    font-weight: 700;
+    color: #E11D48;
+    margin: 30px 0;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+}
+
+/* ========== Footer ========== */
+.footer {
+    text-align: center;
+    margin-top: 40px;
+}
+
+.footer-text-fa {
+    font-size: 17px;
+    font-weight: 800;
+    color: #F96E2A;
+    margin-bottom: 8px;
+}
+
+.footer-text-en {
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.footer-text-en a {
+    color: #F96E2A;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.footer-text-en a:hover {
+    color: #DC5A1F;
+    text-decoration: underline;
+}
+
+/* ========== Results Grid ========== */
+.results-grid {
+    display: grid;
+    gap: 16px;
+    margin-bottom: 30px;
+}
+
+/* Summary Card */
+.summary-card {
+    grid-column: 1 / -1;
+}
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    background: #F8FAFC;
+    border-radius: 8px;
+}
+
+.summary-item .label {
+    font-weight: 600;
+    color: #64748B;
+}
+
+.summary-item .value {
+    font-weight: 700;
+    color: #1F2937;
+}
+
+/* BMI Display */
+.bmi-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+}
+
+.bmi-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #6366F1;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    animation: scaleIn 0.5s ease;
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0);
+    }
+    to {
+        transform: scale(1);
+    }
+}
+
+.bmi-value {
+    font-size: 28px;
+    font-weight: 800;
+    color: #1F2937;
+}
+
+/* Calorie & Recommend Cards */
+.calorie-content,
+.recommend-content {
+    white-space: pre-line;
+    line-height: 2;
+}
+
+.recommend-content {
+    font-weight: 700;
+    text-align: right;
+}
+
+/* ========== Guide ========== */
+.guide-card {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.guide-content {
+    text-align: right;
+    line-height: 2;
+}
+
+.guide-content p {
+    margin-bottom: 16px;
+}
+
+.guide-content ul {
+    list-style-position: inside;
+    margin: 16px 0;
+}
+
+.guide-content li {
+    margin-bottom: 12px;
+}
+
+.guide-footer {
+    text-align: center;
+    font-weight: 700;
+    color: #F97316;
+    margin-top: 24px;
+}
+
+/* ========== Responsive ========== */
+@media (max-width: 768px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .summary-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .button-group {
+        flex-direction: column;
+    }
+    
+    .btn {
+        width: 100%;
+    }
+    
+    .main-title {
+        font-size: 22px;
+    }
+}
+
+@media (min-width: 769px) {
+    .results-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .bmi-card {
+        grid-column: 2;
+        grid-row: 1;
+    }
+    
+    .calorie-card,
+    .recommend-card {
+        grid-column: span 1;
+    }
+}
+
+@media (min-width: 1024px) {
+    .results-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .summary-card,
+    .bmi-card {
+        grid-column: span 1;
+    }
+    
+    .calorie-card {
+        grid-column: 1;
+    }
+    
+    .recommend-card {
+        grid-column: 2 / 4;
+    }
+}
