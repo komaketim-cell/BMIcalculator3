@@ -1,7 +1,7 @@
 /* =========================================
  * Core BMI / BMR / TDEE Logic
  * WHO LMS + Adult BMI
- * Exact Jalali Age
+ * Exact Jalali Age with Leap Year Support
  * ========================================= */
 
 /* ---------- تاریخ جاری شمسی ---------- */
@@ -37,31 +37,96 @@ function clearError() {
     showError("");
 }
 
-/* ---------- Exact Jalali Age ---------- */
-function calculateExactAge(jy, jm, jd) {
-    const today = new Date();
-    const gy = today.getFullYear();
-    const gm = today.getMonth() + 1;
-    const gd = today.getDate();
+/* ==========================================
+   تابع تشخیص سال کبیسه شمسی
+   ========================================== */
+function isJalaliLeapYear(year) {
+    // الگوریتم 33-ساله تقویم جلالی
+    const breaks = [1, 5, 9, 13, 17, 22, 26, 30];
+    const modulo = year % 33;
+    return breaks.includes(modulo);
+}
 
-    // تبدیل ساده ولی پایدار
-    let by = jy + 621;
-    let bm = jm;
-    let bd = jd;
+/* ==========================================
+   تابع تعداد روزهای ماه شمسی
+   ========================================== */
+function getJalaliMonthDays(year, month) {
+    if (month >= 1 && month <= 6) {
+        return 31; // فروردین تا شهریور
+    } else if (month >= 7 && month <= 11) {
+        return 30; // مهر تا بهمن
+    } else if (month === 12) {
+        return isJalaliLeapYear(year) ? 30 : 29; // اسفند
+    }
+    return 0;
+}
 
-    let years = gy - by;
-    let months = gm - bm;
-    let days = gd - bd;
+/* ==========================================
+   اعتبارسنجی تاریخ تولد با کبیسه
+   ========================================== */
+function validateBirthDate(year, month, day) {
+    // بررسی محدوده سال
+    if (year < 1300 || year > CURRENT_JALALI_YEAR) {
+        return { 
+            valid: false, 
+            error: `❌ سال تولد باید بین ۱۳۰۰ تا ${CURRENT_JALALI_YEAR} باشد.` 
+        };
+    }
 
+    // بررسی محدوده ماه
+    if (month < 1 || month > 12) {
+        return { valid: false, error: '❌ ماه تولد نامعتبر است.' };
+    }
+
+    // بررسی روز با توجه به کبیسه
+    const maxDays = getJalaliMonthDays(year, month);
+    if (day < 1 || day > maxDays) {
+        if (month === 12 && day === 30 && !isJalaliLeapYear(year)) {
+            return { 
+                valid: false, 
+                error: `❌ سال ${year} کبیسه نیست - اسفند فقط ۲۹ روز دارد.` 
+            };
+        }
+        return { 
+            valid: false, 
+            error: `❌ روز ${day} برای ماه ${month} نامعتبر است (حداکثر: ${maxDays} روز).` 
+        };
+    }
+
+    // بررسی تاریخ آینده
+    if (year === CURRENT_JALALI_YEAR) {
+        if (month > CURRENT_JALALI_MONTH || 
+            (month === CURRENT_JALALI_MONTH && day > CURRENT_JALALI_DAY)) {
+            return { valid: false, error: '❌ تاریخ تولد نمی‌تواند در آینده باشد.' };
+        }
+    }
+
+    return { valid: true };
+}
+
+/* ==========================================
+   محاسبه سن دقیق با در نظر گرفتن کبیسه
+   ========================================== */
+function calculateExactAge(birthYear, birthMonth, birthDay) {
+    let years = CURRENT_JALALI_YEAR - birthYear;
+    let months = CURRENT_JALALI_MONTH - birthMonth;
+    let days = CURRENT_JALALI_DAY - birthDay;
+
+    // تنظیم روزها
     if (days < 0) {
-        days += 30;
-        months -= 1;
-    }
-    if (months < 0) {
-        months += 12;
-        years -= 1;
+        months--;
+        const prevMonth = CURRENT_JALALI_MONTH === 1 ? 12 : CURRENT_JALALI_MONTH - 1;
+        const prevYear = CURRENT_JALALI_MONTH === 1 ? CURRENT_JALALI_YEAR - 1 : CURRENT_JALALI_YEAR;
+        days += getJalaliMonthDays(prevYear, prevMonth);
     }
 
+    // تنظیم ماه‌ها
+    if (months < 0) {
+        years--;
+        months += 12;
+    }
+
+    // محاسبه کل ماه‌ها (برای WHO)
     const totalMonths = years * 12 + months;
 
     return { years, months, days, totalMonths };
@@ -173,31 +238,29 @@ function calculateAndGo() {
     const activity = +document.getElementById("activity").value;
 
     if (!jy || !jm || !jd || !height || !weight) {
-        showError("لطفاً همه فیلدها را کامل وارد کنید.");
+        showError("❌ لطفاً همه فیلدها را کامل وارد کنید.");
         return;
     }
 
-    /* ---------- اعتبارسنجی تاریخ تولد ---------- */
-    if (jy > CURRENT_JALALI_YEAR) {
-        showError(`❌ سال تولد نمی‌تواند بیشتر از سال جاری (${CURRENT_JALALI_YEAR}) باشد!`);
+    /* ---------- اعتبارسنجی تاریخ تولد با کبیسه ---------- */
+    const validation = validateBirthDate(jy, jm, jd);
+    if (!validation.valid) {
+        showError(validation.error);
         return;
     }
 
-    if (jy === CURRENT_JALALI_YEAR && jm > CURRENT_JALALI_MONTH) {
-        showError(`❌ ماه تولد نمی‌تواند بیشتر از ماه جاری (${CURRENT_JALALI_MONTH}) باشد!`);
-        return;
-    }
-
-    if (jy === CURRENT_JALALI_YEAR && jm === CURRENT_JALALI_MONTH && jd > CURRENT_JALALI_DAY) {
-        showError(`❌ روز تولد نمی‌تواند بیشتر از امروز (${CURRENT_JALALI_DAY}) باشد!`);
-        return;
-    }
-
+    /* ---------- محاسبه سن دقیق ---------- */
     const age = calculateExactAge(jy, jm, jd);
 
     /* ---------- بررسی سن منفی ---------- */
     if (age.years < 0 || age.totalMonths < 0) {
         showError("❌ تاریخ تولد نامعتبر است! لطفاً یک تاریخ گذشته وارد کنید.");
+        return;
+    }
+
+    /* ---------- بررسی سن کمتر از 5 سال ---------- */
+    if (age.totalMonths < 60) {
+        showError("❌ این ابزار برای سنین ۵ سال به بالا طراحی شده است.");
         return;
     }
 
@@ -209,11 +272,11 @@ function calculateAndGo() {
     let healthyText = "";
     let color = "";
 
-    /* ---------- WHO Children & Teens ---------- */
+    /* ---------- WHO Children & Teens (5-19 سال) ---------- */
     if (age.totalMonths >= 60 && age.totalMonths <= 228) {
         const lms = getLMS(gender, age.totalMonths);
         if (!lms) {
-            showError("داده WHO برای این سن موجود نیست.");
+            showError("❌ داده WHO برای این سن موجود نیست.");
             return;
         }
 
@@ -241,7 +304,7 @@ function calculateAndGo() {
         }
     }
 
-    /* ---------- Adults ---------- */
+    /* ---------- Adults (19+ سال) ---------- */
     else {
         const cls = classifyAdultBMI(bmi);
         color = cls.color;
@@ -268,6 +331,8 @@ function calculateAndGo() {
     document.getElementById("r-gender").textContent = gender;
     document.getElementById("r-height").textContent = `${height} سانتی‌متر`;
     document.getElementById("r-weight").textContent = `${weight} کیلوگرم`;
+    
+    // نمایش سن دقیق (سال، ماه، روز)
     document.getElementById("r-age").textContent =
         `${age.years} سال، ${age.months} ماه و ${age.days} روز`;
 
