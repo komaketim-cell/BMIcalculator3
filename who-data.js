@@ -3,9 +3,11 @@
  * BMI-for-age: 5 to 19 years
  * LMS Parameters (L, M, S)
  * Source: Original Python implementation
+ * 
+ * ✅ Updated: Array structure for interpolation
  * ======================================== */
 
-const WHO_BOYS_LMS = {
+const WHO_BOYS_LMS_RAW = {
     60: { L: -2.011, M: 15.264, S: 0.080 },
     61: { L: -2.004, M: 15.299, S: 0.080 },
     62: { L: -1.997, M: 15.334, S: 0.080 },
@@ -177,7 +179,7 @@ const WHO_BOYS_LMS = {
     228: { L: -0.313, M: 21.940, S: 0.134 }
 };
 
-const WHO_GIRLS_LMS = {
+const WHO_GIRLS_LMS_RAW = {
     60: { L: -1.906, M: 15.244, S: 0.085 },
     61: { L: -1.899, M: 15.277, S: 0.085 },
     62: { L: -1.892, M: 15.310, S: 0.086 },
@@ -349,55 +351,24 @@ const WHO_GIRLS_LMS = {
     228: { L: -0.383, M: 22.452, S: 0.144 }
 };
 
-const WHO_MIN_MONTH = 60;
-const WHO_MAX_MONTH = 228;
+// ✅ تبدیل Object به Array برای Interpolation
+const WHO_DATA = {
+    boys: Object.entries(WHO_BOYS_LMS_RAW)
+        .map(([age, vals]) => ({ age: Number(age), ...vals }))
+        .sort((a, b) => a.age - b.age),
+    
+    girls: Object.entries(WHO_GIRLS_LMS_RAW)
+        .map(([age, vals]) => ({ age: Number(age), ...vals }))
+        .sort((a, b) => a.age - b.age)
+};
 
 /**
- * درون‌یابی خطی بین دو سن مجاور برای پارامترهای LMS
- * @param {Object} lower
- * @param {Object} upper
- * @param {number} ratio
- * @returns {{L:number,M:number,S:number}}
+ * ✅ Legacy function: دریافت LMS برای سن دقیق (بدون interpolation)
+ * @param {string} gender - "مرد" یا "زن"
+ * @param {number} ageMonths - سن به ماه (60 تا 228)
+ * @returns {Object|null} پارامترهای {L, M, S} یا null
  */
-function interpolateLMS(lower, upper, ratio) {
-    return {
-        L: lower.L + (upper.L - lower.L) * ratio,
-        M: lower.M + (upper.M - lower.M) * ratio,
-        S: lower.S + (upper.S - lower.S) * ratio,
-    };
-}
-
-/**
- * دریافت پارامترهای LMS با درون‌یابی سن دقیق
- * @param {"مرد"|"زن"} gender
- * @param {number} ageMonthsExact
- * @returns {{L:number,M:number,S:number}|null}
- */
-function getLMS(gender, ageMonthsExact) {
-    const table = gender === "مرد" ? WHO_BOYS_LMS : WHO_GIRLS_LMS;
-    if (!Number.isFinite(ageMonthsExact)) return null;
-
-    const age = Math.max(WHO_MIN_MONTH, Math.min(WHO_MAX_MONTH, ageMonthsExact));
-    const lower = Math.floor(age);
-    const upper = Math.ceil(age);
-
-    const lowerParams = table[lower];
-    const upperParams = table[upper];
-
-    if (!lowerParams || !upperParams) {
-        return null;
-    }
-
-    if (lower === upper) {
-        return { ...lowerParams };
-    }
-
-    const ratio = (age - lower) / (upper - lower);
-    return interpolateLMS(lowerParams, upperParams, ratio);
-}
-
-if (typeof window !== "undefined") {
-    window.WHO_MIN_MONTH = WHO_MIN_MONTH;
-    window.WHO_MAX_MONTH = WHO_MAX_MONTH;
-    window.getLMS = getLMS;
+function getLMS(gender, ageMonths) {
+    const table = gender === "مرد" ? WHO_BOYS_LMS_RAW : WHO_GIRLS_LMS_RAW;
+    return table[ageMonths] || null;
 }
