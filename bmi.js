@@ -1,68 +1,3 @@
-// =============================================
-// توابع کمکی UI
-// =============================================
-
-/**
- * نمایش صفحه مشخص شده
- */
-function showPage(pageId) {
-    const pages = document.querySelectorAll('.page');
-    pages.forEach(page => page.classList.remove('active'));
-    document.getElementById(pageId).classList.add('active');
-}
-
-/**
- * نمایش خطا
- */
-function showError(message) {
-    const errorDiv = document.getElementById('error-message');
-    errorDiv.textContent = message;
-    errorDiv.style.display = 'block';
-    setTimeout(() => {
-        errorDiv.style.display = 'none';
-    }, 3000);
-}
-
-// =============================================
-// توابع محاسبات تاریخ شمسی
-// =============================================
-
-/**
- * تعداد روزهای ماه جلالی
- */
-function daysInJalaliMonth(jy, jm) {
-    if (jm <= 6) return 31;
-    if (jm <= 11) return 30;
-    // اسفند: بررسی کبیسه
-    return isJalaliLeapYear(jy) ? 30 : 29;
-}
-
-/**
- * بررسی سال کبیسه جلالی
- */
-function isJalaliLeapYear(jy) {
-    const breaks = [1, 5, 9, 13, 17, 22, 26, 30];
-    const cycle = jy % 128;
-    return breaks.some(b => cycle === b || cycle === b + 33 || cycle === b + 66 || cycle === b + 99);
-}
-
-/**
- * اعتبارسنجی تاریخ شمسی
- */
-function isValidJalaliDate(year, month, day) {
-    if (year < 1300 || year > 1450) return false;
-    if (month < 1 || month > 12) return false;
-    
-    const maxDay = daysInJalaliMonth(year, month);
-    if (day < 1 || day > maxDay) return false;
-    
-    return true;
-}
-
-// =============================================
-// محاسبه سن
-// =============================================
-
 /**
  * محاسبه سن دقیق بر حسب ماه (اعشاری)
  * @param {number} birthJY - سال تولد جلالی
@@ -95,9 +30,24 @@ function calculateAgeInMonths(birthJY, birthJM, birthJD, todayJY, todayJM, today
     return totalMonths;
 }
 
-// =============================================
-// دریافت پارامترهای LMS با درون‌یابی
-// =============================================
+/**
+ * تعداد روزهای ماه جلالی
+ */
+function daysInJalaliMonth(jy, jm) {
+    if (jm <= 6) return 31;
+    if (jm <= 11) return 30;
+    // اسفند: بررسی کبیسه
+    return isJalaliLeapYear(jy) ? 30 : 29;
+}
+
+/**
+ * بررسی سال کبیسه جلالی
+ */
+function isJalaliLeapYear(jy) {
+    const breaks = [1, 5, 9, 13, 17, 22, 26, 30];
+    const cycle = jy % 128;
+    return breaks.some(b => cycle === b || cycle === b + 33 || cycle === b + 66 || cycle === b + 99);
+}
 
 /**
  * دریافت پارامترهای LMS با درون‌یابی خطی
@@ -156,18 +106,6 @@ function getLMSValues(ageMonths, gender) {
     };
 }
 
-// =============================================
-// محاسبات BMI و Z-Score
-// =============================================
-
-/**
- * محاسبه BMI
- */
-function calculateBMI(weight, height) {
-    const heightM = height / 100;
-    return weight / (heightM * heightM);
-}
-
 /**
  * محاسبه Z-Score از فرمول LMS
  */
@@ -176,16 +114,6 @@ function calculateZScore(value, L, M, S) {
         return Math.log(value / M) / S;
     }
     return (Math.pow(value / M, L) - 1) / (L * S);
-}
-
-/**
- * محاسبه BMI از Z-Score (معکوس فرمول LMS)
- */
-function calculateBMIFromZ(z, L, M, S) {
-    if (L === 0) {
-        return M * Math.exp(z * S);
-    }
-    return M * Math.pow(1 + L * S * z, 1 / L);
 }
 
 /**
@@ -198,6 +126,31 @@ function classifyZScore(z) {
     if (z <= 2) return "اضافه وزن";
     if (z <= 3) return "چاقی";
     return "چاقی شدید";
+}
+
+/**
+ * محاسبه BMI
+ */
+function calculateBMI(weight, height) {
+    const heightM = height / 100;
+    return weight / (heightM * heightM);
+}
+
+/**
+ * محاسبه BMR (Mifflin-St Jeor)
+ */
+function calculateBMR(weight, height, ageYears, gender) {
+    if (gender === "مرد") {
+        return 10 * weight + 6.25 * height - 5 * ageYears + 5;
+    }
+    return 10 * weight + 6.25 * height - 5 * ageYears - 161;
+}
+
+/**
+ * محاسبه TDEE
+ */
+function calculateTDEE(bmr, activityFactor) {
+    return bmr * activityFactor;
 }
 
 /**
@@ -217,30 +170,15 @@ function calculateHealthyWeightRange(height, ageMonths, gender) {
     return { min: weightMin, max: weightMax };
 }
 
-// =============================================
-// محاسبات BMR و TDEE
-// =============================================
-
 /**
- * محاسبه BMR (Mifflin-St Jeor)
+ * محاسبه BMI از Z-Score (معکوس فرمول LMS)
  */
-function calculateBMR(weight, height, ageYears, gender) {
-    if (gender === "مرد") {
-        return 10 * weight + 6.25 * height - 5 * ageYears + 5;
+function calculateBMIFromZ(z, L, M, S) {
+    if (L === 0) {
+        return M * Math.exp(z * S);
     }
-    return 10 * weight + 6.25 * height - 5 * ageYears - 161;
+    return M * Math.pow(1 + L * S * z, 1 / L);
 }
-
-/**
- * محاسبه TDEE
- */
-function calculateTDEE(bmr, activityFactor) {
-    return bmr * activityFactor;
-}
-
-// =============================================
-// تابع اصلی محاسبه
-// =============================================
 
 /**
  * تابع اصلی محاسبه
@@ -257,22 +195,6 @@ function performCalculation() {
     const birthMonth = parseInt(document.getElementById('birth-month').value);
     const birthDay = parseInt(document.getElementById('birth-day').value);
 
-    // اعتبارسنجی ورودی‌ها
-    if (isNaN(weight) || weight <= 0 || weight > 300) {
-        showError('لطفاً وزن معتبری وارد کنید (بین 1 تا 300 کیلوگرم)');
-        return;
-    }
-
-    if (isNaN(height) || height <= 0 || height > 250) {
-        showError('لطفاً قد معتبری وارد کنید (بین 1 تا 250 سانتی‌متر)');
-        return;
-    }
-
-    if (!isValidJalaliDate(birthYear, birthMonth, birthDay)) {
-        showError('تاریخ تولد نامعتبر است');
-        return;
-    }
-
     // تاریخ امروز (جلالی - باید از API یا تابع تبدیل استفاده شود)
     // فرض: تاریخ امروز 1404/11/22
     const todayYear = 1404;
@@ -284,12 +206,6 @@ function performCalculation() {
         birthYear, birthMonth, birthDay,
         todayYear, todayMonth, todayDay
     );
-    
-    if (ageMonths < 0) {
-        showError('تاریخ تولد نمی‌تواند در آینده باشد');
-        return;
-    }
-
     const ageYears = ageMonths / 12;
 
     // محاسبه BMI
@@ -341,12 +257,7 @@ function performCalculation() {
 
     // نمایش نتایج
     displayResults(result);
-    showPage('results-page');
 }
-
-// =============================================
-// نمایش نتایج
-// =============================================
 
 /**
  * نمایش نتایج در صفحه
@@ -360,15 +271,6 @@ function displayResults(result) {
         document.getElementById('zscore-value').textContent = result.zScore;
         document.getElementById('healthy-range').textContent = 
             `${result.healthyWeightMin} - ${result.healthyWeightMax} کیلوگرم`;
-        
-        // نمایش پارامترهای LMS (اختیاری)
-        if (result.L && result.M && result.S) {
-            const lmsInfo = document.getElementById('lms-info');
-            if (lmsInfo) {
-                lmsInfo.textContent = `L: ${result.L}, M: ${result.M}, S: ${result.S}`;
-                lmsInfo.style.display = 'block';
-            }
-        }
     } else {
         document.getElementById('zscore-section').style.display = 'none';
     }
@@ -379,40 +281,11 @@ function displayResults(result) {
     document.getElementById('cut-500').textContent = result.cut500;
     document.getElementById('bulk-250').textContent = result.bulk250;
     document.getElementById('bulk-500').textContent = result.bulk500;
+
+    document.getElementById('results').style.display = 'block';
 }
 
-// =============================================
-// Event Listeners
-// =============================================
-
-// Event Listener برای دکمه محاسبه
-document.addEventListener('DOMContentLoaded', function () {
-    const calculateBtn = document.getElementById('calculateBtn');
-
-    if (!calculateBtn) {
-        console.error('❌ calculateBtn پیدا نشد');
-        return;
-    }
-
-    calculateBtn.addEventListener('click', calculateBMI);
-    console.log('✅ دکمه محاسبه متصل شد');
-    }
-
-    // Event Listener برای دکمه راهنما
-    const guideBtn = document.getElementById('guide-btn');
-    if (guideBtn) {
-        guideBtn.addEventListener('click', () => showPage('guide-page'));
-    }
-
-    // Event Listener برای دکمه بازگشت از راهنما
-    const backFromGuideBtn = document.getElementById('back-from-guide');
-    if (backFromGuideBtn) {
-        backFromGuideBtn.addEventListener('click', () => showPage('input-page'));
-    }
-
-    // Event Listener برای دکمه محاسبه مجدد
-    const recalculateBtn = document.getElementById('recalculate-btn');
-    if (recalculateBtn) {
-        recalculateBtn.addEventListener('click', () => showPage('input-page'));
-    }
+// Event Listener - اصلاح شده برای رفع مشکل دکمه محاسبه
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('calculate-btn').addEventListener('click', performCalculation);
 });
