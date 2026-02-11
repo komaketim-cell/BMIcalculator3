@@ -386,10 +386,16 @@ function displayResults(result) {
 // =============================================
 
 // Event Listener برای دکمه محاسبه
-document.addEventListener('DOMContentLoaded', function() {
-    const calculateBtn = document.getElementById('calculate-btn');
-    if (calculateBtn) {
-        calculateBtn.addEventListener('click', performCalculation);
+document.addEventListener('DOMContentLoaded', function () {
+    const calculateBtn = document.getElementById('calculateBtn');
+
+    if (!calculateBtn) {
+        console.error('❌ calculateBtn پیدا نشد');
+        return;
+    }
+
+    calculateBtn.addEventListener('click', calculateBMI);
+    console.log('✅ دکمه محاسبه متصل شد');
     }
 
     // Event Listener برای دکمه راهنما
