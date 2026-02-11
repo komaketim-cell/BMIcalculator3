@@ -3,9 +3,11 @@
  * BMI-for-age: 5 to 19 years
  * LMS Parameters (L, M, S)
  * Source: Original Python implementation
+ * 
+ * ✅ Updated: Array structure for interpolation
  * ======================================== */
 
-const WHO_BOYS_LMS = {
+const WHO_BOYS_LMS_RAW = {
     60: { L: -2.011, M: 15.264, S: 0.080 },
     61: { L: -2.004, M: 15.299, S: 0.080 },
     62: { L: -1.997, M: 15.334, S: 0.080 },
@@ -177,7 +179,7 @@ const WHO_BOYS_LMS = {
     228: { L: -0.313, M: 21.940, S: 0.134 }
 };
 
-const WHO_GIRLS_LMS = {
+const WHO_GIRLS_LMS_RAW = {
     60: { L: -1.906, M: 15.244, S: 0.085 },
     61: { L: -1.899, M: 15.277, S: 0.085 },
     62: { L: -1.892, M: 15.310, S: 0.086 },
@@ -349,13 +351,24 @@ const WHO_GIRLS_LMS = {
     228: { L: -0.383, M: 22.452, S: 0.144 }
 };
 
+// ✅ تبدیل Object به Array برای Interpolation
+const WHO_DATA = {
+    boys: Object.entries(WHO_BOYS_LMS_RAW)
+        .map(([age, vals]) => ({ age: Number(age), ...vals }))
+        .sort((a, b) => a.age - b.age),
+    
+    girls: Object.entries(WHO_GIRLS_LMS_RAW)
+        .map(([age, vals]) => ({ age: Number(age), ...vals }))
+        .sort((a, b) => a.age - b.age)
+};
+
 /**
- * دریافت پارامترهای LMS برای سن و جنسیت مشخص
+ * ✅ Legacy function: دریافت LMS برای سن دقیق (بدون interpolation)
  * @param {string} gender - "مرد" یا "زن"
  * @param {number} ageMonths - سن به ماه (60 تا 228)
  * @returns {Object|null} پارامترهای {L, M, S} یا null
  */
 function getLMS(gender, ageMonths) {
-    const table = gender === "مرد" ? WHO_BOYS_LMS : WHO_GIRLS_LMS;
+    const table = gender === "مرد" ? WHO_BOYS_LMS_RAW : WHO_GIRLS_LMS_RAW;
     return table[ageMonths] || null;
 }
