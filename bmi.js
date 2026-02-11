@@ -270,7 +270,7 @@ function generatePracticalTips(category, tdee, weight, healthyRange) {
 }
 
 /**
- * تابع اصلی محاسبه - با منطق کامل LMS و Z-Score
+ * تابع اصلی محاسبه
  */
 function performCalculation() {
     if (!validateInputs()) {
