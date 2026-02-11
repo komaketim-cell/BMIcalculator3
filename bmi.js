@@ -4,6 +4,9 @@
  * شامل: محاسبه BMI، BMR، TDEE، Z-Score و تحلیل کودکان/بزرگسالان
  */
 
+// منتظر لود شدن کامل صفحه
+document.addEventListener('DOMContentLoaded', function() {
+
 // تاریخ امروز (جلالی)
 const TODAY_JALALI = { year: 1404, month: 11, day: 22 };
 
@@ -138,7 +141,7 @@ function calculateTDEE(bmr, activityLevel) {
 // ---------------------------------------------------------
 // تحلیل کودکان (5-19 سال) با WHO LMS
 // ---------------------------------------------------------
-function analyzeChildBMI(bmi, ageYears, gender) {
+function analyzeChildBMI(bmi, ageYears, gender, height) {
     const lms = getLMS(ageYears, gender);
     
     if (!lms) {
@@ -153,7 +156,7 @@ function analyzeChildBMI(bmi, ageYears, gender) {
     const category = classifyZScore(zScore);
 
     // محاسبه محدوده وزن سالم (Z-Score بین -2 تا +1)
-    const heightM = document.getElementById('height').value / 100;
+    const heightM = height / 100;
     
     // وزن در Z = -2
     const zMinus2 = -2;
@@ -286,58 +289,6 @@ function generatePracticalTips(status, ageYears) {
 }
 
 // ---------------------------------------------------------
-// مدیریت رویداد فرم
-// ---------------------------------------------------------
-document.getElementById('bmi-form').addEventListener('submit', function(e) {
-    e.preventDefault();
-
-    // دریافت مقادیر
-    const weight = parseFloat(document.getElementById('weight').value);
-    const height = parseFloat(document.getElementById('height').value);
-    const birthYear = parseInt(document.getElementById('birth-year').value);
-    const birthMonth = parseInt(document.getElementById('birth-month').value);
-    const birthDay = parseInt(document.getElementById('birth-day').value);
-    const gender = document.getElementById('gender').value;
-    const activityLevel = document.getElementById('activity').value;
-
-    // اعتبارسنجی تاریخ تولد
-    if (!isValidJalaliDate(birthYear, birthMonth, birthDay)) {
-        showError('تاریخ تولد وارد شده معتبر نیست!');
-        return;
-    }
-
-    // محاسبه سن دقیق
-    const age = calculateExactAge(birthYear, birthMonth, birthDay);
-    
-    if (age.years < 0) {
-        showError('تاریخ تولد نمی‌تواند در آینده باشد!');
-        return;
-    }
-
-    // محاسبه BMI
-    const bmi = calculateBMI(weight, height);
-    
-    // تحلیل بر اساس سن
-    let analysis;
-    const isChild = age.ageInYears >= 5 && age.ageInYears < 19;
-    
-    if (isChild) {
-        analysis = analyzeChildBMI(bmi, age.ageInYears, gender);
-    } else {
-        analysis = analyzeAdultBMI(bmi, height);
-    }
-
-    // محاسبه BMR و TDEE
-    const bmr = calculateBMR(weight, height, age.ageInYears, gender);
-    const tdee = calculateTDEE(bmr, activityLevel);
-
-    // نمایش نتایج
-    displayResults(bmi, analysis, age, bmr, tdee, isChild);
-    
-    showPage('results-page');
-});
-
-// ---------------------------------------------------------
 // نمایش نتایج
 // ---------------------------------------------------------
 function displayResults(bmi, analysis, age, bmr, tdee, isChild) {
@@ -413,6 +364,58 @@ function displayResults(bmi, analysis, age, bmr, tdee, isChild) {
 }
 
 // ---------------------------------------------------------
+// مدیریت رویداد فرم
+// ---------------------------------------------------------
+document.getElementById('bmi-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    // دریافت مقادیر
+    const weight = parseFloat(document.getElementById('weight').value);
+    const height = parseFloat(document.getElementById('height').value);
+    const birthYear = parseInt(document.getElementById('birth-year').value);
+    const birthMonth = parseInt(document.getElementById('birth-month').value);
+    const birthDay = parseInt(document.getElementById('birth-day').value);
+    const gender = document.getElementById('gender').value;
+    const activityLevel = document.getElementById('activity').value;
+
+    // اعتبارسنجی تاریخ تولد
+    if (!isValidJalaliDate(birthYear, birthMonth, birthDay)) {
+        showError('تاریخ تولد وارد شده معتبر نیست!');
+        return;
+    }
+
+    // محاسبه سن دقیق
+    const age = calculateExactAge(birthYear, birthMonth, birthDay);
+    
+    if (age.years < 0) {
+        showError('تاریخ تولد نمی‌تواند در آینده باشد!');
+        return;
+    }
+
+    // محاسبه BMI
+    const bmi = calculateBMI(weight, height);
+    
+    // تحلیل بر اساس سن
+    let analysis;
+    const isChild = age.ageInYears >= 5 && age.ageInYears < 19;
+    
+    if (isChild) {
+        analysis = analyzeChildBMI(bmi, age.ageInYears, gender, height);
+    } else {
+        analysis = analyzeAdultBMI(bmi, height);
+    }
+
+    // محاسبه BMR و TDEE
+    const bmr = calculateBMR(weight, height, age.ageInYears, gender);
+    const tdee = calculateTDEE(bmr, activityLevel);
+
+    // نمایش نتایج
+    displayResults(bmi, analysis, age, bmr, tdee, isChild);
+    
+    showPage('results-page');
+});
+
+// ---------------------------------------------------------
 // دکمه‌های ناوبری
 // ---------------------------------------------------------
 document.getElementById('back-to-input').addEventListener('click', () => {
@@ -425,4 +428,7 @@ document.getElementById('show-guide').addEventListener('click', () => {
 
 document.getElementById('back-to-results').addEventListener('click', () => {
     showPage('results-page');
+});
+
+// پایان DOMContentLoaded
 });
