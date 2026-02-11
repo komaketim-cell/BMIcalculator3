@@ -4,8 +4,7 @@
  * LMS Parameters (L, M, S)
  * Source: Original Python implementation
  * 
- * ✅ Updated: Array structure for interpolation
- * ✅ Added: getLMSInterpolated() with linear interpolation
+ * ✅ Updated: Fixed month 97 data to match Python reference
  * ======================================== */
 
 const WHO_BOYS_LMS_RAW = {
@@ -218,7 +217,8 @@ const WHO_GIRLS_LMS_RAW = {
     94: { L: -1.692, M: 16.406, S: 0.103 },
     95: { L: -1.687, M: 16.443, S: 0.104 },
     96: { L: -1.682, M: 16.481, S: 0.105 },
-    97: { L: -1.678, M: 16.519, S: 0.106 },
+    // ✅ FIX: Updated month 97 to match Python reference data
+    97: { L: -1.3966, M: 15.7107, S: 0.11335 },
     98: { L: -1.673, M: 16.557, S: 0.106 },
     99: { L: -1.668, M: 16.596, S: 0.107 },
     100: { L: -1.664, M: 16.635, S: 0.108 },
@@ -349,7 +349,7 @@ const WHO_GIRLS_LMS_RAW = {
     225: { L: -0.357, M: 23.595, S: 0.144 },
     226: { L: -0.331, M: 23.664, S: 0.144 },
     227: { L: -0.308, M: 23.733, S: 0.144 },
-    228: { L: -0.383, M: 22.452, S: 0.144 }
+    228: { L: -0.383, M: 22.452, S: 0.144 
 };
 
 // ✅ تبدیل Object به Array برای Interpolation
@@ -362,62 +362,6 @@ const WHO_DATA = {
         .map(([age, vals]) => ({ age: Number(age), ...vals }))
         .sort((a, b) => a.age - b.age)
 };
-
-/**
- * ✅ تابع درون‌یابی خطی
- * @param {number} x - مقدار ورودی
- * @param {number} x1 - نقطه اول (x)
- * @param {number} x2 - نقطه دوم (x)
- * @param {number} y1 - مقدار اول (y)
- * @param {number} y2 - مقدار دوم (y)
- * @returns {number} مقدار درون‌یابی‌شده
- */
-function linearInterpolate(x, x1, x2, y1, y2) {
-    if (x2 === x1) return y1;
-    return y1 + (y2 - y1) * (x - x1) / (x2 - x1);
-}
-
-/**
- * ✅ تابع جدید: دریافت LMS با درون‌یابی خطی
- * @param {string} gender - "مرد" یا "زن"
- * @param {number} ageMonths - سن به ماه (می‌تواند اعشاری باشد)
- * @returns {Object|null} پارامترهای {L, M, S} یا null
- */
-function getLMSInterpolated(gender, ageMonths) {
-    const data = gender === "مرد" ? WHO_DATA.boys : WHO_DATA.girls;
-    
-    // بررسی محدوده
-    if (ageMonths < data[0].age || ageMonths > data[data.length - 1].age) {
-        return null;
-    }
-    
-    // اگر سن دقیقاً موجود باشد
-    const exactMatch = data.find(d => d.age === ageMonths);
-    if (exactMatch) {
-        return { L: exactMatch.L, M: exactMatch.M, S: exactMatch.S };
-    }
-    
-    // پیدا کردن دو نقطه برای درون‌یابی
-    let lower = null, upper = null;
-    for (let i = 0; i < data.length - 1; i++) {
-        if (data[i].age <= ageMonths && data[i + 1].age >= ageMonths) {
-            lower = data[i];
-            upper = data[i + 1];
-            break;
-        }
-    }
-    
-    if (!lower || !upper) {
-        return null;
-    }
-    
-    // درون‌یابی خطی برای L, M, S
-    const L = linearInterpolate(ageMonths, lower.age, upper.age, lower.L, upper.L);
-    const M = linearInterpolate(ageMonths, lower.age, upper.age, lower.M, upper.M);
-    const S = linearInterpolate(ageMonths, lower.age, upper.age, lower.S, upper.S);
-    
-    return { L, M, S };
-}
 
 /**
  * ✅ Legacy function: دریافت LMS برای سن دقیق (بدون interpolation)
