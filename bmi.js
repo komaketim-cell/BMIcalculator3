@@ -1,7 +1,8 @@
 /* =========================================
- * Core BMI / BMR / TDEE Logic
+ * Enhanced BMI / BMR / TDEE Logic with PDF Export
  * WHO LMS + Adult BMI
  * Exact Jalali Age with Leap Year Support
+ * Professional PDF Report Generation
  * ========================================= */
 
 /* ---------- تاریخ جاری شمسی ---------- */
@@ -22,6 +23,9 @@ const MOTIVATIONS = [
     "سلامتی یک انتخاب روزانه است، نه یک هدف موقت 🎯"
 ];
 
+/* ---------- Global Results Storage ---------- */
+let currentResults = null;
+
 /* ---------- Helpers ---------- */
 function showPage(id) {
     document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
@@ -41,7 +45,6 @@ function clearError() {
    تابع تشخیص سال کبیسه شمسی
    ========================================== */
 function isJalaliLeapYear(year) {
-    // الگوریتم 33-ساله تقویم جلالی
     const breaks = [1, 5, 9, 13, 17, 22, 26, 30];
     const modulo = year % 33;
     return breaks.includes(modulo);
@@ -52,11 +55,11 @@ function isJalaliLeapYear(year) {
    ========================================== */
 function getJalaliMonthDays(year, month) {
     if (month >= 1 && month <= 6) {
-        return 31; // فروردین تا شهریور
+        return 31;
     } else if (month >= 7 && month <= 11) {
-        return 30; // مهر تا بهمن
+        return 30;
     } else if (month === 12) {
-        return isJalaliLeapYear(year) ? 30 : 29; // اسفند
+        return isJalaliLeapYear(year) ? 30 : 29;
     }
     return 0;
 }
@@ -65,7 +68,6 @@ function getJalaliMonthDays(year, month) {
    اعتبارسنجی تاریخ تولد با کبیسه
    ========================================== */
 function validateBirthDate(year, month, day) {
-    // بررسی محدوده سال
     if (year < 1300 || year > CURRENT_JALALI_YEAR) {
         return { 
             valid: false, 
@@ -73,12 +75,10 @@ function validateBirthDate(year, month, day) {
         };
     }
 
-    // بررسی محدوده ماه
     if (month < 1 || month > 12) {
         return { valid: false, error: '❌ ماه تولد نامعتبر است.' };
     }
 
-    // بررسی روز با توجه به کبیسه
     const maxDays = getJalaliMonthDays(year, month);
     if (day < 1 || day > maxDays) {
         if (month === 12 && day === 30 && !isJalaliLeapYear(year)) {
@@ -93,7 +93,6 @@ function validateBirthDate(year, month, day) {
         };
     }
 
-    // بررسی تاریخ آینده
     if (year === CURRENT_JALALI_YEAR) {
         if (month > CURRENT_JALALI_MONTH || 
             (month === CURRENT_JALALI_MONTH && day > CURRENT_JALALI_DAY)) {
@@ -112,7 +111,6 @@ function calculateExactAge(birthYear, birthMonth, birthDay) {
     let months = CURRENT_JALALI_MONTH - birthMonth;
     let days = CURRENT_JALALI_DAY - birthDay;
 
-    // تنظیم روزها
     if (days < 0) {
         months--;
         const prevMonth = CURRENT_JALALI_MONTH === 1 ? 12 : CURRENT_JALALI_MONTH - 1;
@@ -120,13 +118,11 @@ function calculateExactAge(birthYear, birthMonth, birthDay) {
         days += getJalaliMonthDays(prevYear, prevMonth);
     }
 
-    // تنظیم ماه‌ها
     if (months < 0) {
         years--;
         months += 12;
     }
 
-    // محاسبه کل ماه‌ها (برای WHO)
     const totalMonths = years * 12 + months;
 
     return { years, months, days, totalMonths };
@@ -212,7 +208,6 @@ function generatePracticalTips(statusLabel, bmi, age) {
         ]
     };
 
-    // توصیه‌های ویژه کودکان و نوجوانان
     if (age < 18) {
         return [
             "👨‍👩‍👧 والدین باید با متخصص تغذیه کودکان مشورت کنند",
@@ -225,7 +220,121 @@ function generatePracticalTips(statusLabel, bmi, age) {
     return tips[statusLabel] || tips["نرمال"];
 }
 
-/* ---------- Main ---------- */
+/* ---------- PDF Export Function ---------- */
+async function exportToPDF() {
+    if (!currentResults) {
+        alert('خطا: اطلاعات نتایج موجود نیست. لطفاً ابتدا محاسبات را انجام دهید.');
+        return;
+    }
+
+    const exportBtn = document.getElementById('export-pdf-btn');
+    const originalText = exportBtn.innerHTML;
+    
+    try {
+        // Show loading state
+        exportBtn.innerHTML = '<span class="loading"></span> در حال ایجاد PDF...';
+        exportBtn.disabled = true;
+
+        // Prepare data for PDF (English translations for better PDF support)
+        const pdfData = {
+            gender: currentResults.gender === "مرد" ? "Male" : "Female",
+            age_display: `${currentResults.age.years} years, ${currentResults.age.months} months, ${currentResults.age.days} days`,
+            height: currentResults.height,
+            weight: currentResults.weight,
+            bmi: currentResults.bmi.toFixed(2),
+            status: translateStatus(currentResults.statusText),
+            difference: translateDifference(currentResults.diffText),
+            healthy_range: currentResults.healthyText.replace('کیلوگرم', 'kg'),
+            bmr: Math.round(currentResults.bmr),
+            tdee: Math.round(currentResults.tdee),
+            maintain_calories: Math.round(currentResults.tdee),
+            gain_calories: Math.round(currentResults.tdee + 300),
+            loss_calories: Math.round(currentResults.tdee - 500),
+            tips: currentResults.tips.map(tip => removeEmojis(tip))
+        };
+
+        // Use html2pdf library for client-side PDF generation
+        const element = document.getElementById('results-page');
+        const opt = {
+            margin: 10,
+            filename: `BMI-Report-${new Date().toISOString().split('T')[0]}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, logging: false },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        // Generate PDF
+        await html2pdf().set(opt).from(element).save();
+
+        // Show success message
+        showSuccessMessage('✅ گزارش PDF با موفقیت ذخیره شد!');
+
+    } catch (error) {
+        console.error('PDF Export Error:', error);
+        alert('خطا در ایجاد PDF. لطفاً دوباره تلاش کنید.');
+    } finally {
+        // Restore button
+        exportBtn.innerHTML = originalText;
+        exportBtn.disabled = false;
+    }
+}
+
+/* ---------- Helper Functions for PDF ---------- */
+function translateStatus(status) {
+    const translations = {
+        "لاغری شدید": "Severe Underweight",
+        "لاغری": "Underweight",
+        "نرمال": "Normal",
+        "اضافه‌وزن": "Overweight",
+        "چاقی": "Obese",
+        "کم‌وزن": "Underweight"
+    };
+    return translations[status] || status;
+}
+
+function translateDifference(diff) {
+    if (diff.includes('محدوده سالم')) {
+        return 'Within healthy range ✓';
+    } else if (diff.includes('کمبود')) {
+        return diff.replace('کمبود وزن:', 'Weight deficit:').replace('کیلوگرم', 'kg');
+    } else if (diff.includes('اضافه')) {
+        return diff.replace('اضافه وزن:', 'Excess weight:').replace('کیلوگرم', 'kg');
+    }
+    return diff;
+}
+
+function removeEmojis(text) {
+    return text.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '').trim();
+}
+
+function showSuccessMessage(message) {
+    const successDiv = document.createElement('div');
+    successDiv.className = 'success-message';
+    successDiv.textContent = message;
+    successDiv.style.cssText = `
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        padding: 16px 32px;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        z-index: 10000;
+        font-weight: 600;
+        animation: slideDown 0.3s ease-out;
+    `;
+    
+    document.body.appendChild(successDiv);
+    
+    setTimeout(() => {
+        successDiv.style.animation = 'slideUp 0.3s ease-out';
+        setTimeout(() => successDiv.remove(), 300);
+    }, 3000);
+}
+
+/* ---------- Main Calculation Function ---------- */
 function calculateAndGo() {
     clearError();
 
@@ -242,23 +351,19 @@ function calculateAndGo() {
         return;
     }
 
-    /* ---------- اعتبارسنجی تاریخ تولد با کبیسه ---------- */
     const validation = validateBirthDate(jy, jm, jd);
     if (!validation.valid) {
         showError(validation.error);
         return;
     }
 
-    /* ---------- محاسبه سن دقیق ---------- */
     const age = calculateExactAge(jy, jm, jd);
 
-    /* ---------- بررسی سن منفی ---------- */
     if (age.years < 0 || age.totalMonths < 0) {
         showError("❌ تاریخ تولد نامعتبر است! لطفاً یک تاریخ گذشته وارد کنید.");
         return;
     }
 
-    /* ---------- بررسی سن کمتر از 5 سال ---------- */
     if (age.totalMonths < 60) {
         showError("❌ این ابزار برای سنین ۵ سال به بالا طراحی شده است.");
         return;
@@ -285,10 +390,8 @@ function calculateAndGo() {
         color = cls.color;
         statusText = cls.label;
 
-        const healthyMinBMI =
-            lms.M * Math.pow(1 + lms.L * lms.S * (-2), 1 / lms.L);
-        const healthyMaxBMI =
-            lms.M * Math.pow(1 + lms.L * lms.S * (1), 1 / lms.L);
+        const healthyMinBMI = lms.M * Math.pow(1 + lms.L * lms.S * (-2), 1 / lms.L);
+        const healthyMaxBMI = lms.M * Math.pow(1 + lms.L * lms.S * (1), 1 / lms.L);
 
         const healthyMinW = healthyMinBMI * h * h;
         const healthyMaxW = healthyMaxBMI * h * h;
@@ -303,7 +406,6 @@ function calculateAndGo() {
             diffText = "در محدوده سالم قرار دارید ✅";
         }
     }
-
     /* ---------- Adults (19+ سال) ---------- */
     else {
         const cls = classifyAdultBMI(bmi);
@@ -326,14 +428,29 @@ function calculateAndGo() {
 
     const bmr = calculateBMR(gender, weight, height, age.years);
     const tdee = calculateTDEE(bmr, activity);
+    const practicalTips = generatePracticalTips(statusText, bmi, age.years);
 
-    /* ---------- UI ---------- */
+    // Store results globally for PDF export
+    currentResults = {
+        gender,
+        age,
+        height,
+        weight,
+        bmi,
+        statusText,
+        diffText,
+        healthyText,
+        bmr,
+        tdee,
+        color,
+        tips: practicalTips
+    };
+
+    /* ---------- UI Updates ---------- */
     document.getElementById("r-gender").textContent = gender;
     document.getElementById("r-height").textContent = `${height} سانتی‌متر`;
     document.getElementById("r-weight").textContent = `${weight} کیلوگرم`;
-    
-    // نمایش سن دقیق (سال، ماه، روز)
-    document.getElementById("r-age").textContent =
+    document.getElementById("r-age").textContent = 
         `${age.years} سال، ${age.months} ماه و ${age.days} روز`;
 
     document.getElementById("bmi-value").textContent = bmi.toFixed(2);
@@ -345,45 +462,67 @@ function calculateAndGo() {
     document.getElementById("r-bmr").textContent = `${Math.round(bmr)} kcal`;
     document.getElementById("r-tdee").textContent = `${Math.round(tdee)} kcal`;
 
-    document.getElementById("maintain-calories").textContent =
-        `${Math.round(tdee)} kcal`;
-    document.getElementById("gain-calories").textContent =
-        `${Math.round(tdee + 300)} kcal`;
-    document.getElementById("loss-calories").textContent =
-        `${Math.round(tdee - 500)} kcal`;
+    document.getElementById("maintain-calories").textContent = `${Math.round(tdee)} kcal`;
+    document.getElementById("gain-calories").textContent = `${Math.round(tdee + 300)} kcal`;
+    document.getElementById("loss-calories").textContent = `${Math.round(tdee - 500)} kcal`;
 
-    /* ---------- نمایش توصیه‌های کاربردی ---------- */
-    const practicalTips = generatePracticalTips(statusText, bmi, age.years);
     const tipsHTML = practicalTips.map(tip => `<p class="tip-item">✦ ${tip}</p>`).join("");
     document.getElementById("practical-tips").innerHTML = tipsHTML;
 
     showPage("results-page");
 }
 
-/* ---------- Events ---------- */
+/* ---------- Event Listeners ---------- */
 document.getElementById("calc-btn").onclick = calculateAndGo;
 document.getElementById("back-btn").onclick = () => showPage("input-page");
 document.getElementById("help-btn").onclick = () => showPage("guide-page");
 document.getElementById("help-btn2").onclick = () => showPage("guide-page");
 document.getElementById("back-guide-btn").onclick = () => showPage("input-page");
 
+// PDF export button (will be added to HTML)
+if (document.getElementById("export-pdf-btn")) {
+    document.getElementById("export-pdf-btn").onclick = exportToPDF;
+}
+
 /* ---------- Motivation with Blink Effect ---------- */
 function showMotivation() {
     const el = document.getElementById("motivation-text");
     const randomQuote = MOTIVATIONS[Math.floor(Math.random() * MOTIVATIONS.length)];
     
-    // حالت محو شدن
     el.style.opacity = "0";
     
     setTimeout(() => {
         el.textContent = randomQuote;
-        // حالت ظاهر شدن
         el.style.opacity = "1";
     }, 500);
 }
 
-// نمایش اولیه
 showMotivation();
-
-// تغییر هر 5 ثانیه
 setInterval(showMotivation, 5000);
+
+/* ---------- Add CSS animations ---------- */
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideDown {
+        from {
+            transform: translateX(-50%) translateY(-100px);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+    }
+    
+    @keyframes slideUp {
+        from {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(-50%) translateY(-100px);
+            opacity: 0;
+        }
+    }
+`;
+document.head.appendChild(style);
