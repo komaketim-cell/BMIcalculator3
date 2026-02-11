@@ -5,6 +5,7 @@
  * Source: Original Python implementation
  * 
  * ✅ Updated: Array structure for interpolation
+ * ✅ Added: getLMSInterpolated() with linear interpolation
  * ======================================== */
 
 const WHO_BOYS_LMS_RAW = {
@@ -361,6 +362,62 @@ const WHO_DATA = {
         .map(([age, vals]) => ({ age: Number(age), ...vals }))
         .sort((a, b) => a.age - b.age)
 };
+
+/**
+ * ✅ تابع درون‌یابی خطی
+ * @param {number} x - مقدار ورودی
+ * @param {number} x1 - نقطه اول (x)
+ * @param {number} x2 - نقطه دوم (x)
+ * @param {number} y1 - مقدار اول (y)
+ * @param {number} y2 - مقدار دوم (y)
+ * @returns {number} مقدار درون‌یابی‌شده
+ */
+function linearInterpolate(x, x1, x2, y1, y2) {
+    if (x2 === x1) return y1;
+    return y1 + (y2 - y1) * (x - x1) / (x2 - x1);
+}
+
+/**
+ * ✅ تابع جدید: دریافت LMS با درون‌یابی خطی
+ * @param {string} gender - "مرد" یا "زن"
+ * @param {number} ageMonths - سن به ماه (می‌تواند اعشاری باشد)
+ * @returns {Object|null} پارامترهای {L, M, S} یا null
+ */
+function getLMSInterpolated(gender, ageMonths) {
+    const data = gender === "مرد" ? WHO_DATA.boys : WHO_DATA.girls;
+    
+    // بررسی محدوده
+    if (ageMonths < data[0].age || ageMonths > data[data.length - 1].age) {
+        return null;
+    }
+    
+    // اگر سن دقیقاً موجود باشد
+    const exactMatch = data.find(d => d.age === ageMonths);
+    if (exactMatch) {
+        return { L: exactMatch.L, M: exactMatch.M, S: exactMatch.S };
+    }
+    
+    // پیدا کردن دو نقطه برای درون‌یابی
+    let lower = null, upper = null;
+    for (let i = 0; i < data.length - 1; i++) {
+        if (data[i].age <= ageMonths && data[i + 1].age >= ageMonths) {
+            lower = data[i];
+            upper = data[i + 1];
+            break;
+        }
+    }
+    
+    if (!lower || !upper) {
+        return null;
+    }
+    
+    // درون‌یابی خطی برای L, M, S
+    const L = linearInterpolate(ageMonths, lower.age, upper.age, lower.L, upper.L);
+    const M = linearInterpolate(ageMonths, lower.age, upper.age, lower.M, upper.M);
+    const S = linearInterpolate(ageMonths, lower.age, upper.age, lower.S, upper.S);
+    
+    return { L, M, S };
+}
 
 /**
  * ✅ Legacy function: دریافت LMS برای سن دقیق (بدون interpolation)
