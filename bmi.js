@@ -1,8 +1,9 @@
 // ========================================
 // محاسبات BMI، BMR، TDEE با الگوریتم WHO
+// منطبق با کد پایتون مرجع
 // ========================================
 
-// ---- تبدیل تاریخ شمسی به میلادی (تقریبی) ----
+// ---- تبدیل تاریخ شمسی به میلادی ----
 function jalaliToGregorian(jy, jm, jd) {
   const g_d_m = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
   const gy = (jy <= 979) ? 621 : 1600;
@@ -63,32 +64,27 @@ function calculateAge(birthYear, birthMonth, birthDay) {
   return { years, months, days, totalDays, ageInYears };
 }
 
-// ---- درون‌یابی خطی LMS ----
+// ---- درون‌یابی خطی LMS (مطابق Python) ----
 function interpolateLMS(lmsData, ageInYears) {
   if (!lmsData || lmsData.length === 0) {
     throw new Error("داده‌های LMS موجود نیست");
   }
   
-  // مرتب‌سازی بر اساس سن
   const sorted = lmsData.slice().sort((a, b) => a.age - b.age);
   
-  // اگر سن کمتر از اولین نقطه
   if (ageInYears <= sorted[0].age) {
     return sorted[0];
   }
   
-  // اگر سن بیشتر از آخرین نقطه
   if (ageInYears >= sorted[sorted.length - 1].age) {
     return sorted[sorted.length - 1];
   }
   
-  // پیدا کردن دو نقطه برای درون‌یابی
   for (let i = 0; i < sorted.length - 1; i++) {
     const p1 = sorted[i];
     const p2 = sorted[i + 1];
     
     if (p1.age <= ageInYears && ageInYears <= p2.age) {
-      // درون‌یابی خطی
       const t = (ageInYears - p1.age) / (p2.age - p1.age);
       
       return {
@@ -103,22 +99,30 @@ function interpolateLMS(lmsData, ageInYears) {
   return sorted[sorted.length - 1];
 }
 
-// ---- محاسبه Z-Score با فرمول LMS ----
-function calculateZScore(value, L, M, S) {
+// ---- محاسبه Z-Score با فرمول LMS (مطابق Python) ----
+function lmsZScore(value, L, M, S) {
   if (L === 0) {
     return Math.log(value / M) / S;
   }
   return (Math.pow(value / M, L) - 1) / (L * S);
 }
 
-// ---- طبقه‌بندی Z-Score (مطابق کد پایتون) ----
+// ---- طبقه‌بندی Z-Score (مطابق Python) ----
 function classifyZScore(z) {
   if (z < -3) return "لاغری شدید";
   if (z < -2) return "لاغری";
-  if (z <= 1) return "نرمال";  // تغییر از +2 به +1
+  if (z <= 1) return "نرمال";
   if (z <= 2) return "اضافه وزن";
   if (z <= 3) return "چاقی";
   return "چاقی شدید";
+}
+
+// ---- محاسبه BMI از Z-Score (معکوس LMS) ----
+function bmiFromZScore(z, L, M, S) {
+  if (L === 0) {
+    return M * Math.exp(S * z);
+  }
+  return M * Math.pow(1 + L * S * z, 1 / L);
 }
 
 // ---- محاسبه BMI ----
@@ -127,7 +131,7 @@ function calculateBMI(weight, height) {
   return weight / (heightInMeters * heightInMeters);
 }
 
-// ---- محاسبه BMR (Mifflin-St Jeor) ----
+// ---- محاسبه BMR (Mifflin-St Jeor - مطابق Python) ----
 function calculateBMR(weight, height, age, isMale) {
   if (isMale) {
     return 10 * weight + 6.25 * height - 5 * age + 5;
@@ -147,22 +151,13 @@ function calculateTDEE(bmr, activityLevel) {
   return bmr * (factors[activityLevel] || 1.2);
 }
 
-// ---- محاسبه محدوده وزن سالم کودک (با Z-Score) ----
+// ---- محاسبه محدوده وزن سالم کودک (Z-Score: -2 تا +1) ----
 function calculateHealthyWeightRangeChild(height, ageInYears, isMale) {
   const lmsData = isMale ? WHO_BMI_BOYS : WHO_BMI_GIRLS;
   const lms = interpolateLMS(lmsData, ageInYears);
   
-  // محدوده نرمال: -2 <= z <= +1
   const zMin = -2;
   const zMax = 1;
-  
-  // فرمول معکوس LMS برای محاسبه BMI از Z-Score
-  function bmiFromZScore(z, L, M, S) {
-    if (L === 0) {
-      return M * Math.exp(S * z);
-    }
-    return M * Math.pow(1 + L * S * z, 1 / L);
-  }
   
   const bmiMin = bmiFromZScore(zMin, lms.L, lms.M, lms.S);
   const bmiMax = bmiFromZScore(zMax, lms.L, lms.M, lms.S);
@@ -196,31 +191,26 @@ function classifyAdultBMI(bmi) {
 function calculateResults(formData) {
   const { birthYear, birthMonth, birthDay, weight, height, isMale, activityLevel } = formData;
   
-  // محاسبه سن
   const age = calculateAge(birthYear, birthMonth, birthDay);
   const ageInYears = age.ageInYears;
   
-  // محاسبه BMI
   const bmi = calculateBMI(weight, height);
   
   let category, zScore, healthyWeightRange;
   
-  // تشخیص کودک/نوجوان (5-19 سال)
   if (ageInYears >= 5 && ageInYears < 19) {
     const lmsData = isMale ? WHO_BMI_BOYS : WHO_BMI_GIRLS;
     const lms = interpolateLMS(lmsData, ageInYears);
     
-    zScore = calculateZScore(bmi, lms.L, lms.M, lms.S);
+    zScore = lmsZScore(bmi, lms.L, lms.M, lms.S);
     category = classifyZScore(zScore);
     healthyWeightRange = calculateHealthyWeightRangeChild(height, ageInYears, isMale);
   } else {
-    // بزرگسال
     category = classifyAdultBMI(bmi);
     healthyWeightRange = calculateHealthyWeightRangeAdult(height);
     zScore = null;
   }
   
-  // محاسبه BMR و TDEE
   const bmr = calculateBMR(weight, height, ageInYears, isMale);
   const tdee = calculateTDEE(bmr, activityLevel);
   
@@ -281,20 +271,18 @@ function handleSubmit(event) {
     showPage('resultsPage');
   } catch (error) {
     alert('خطا در محاسبات: ' + error.message);
+    console.error(error);
   }
 }
 
 function displayResults(results, formData) {
-  // BMI
   document.getElementById('bmiValue').textContent = results.bmi;
   document.getElementById('bmiCategory').textContent = results.category;
   
-  // رنگ‌بندی دسته‌بندی
   const categoryElement = document.getElementById('bmiCategory');
   categoryElement.className = 'value';
   
   if (results.isChild) {
-    // رنگ‌بندی برای کودکان
     if (results.category === 'لاغری شدید' || results.category === 'لاغری') {
       categoryElement.classList.add('underweight');
     } else if (results.category === 'نرمال') {
@@ -305,11 +293,9 @@ function displayResults(results, formData) {
       categoryElement.classList.add('obese');
     }
     
-    // نمایش Z-Score
     document.getElementById('zscoreRow').style.display = 'flex';
     document.getElementById('zscoreValue').textContent = results.zScore;
   } else {
-    // رنگ‌بندی برای بزرگسالان
     if (results.category === 'کمبود وزن') {
       categoryElement.classList.add('underweight');
     } else if (results.category === 'نرمال') {
@@ -323,26 +309,21 @@ function displayResults(results, formData) {
     document.getElementById('zscoreRow').style.display = 'none';
   }
   
-  // سن
   document.getElementById('ageValue').textContent = 
     `${results.age.years} سال، ${results.age.months} ماه، ${results.age.days} روز`;
   
-  // محدوده وزن سالم
   document.getElementById('healthyWeightValue').textContent = 
     `${results.healthyWeightRange.min} تا ${results.healthyWeightRange.max} کیلوگرم`;
   
-  // BMR و TDEE
   document.getElementById('bmrValue').textContent = results.bmr;
   document.getElementById('tdeeValue').textContent = results.tdee;
   
-  // اهداف کالری
   document.getElementById('cut500Value').textContent = results.calorieTargets.cut500;
   document.getElementById('cut250Value').textContent = results.calorieTargets.cut250;
   document.getElementById('maintenanceValue').textContent = results.calorieTargets.maintenance;
   document.getElementById('bulk250Value').textContent = results.calorieTargets.bulk250;
   document.getElementById('bulk500Value').textContent = results.calorieTargets.bulk500;
   
-  // توصیه‌ها
   generateRecommendations(results, formData);
 }
 
@@ -352,7 +333,6 @@ function generateRecommendations(results, formData) {
   
   const recommendations = [];
   
-  // توصیه براساس وضعیت
   if (results.isChild) {
     if (results.category === 'لاغری شدید' || results.category === 'لاغری') {
       recommendations.push('⚠️ لطفاً با پزشک متخصص اطفال مشورت کنید.');
@@ -379,7 +359,6 @@ function generateRecommendations(results, formData) {
     }
   }
   
-  // نمایش توصیه‌ها
   recommendations.forEach(rec => {
     const div = document.createElement('div');
     div.className = 'recommendation-item';
@@ -387,7 +366,6 @@ function generateRecommendations(results, formData) {
     container.appendChild(div);
   });
   
-  // جمله انگیزشی
   const motivationalQuotes = [
     '💪 سلامتی یک سفر است، نه یک مقصد.',
     '🌟 هر روز فرصتی برای بهتر شدن است.',
@@ -404,11 +382,10 @@ function generateRecommendations(results, formData) {
   container.appendChild(quoteDiv);
 }
 
-// Event Listeners
 document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('healthForm').addEventListener('submit', handleSubmit);
+  document.getElementById('healthForm').addEventListener('submit);
   
-  document.querySele').forEach(btn => {
+  document.querySelectorAll('.nav-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const page = btn.dataset.page;
       showPage(page);
