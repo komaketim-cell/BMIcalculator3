@@ -137,19 +137,115 @@ function calculateBMI(weight, heightCm) {
     const h = heightCm / 100;
     return weight / (h * h);
 }
+/* bmi.js */
 
-/* ---------- WHO Z-Score ---------- */
-function calculateZScore(bmi, L, M, S) {
-    if (L === 0) return Math.log(bmi / M) / S;
+/**
+ * محاسبه BMI بر حسب وزن (کیلوگرم) و قد (سانتی‌متر)
+ * @param {number} weightKg
+ * @param {number} heightCm
+ * @returns {number}
+ */
+function calculateBMI(weightKg, heightCm) {
+    if (!weightKg || !heightCm) return NaN;
+    const heightMeters = heightCm / 100;
+    return weightKg / (heightMeters * heightMeters);
+}
+
+/**
+ * محاسبه سن دقیق به ماه (خروجی <= دقت ماژول پایتون)
+ * فرض: calculateExactSolarAge قبلاً در سن‌یابی دقیق اجرا شده و مقدار years/months/days را برمی‌گرداند.
+ * @param {{years:number, months:number, days:number, totalDays:number}} ageParts
+ * @returns {number}
+ */
+function computeAgeMonthsExact(ageParts) {
+    if (!ageParts) return NaN;
+    const averageDaysInMonth = 365.2422 / 12;
+    return ageParts.years * 12 + ageParts.months + (ageParts.days / averageDaysInMonth);
+}
+
+/**
+ * محاسبه Z-Score برای BMI کودک/نوجوان
+ * @param {number} bmi
+ * @param {"مرد"|"زن"} gender
+ * @param {number} ageMonthsExact
+ * @returns {number}
+ */
+function calculateBMIZScore(bmi, gender, ageMonthsExact) {
+    const lms = getLMS(gender, ageMonthsExact);
+    if (!lms) return NaN;
+
+    const { L, M, S } = lms;
+    if (L === 0) {
+        return Math.log(bmi / M) / S;
+    }
     return (Math.pow(bmi / M, L) - 1) / (L * S);
 }
 
-function classifyWHO(z) {
-    if (z < -3) return { label: "لاغری شدید", color: "#EF4444", zMin: -2 };
-    if (z < -2) return { label: "لاغری", color: "#F97316", zMin: -2 };
-    if (z <= 1) return { label: "نرمال", color: "#22C55E", zMin: -2 };
-    if (z <= 2) return { label: "اضافه‌وزن", color: "#EAB308", zMin: 1 };
-    if (z <= 3) return { label: "چاقی", color: "# DC2626", zMin: 2 };
+/**
+ * تبدیل Z-Score به BMI با استفاده از پارامترهای LMS
+ * @param {number} zScore
+ * @param {"مرد"|"زن"} gender
+ * @param {number} ageMonthsExact
+ * @returns {number}
+ */
+function bmiFromZ(zScore, gender, ageMonthsExact) {
+    const lms = getLMS(gender, ageMonthsExact);
+    if (!lms) return NaN;
+
+    const { L, M, S } = lms;
+
+    if (L === 0) {
+        return M * Math.exp(S * zScore);
+    }
+
+    const inner = 1 + L * S * zScore;
+    if (inner <= 0) {
+        return NaN;
+    }
+
+    return M * Math.pow(inner, 1 / L);
+}
+
+/**
+ * بازه وزن سالم برای کودکان/نوجوانان بر اساس BMI-for-age (WHO)
+ * @param {"مرد"|"زن"} gender
+ * @param {number} heightCm
+ * @param {number} ageMonthsExact
+ * @param {number} [zLower=-2]
+ * @param {number} [zUpper=+1]
+ * @returns {{min:number,max:number}|null}
+ */
+function calculateChildHealthyWeightRange(gender, heightCm, ageMonthsExact, zLower = -2, zUpper = 1) {
+    const heightMetersSquared = Math.pow(heightCm / 100, 2);
+
+    const lowerBMI = bmiFromZ(zLower, gender, ageMonthsExact);
+    const upperBMI = bmiFromZ(zUpper, gender, ageMonthsExact);
+
+    if (!Number.isFinite(lowerBMI) || !Number.isFinite(upperBMI)) {
+        return null;
+    }
+
+    return {
+        min: lowerBMI * heightMetersSquared,
+        max: upperBMI * heightMetersSquared
+    };
+}
+
+/**
+ * دسته‌بندی وضعیت تغذیه‌ای کودکان/نوجوانان مطابق WHO
+ * @param {number} zScore
+ * @returns {{label:string, code:string}}
+ */
+function classifyWHO(zScore) {
+    if (!Number.isFinite(zScore)) {
+        return { label: "نامشخص", code: "unknown" };
+    }
+
+    if (zScore < -3) return { label: "لاغری شدید", code: "severe-underweight" };
+    if (zScore < -2) return { label: "لاغری", code: "underweight" };
+    if (zScore <= 1) return { label: "سالم", code: "normal" };
+    if (zScore <= 2) return { label: "اضافه وزن", code: "overweight" };
+if (z <= 3) return { label: "چاقی", color: "# DC2626", zMin: 2 };
 }
 
 /* ---------- Adult BMI ---------- */
