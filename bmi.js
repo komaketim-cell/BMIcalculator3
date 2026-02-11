@@ -1,239 +1,389 @@
-<!DOCTYPE html>
-<html lang="fa" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>محاسبه BMI، BMR و TDEE</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <!-- ===== صفحه ورودی ===== -->
-    <div class="page active" id="input-page">
-        <div class="container">
-            <div class="header">
-                <h1>محاسبه شاخص‌های سلامت</h1>
-                <p id="motivation-text"></p>
-            </div>
+/* =========================================
+ * Core BMI / BMR / TDEE Logic
+ * WHO LMS + Adult BMI
+ * Exact Jalali Age with Leap Year Support
+ * ========================================= */
 
-            <div class="card">
-                <div id="error-message" class="error"></div>
+/* ---------- تاریخ جاری شمسی ---------- */
+const CURRENT_JALALI_YEAR = 1404;
+const CURRENT_JALALI_MONTH = 11;
+const CURRENT_JALALI_DAY = 22;
 
-                <div class="input-group">
-                    <label>جنسیت:</label>
-                    <select id="gender">
-                        <option value="مرد">مرد</option>
-                        <option value="زن">زن</option>
-                    </select>
-                </div>
+/* ---------- Motivation Quotes ---------- */
+const MOTIVATIONS = [
+    "تغییرات کوچک، نتایج بزرگ می‌سازند 🎯",
+    "بدن سالم، ذهن قوی می‌سازد 🌱",
+    "امروز بهترین روز برای شروع است ✨",
+    "ثبات، راز موفقیت در سلامتی است 💪",
+    "سلامتی سرمایه‌ای است که هر روز باید به آن سرمایه‌گذاری کنید 🌱",
+    "بهترین سرمایه‌گذاری، سرمایه‌گذاری روی سلامتی خودتان است 💪",
+    "هر قدم کوچک به سمت سلامتی، یک پیروزی بزرگ است ✨",
+    "بدن شما خانه‌ای است که تا آخر عمر در آن زندگی خواهید کرد 🏡",
+    "سلامتی یک انتخاب روزانه است، نه یک هدف موقت 🎯"
+];
 
-                <div class="input-group">
-                    <label>تاریخ تولد (شمسی):</label>
-                    <div style="display: flex; gap: 10px;">
-                        <select id="birth-year" style="flex: 2;">
-                            <option value="">سال</option>
-                        </select>
-                        <select id="birth-month" style="flex: 1;">
-                            <option value="">ماه</option>
-                            <option value="1">فروردین</option>
-                            <option value="2">اردیبهشت</option>
-                            <option value="3">خرداد</option>
-                            <option value="4">تیر</option>
-                            <option value="5">مرداد</option>
-                            <option value="6">شهریور</option>
-                            <option value="7">مهر</option>
-                            <option value="8">آبان</option>
-                            <option value="9">آذر</option>
-                            <option value="10">دی</option>
-                            <option value="11">بهمن</option>
-                            <option value="12">اسفند</option>
-                        </select>
-                        <select id="birth-day" style="flex: 1;">
-                            <option value="">روز</option>
-                        </select>
-                    </div>
-                </div>
+/* ---------- Helpers ---------- */
+function showPage(id) {
+    document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+}
 
-                <div class="input-group">
-                    <label>قد (سانتی‌متر):</label>
-                    <input type="number" id="height" min="50" max="250" placeholder="مثال: 175">
-                </div>
+function showError(msg) {
+    const el = document.getElementById("error-message");
+    el.textContent = msg;
+}
 
-                <div class="input-group">
-                    <label>وزن (کیلوگرم):</label>
-                    <input type="number" id="weight" min="2" max="300" step="0.1" placeholder="مثال: 70">
-                </div>
+function clearError() {
+    showError("");
+}
 
-                <div class="input-group">
-                    <label>سطح فعالیت:</label>
-                    <select id="activity">
-                        <option value="1.2">کم‌تحرک (بدون ورزش)</option>
-                        <option value="1.375">فعالیت سبک (1-3 روز در هفته)</option>
-                        <option value="1.55" selected>فعالیت متوسط (3-5 روز در هفته)</option>
-                        <option value="1.725">فعالیت زیاد (6-7 روز در هفته)</option>
-                        <option value="1.9">فعالیت بسیار زیاد (ورزشکار حرفه‌ای)</option>
-                    </select>
-                </div>
+/* ==========================================
+   تابع تشخیص سال کبیسه شمسی
+   ========================================== */
+function isJalaliLeapYear(year) {
+    // الگوریتم 33-ساله تقویم جلالی
+    const breaks = [1, 5, 9, 13, 17, 22, 26, 30];
+    const modulo = year % 33;
+    return breaks.includes(modulo);
+}
 
-                <button id="calc-btn" class="btn-primary">محاسبه</button>
-                <button id="help-btn" class="btn-secondary">راهنما</button>
-            </div>
+/* ==========================================
+   تابع تعداد روزهای ماه شمسی
+   ========================================== */
+function getJalaliMonthDays(year, month) {
+    if (month >= 1 && month <= 6) {
+        return 31; // فروردین تا شهریور
+    } else if (month >= 7 && month <= 11) {
+        return 30; // مهر تا بهمن
+    } else if (month === 12) {
+        return isJalaliLeapYear(year) ? 30 : 29; // اسفند
+    }
+    return 0;
+}
 
-            <!-- فوتر صفحه ورود -->
-            <div class="footer-credit">
-                توسعه یافته توسط تیم «کمکتیم»<br>
-                <a href="https://Komaketim.ir" target="_blank">Komaketim.ir</a>
-            </div>
-        </div>
-    </div>
+/* ==========================================
+   اعتبارسنجی تاریخ تولد با کبیسه
+   ========================================== */
+function validateBirthDate(year, month, day) {
+    // بررسی محدوده سال
+    if (year < 1300 || year > CURRENT_JALALI_YEAR) {
+        return { 
+            valid: false, 
+            error: `❌ سال تولد باید بین ۱۳۰۰ تا ${CURRENT_JALALI_YEAR} باشد.` 
+        };
+    }
 
-    <!-- ===== صفحه نتایج ===== -->
-    <div class="page" id="results-page">
-        <div class="container">
-            <div class="header">
-                <h1>نتایج محاسبات</h1>
-            </div>
+    // بررسی محدوده ماه
+    if (month < 1 || month > 12) {
+        return { valid: false, error: '❌ ماه تولد نامعتبر است.' };
+    }
 
-            <!-- اطلاعات کلی -->
-            <div class="card info-card">
-                <h3>اطلاعات شما</h3>
-                <div class="info-grid">
-                    <div><strong>جنسیت:</strong> <span id="r-gender"></span></div>
-                    <div><strong>سن:</strong> <span id="r-age"></span></div>
-                    <div><strong>قد:</strong> <span id="r-height"></span></div>
-                    <div><strong>وزن:</strong> <span id="r-weight"></span></div>
-                </div>
-            </div>
+    // بررسی روز با توجه به کبیسه
+    const maxDays = getJalaliMonthDays(year, month);
+    if (day < 1 || day > maxDays) {
+        if (month === 12 && day === 30 && !isJalaliLeapYear(year)) {
+            return { 
+                valid: false, 
+                error: `❌ سال ${year} کبیسه نیست - اسفند فقط ۲۹ روز دارد.` 
+            };
+        }
+        return { 
+            valid: false, 
+            error: `❌ روز ${day} برای ماه ${month} نامعتبر است (حداکثر: ${maxDays} روز).` 
+        };
+    }
 
-            <!-- شاخص توده بدنی (BMI) -->
-            <div class="card bmi-card">
-                <h3>شاخص توده بدنی (BMI)</h3>
-                <div class="bmi-display">
-                    <div id="bmi-circle" class="bmi-circle">
-                        <span id="bmi-value">--</span>
-                    </div>
-                    <div class="bmi-details">
-                        <div class="bmi-status">
-                            <strong>وضعیت:</strong> <span id="bmi-status-text"></span>
-                        </div>
-                        <div class="bmi-difference">
-                            <span id="bmi-difference-text"></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    // بررسی تاریخ آینده
+    if (year === CURRENT_JALALI_YEAR) {
+        if (month > CURRENT_JALALI_MONTH || 
+            (month === CURRENT_JALALI_MONTH && day > CURRENT_JALALI_DAY)) {
+            return { valid: false, error: '❌ تاریخ تولد نمی‌تواند در آینده باشد.' };
+        }
+    }
 
-            <!-- محدوده وزن سالم -->
-            <div class="card result-card">
-                <h3>محدوده وزن سالم</h3>
-                <div class="result-value" id="r-healthy">--</div>
-            </div>
+    return { valid: true };
+}
 
-            <!-- کارت‌های BMR و TDEE -->
-            <div class="results-grid">
-                <div class="card result-card">
-                    <h3>BMR</h3>
-                    <p class="result-label">متابولیسم پایه</p>
-                    <div class="result-value" id="r-bmr">--</div>
-                </div>
+/* ==========================================
+   محاسبه سن دقیق با در نظر گرفتن کبیسه
+   ========================================== */
+function calculateExactAge(birthYear, birthMonth, birthDay) {
+    let years = CURRENT_JALALI_YEAR - birthYear;
+    let months = CURRENT_JALALI_MONTH - birthMonth;
+    let days = CURRENT_JALALI_DAY - birthDay;
 
-                <div class="card result-card">
-                    <h3>TDEE</h3>
-                    <p class="result-label">کالری روزانه</p>
-                    <div class="result-value" id="r-tdee">--</div>
-                </div>
-            </div>
+    // تنظیم روزها
+    if (days < 0) {
+        months--;
+        const prevMonth = CURRENT_JALALI_MONTH === 1 ? 12 : CURRENT_JALALI_MONTH - 1;
+        const prevYear = CURRENT_JALALI_MONTH === 1 ? CURRENT_JALALI_YEAR - 1 : CURRENT_JALALI_YEAR;
+        days += getJalaliMonthDays(prevYear, prevMonth);
+    }
 
-            <!-- توصیه‌های کالری -->
-            <div class="card">
-                <h3>توصیه‌های کالری</h3>
-                <div class="calorie-recommendations">
-                    <div class="calorie-item">
-                        <span class="calorie-label">کالری ثابت نگه داشتن وزن:</span>
-                        <span class="calorie-value" id="maintain-calories">--</span>
-                    </div>
-                    <div class="calorie-item">
-                        <span class="calorie-label">کالری افزایش وزن و حجم عضلات:</span>
-                        <span class="calorie-value" id="gain-calories">--</span>
-                    </div>
-                    <div class="calorie-item">
-                        <span class="calorie-label">کالری کاهش وزن بدون افت عضلات:</span>
-                        <span class="calorie-value" id="loss-calories">--</span>
-                    </div>
-                </div>
-            </div>
+    // تنظیم ماه‌ها
+    if (months < 0) {
+        years--;
+        months += 12;
+    }
 
-            <!-- توصیه‌های کاربردی -->
-            <div class="card">
-                <h3>💡 توصیه‌های کاربردی</h3>
-                <div id="practical-tips"></div>
-            </div>
+    // محاسبه کل ماه‌ها (برای WHO)
+    const totalMonths = years * 12 + months;
 
-            <div style="display: flex; gap: 10px; margin-top: 20px;">
-                <button id="back-btn" class="btn-primary" style="flex: 1;">محاسبه مجدد</button>
-                <button id="help-btn2" class="btn-secondary" style="flex: 1;">راهنما</button>
-            </div>
-        </div>
-    </div>
+    return { years, months, days, totalMonths };
+}
 
-    <!-- ===== صفحه راهنما ===== -->
-    <div class="page" id="guide-page">
-        <div class="container">
-            <div class="header">
-                <h1>راهنمای استفاده</h1>
-            </div>
+/* ---------- BMI ---------- */
+function calculateBMI(weight, heightCm) {
+    const h = heightCm / 100;
+    return weight / (h * h);
+}
 
-            <div class="card">
-                <h3>📊 شاخص توده بدنی (BMI)</h3>
-                <p>نسبت وزن به مجذور قد که وضعیت وزن را نشان می‌دهد.</p>
-                <ul>
-                    <li><strong>کودکان و نوجوانان (5-19 سال):</strong> براساس نمودارهای رشد WHO</li>
-                    <li><strong>بزرگسالان:</strong> کمتر از 18.5 (کم‌وزن)، 18.5-24.9 (نرمال)، 25-29.9 (اضافه‌وزن)، بالای 30 (چاقی)</li>
-                </ul>
+/* ---------- WHO Z-Score ---------- */
+function calculateZScore(bmi, L, M, S) {
+    if (L === 0) return Math.log(bmi / M) / S;
+    return (Math.pow(bmi / M, L) - 1) / (L * S);
+}
 
-                <h3>🔥 BMR (متابولیسم پایه)</h3>
-                <p>کالری مورد نیاز بدن در حالت استراحت کامل.</p>
+function classifyWHO(z) {
+    if (z < -3) return { label: "لاغری شدید", color: "#EF4444", zMin: -2 };
+    if (z < -2) return { label: "لاغری", color: "#F97316", zMin: -2 };
+    if (z <= 1) return { label: "نرمال", color: "#22C55E", zMin: -2 };
+    if (z <= 2) return { label: "اضافه‌وزن", color: "#EAB308", zMin: 1 };
+    return { label: "چاقی", color: "#DC2626", zMin: 1 };
+}
 
-                <h3>⚡ TDEE (کالری روزانه)</h3>
-                <p>کالری کل مورد نیاز با در نظر گرفتن سطح فعالیت.</p>
+/* ---------- Adult BMI ---------- */
+function classifyAdultBMI(bmi) {
+    if (bmi < 18.5) return { label: "کم‌وزن", color: "#F97316", target: 18.5 };
+    if (bmi < 25) return { label: "نرمال", color: "#22C55E", target: 24.9 };
+    if (bmi < 30) return { label: "اضافه‌وزن", color: "#EAB308", target: 24.9 };
+    return { label: "چاقی", color: "#DC2626", target: 24.9 };
+}
 
-                <h3>🎯 توصیه‌های کالری</h3>
-                <ul>
-                    <li><strong>کاهش وزن:</strong> 500 کالری کمتر از TDEE</li>
-                    <li><strong>حفظ وزن:</strong> برابر با TDEE</li>
-                    <li><strong>افزایش وزن:</strong> 300 کالری بیشتر از TDEE</li>
-                </ul>
+/* ---------- BMR & TDEE ---------- */
+function calculateBMR(gender, weight, height, ageYears) {
+    return gender === "مرد"
+        ? 10 * weight + 6.25 * height - 5 * ageYears + 5
+        : 10 * weight + 6.25 * height - 5 * ageYears - 161;
+}
 
-                <h3>⚠️ نکات مهم</h3>
-                <ul>
-                    <li>این محاسبات تخمینی هستند و نباید جایگزین مشاوره پزشکی شوند</li>
-                    <li>برای کودکان و نوجوانان حتماً با متخصص تغذیه مشورت کنید</li>
-                    <li>تغییرات وزن باید تدریجی و با نظارت پزشک باشد</li>
-                </ul>
-            </div>
+function calculateTDEE(bmr, activity) {
+    return bmr * activity;
+}
 
-            <button id="back-guide-btn" class="btn-primary">بازگشت</button>
-        </div</div>
+/* ---------- Practical Tips Based on Status ---------- */
+function generatePracticalTips(statusLabel, bmi, age) {
+    const tips = {
+        "لاغری شدید": [
+            "🍽️ وعده‌های غذایی خود را به ۵-۶ وعده کوچک در روز تقسیم کنید تا اشتها بهتر تحریک شود",
+            "🥜 مواد غذایی پرکالری و مغذی مانند آجیل، کره بادام‌زمینی و خرما مصرف کنید",
+            "💪 ورزش‌های مقاومتی انجام دهید تا عضله‌سازی کنید، نه چربی‌سوزی",
+            "⚕️ با متخصص تغذیه مشورت کنید تا علت کم‌وزنی شناسایی شود"
+        ],
+        "لاغری": [
+            "🥗 پروتئین کافی مصرف کنید: گوشت، تخم‌مرغ، لبنیات و حبوبات",
+            "🏋️ تمرینات قدرتی ۳ بار در هفته برای افزایش توده عضلانی",
+            "🍌 میان‌وعده‌های مغذی مانند موز با کره بادام‌زمینی اضافه کنید",
+            "💧 مایعات را بین وعده‌ها بنوشید تا احساس سیری زودهنگام نداشته باشید"
+        ],
+        "نرمال": [
+            "✅ الگوی غذایی فعلی را حفظ کنید و تنوع را فراموش نکنید",
+            "🚶 حداقل ۳۰ دقیقه فعالیت بدنی روزانه برای حفظ سلامت قلب",
+            "🥦 نصف بشقاب را سبزیجات، یک‌چهارم پروتئین و یک‌چهارم کربوهیدرات سالم اختصاص دهید",
+            "😴 خواب کافی (۷-۹ ساعت) برای تنظیم هورمون‌های اشتها ضروری است"
+        ],
+        "اضافه‌وزن": [
+            "🔥 کسری کالری ۳۰۰-۵۰۰ واحد برای کاهش وزن تدریجی و پایدار",
+            "🚴 ترکیب کاردیو و تمرینات قدرتی ۴-۵ بار در هفته",
+            "🍬 قندهای ساده (نوشابه، شیرینی) را محدود کنید و با میوه جایگزین کنید",
+            "📊 رژیم غذایی را ردیابی کنید تا از میزان کالری دریافتی مطمئن شوید"
+        ],
+        "چاقی": [
+            "⚕️ مشاوره با متخصص تغذیه و پزشک برای برنامه کاهش وزن تخصصی",
+            "🏃 شروع با پیاده‌روی ۲۰ دقیقه‌ای و افزایش تدریجی شدت",
+            "🍽️ کنترل اندازه وعده‌ها: از ظروف کوچک‌تر استفاده کنید",
+            "🧘 کنترل استرس و خواب کافی برای تنظیم هورمون‌های چاقی (کورتیزول و گرلین)"
+        ],
+        "کم‌وزن": [
+            "🥛 افزودن شیر، پنیر و ماست پرچرب به رژیم غذایی",
+            "🍚 کربوهیدرات‌های سالم مانند برنج قهوه‌ای، سیب‌زمینی و غلات کامل",
+            "🏋️ تمرینات مقاومتی برای افزایش توده عضلانی به‌جای چربی",
+            "📈 افزایش تدریجی کالری (۲۰۰-۳۰۰ واحد هر هفته)"
+        ]
+    };
 
-    <script src="who-data.js"></script>
-    <script src="bmi.js"></script>
-    <script>
-        // پر کردن سال‌ها (1300 تا 1450)
-        const yearSelect = document.getElementById('birth-year');
-        for (let y = 1450; y >= 1300; y--) {
-            const opt = document.createElement('option');
-            opt.value = y;
-            opt.textContent = y;
-            yearSelect.appendChild(opt);
+    // توصیه‌های ویژه کودکان و نوجوانان
+    if (age < 18) {
+        return [
+            "👨‍👩‍👧 والدین باید با متخصص تغذیه کودکان مشورت کنند",
+            "🎯 تمرکز بر عادات غذایی سالم به‌جای محدودیت‌های شدید",
+            "🏃 فعالیت بدنی روزانه به‌صورت بازی و ورزش‌های گروهی",
+            "📵 کاهش زمان صفحه‌نمایش و افزایش فعالیت‌های فیزیکی"
+        ];
+    }
+
+    return tips[statusLabel] || tips["نرمال"];
+}
+
+/* ---------- Main ---------- */
+function calculateAndGo() {
+    clearError();
+
+    const gender = document.getElementById("gender").value;
+    const jy = +document.getElementById("birth-year").value;
+    const jm = +document.getElementById("birth-month").value;
+    const jd = +document.getElementById("birth-day").value;
+    const height = +document.getElementById("height").value;
+    const weight = +document.getElementById("weight").value;
+    const activity = +document.getElementById("activity").value;
+
+    if (!jy || !jm || !jd || !height || !weight) {
+        showError("❌ لطفاً همه فیلدها را کامل وارد کنید.");
+        return;
+    }
+
+    /* ---------- اعتبارسنجی تاریخ تولد با کبیسه ---------- */
+    const validation = validateBirthDate(jy, jm, jd);
+    if (!validation.valid) {
+        showError(validation.error);
+        return;
+    }
+
+    /* ---------- محاسبه سن دقیق ---------- */
+    const age = calculateExactAge(jy, jm, jd);
+
+    /* ---------- بررسی سن منفی ---------- */
+    if (age.years < 0 || age.totalMonths < 0) {
+        showError("❌ تاریخ تولد نامعتبر است! لطفاً یک تاریخ گذشته وارد کنید.");
+        return;
+    }
+
+    /* ---------- بررسی سن کمتر از 5 سال ---------- */
+    if (age.totalMonths < 60) {
+        showError("❌ این ابزار برای سنین ۵ سال به بالا طراحی شده است.");
+        return;
+    }
+
+    const bmi = calculateBMI(weight, height);
+    const h = height / 100;
+
+    let statusText = "";
+    let diffText = "";
+    let healthyText = "";
+    let color = "";
+
+    /* ---------- WHO Children & Teens (5-19 سال) ---------- */
+    if (age.totalMonths >= 60 && age.totalMonths <= 228) {
+        const lms = getLMS(gender, age.totalMonths);
+        if (!lms) {
+            showError("❌ داده WHO برای این سن موجود نیست.");
+            return;
         }
 
-        // پر کردن روزها (1 تا 31)
-        const daySelect = document.getElementById('birth-day');
-        for (let d = 1; d <= 31; d++) {
-            const opt = document.createElement('option');
-            opt.value = d;
-            opt.textContent = d;
-            daySelect.appendChild(opt);
+        const z = calculateZScore(bmi, lms.L, lms.M, lms.S);
+        const cls = classifyWHO(z);
+        color = cls.color;
+        statusText = cls.label;
+
+        const healthyMinBMI =
+            lms.M * Math.pow(1 + lms.L * lms.S * (-2), 1 / lms.L);
+        const healthyMaxBMI =
+            lms.M * Math.pow(1 + lms.L * lms.S * (1), 1 / lms.L);
+
+        const healthyMinW = healthyMinBMI * h * h;
+        const healthyMaxW = healthyMaxBMI * h * h;
+
+        healthyText = `${healthyMinW.toFixed(1)} تا ${healthyMaxW.toFixed(1)} کیلوگرم`;
+
+        if (bmi < healthyMinBMI) {
+            diffText = `کمبود وزن: ${(healthyMinW - weight).toFixed(1)} کیلوگرم`;
+        } else if (bmi > healthyMaxBMI) {
+            diffText = `اضافه وزن: ${(weight - healthyMaxW).toFixed(1)} کیلوگرم`;
+        } else {
+            diffText = "در محدوده سالم قرار دارید ✅";
         }
-    </script>
-</body>
-</html>
+    }
+
+    /* ---------- Adults (19+ سال) ---------- */
+    else {
+        const cls = classifyAdultBMI(bmi);
+        color = cls.color;
+        statusText = cls.label;
+
+        const targetWeight = cls.target * h * h;
+        const minW = 18.5 * h * h;
+        const maxW = 24.9 * h * h;
+        healthyText = `${minW.toFixed(1)} تا ${maxW.toFixed(1)} کیلوگرم`;
+
+        if (bmi < 18.5) {
+            diffText = `کمبود وزن: ${(targetWeight - weight).toFixed(1)} کیلوگرم`;
+        } else if (bmi > 24.9) {
+            diffText = `اضافه وزن: ${(weight - targetWeight).toFixed(1)} کیلوگرم`;
+        } else {
+            diffText = "در محدوده سالم قرار دارید ✅";
+        }
+    }
+
+    const bmr = calculateBMR(gender, weight, height, age.years);
+    const tdee = calculateTDEE(bmr, activity);
+
+    /* ---------- UI ---------- */
+    document.getElementById("r-gender").textContent = gender;
+    document.getElementById("r-height").textContent = `${height} سانتی‌متر`;
+    document.getElementById("r-weight").textContent = `${weight} کیلوگرم`;
+    
+    // نمایش سن دقیق (سال، ماه، روز)
+    document.getElementById("r-age").textContent =
+        `${age.years} سال، ${age.months} ماه و ${age.days} روز`;
+
+    document.getElementById("bmi-value").textContent = bmi.toFixed(2);
+    document.getElementById("bmi-circle").style.backgroundColor = color;
+    document.getElementById("bmi-status-text").textContent = statusText;
+    document.getElementById("bmi-difference-text").textContent = diffText;
+
+    document.getElementById("r-healthy").textContent = healthyText;
+    document.getElementById("r-bmr").textContent = `${Math.round(bmr)} kcal`;
+    document.getElementById("r-tdee").textContent = `${Math.round(tdee)} kcal`;
+
+    document.getElementById("maintain-calories").textContent =
+        `${Math.round(tdee)} kcal`;
+    document.getElementById("gain-calories").textContent =
+        `${Math.round(tdee + 300)} kcal`;
+    document.getElementById("loss-calories").textContent =
+        `${Math.round(tdee - 500)} kcal`;
+
+    /* ---------- نمایش توصیه‌های کاربردی ---------- */
+    const practicalTips = generatePracticalTips(statusText, bmi, age.years);
+    const tipsHTML = practicalTips.map(tip => `<p class="tip-item">✦ ${tip}</p>`).join("");
+    document.getElementById("practical-tips").innerHTML = tipsHTML;
+
+    showPage("results-page");
+}
+
+/* ---------- Events ---------- */
+document.getElementById("calc-btn").onclick = calculateAndGo;
+document.getElementById("back-btn").onclick = () => showPage("input-page");
+document.getElementById("help-btn").onclick = () => showPage("guide-page");
+document.getElementById("help-btn2").onclick = () => showPage("guide-page");
+document.getElementById("back-guide-btn").onclick = () => showPage("input-page");
+
+/* ---------- Motivation with Blink Effect ---------- */
+function showMotivation() {
+    const el = document.getElementById("motivation-text");
+    const randomQuote = MOTIVATIONS[Math.floor(Math.random() * MOTIVATIONS.length)];
+    
+    // حالت محو شدن
+    el.style.opacity = "0";
+    
+    setTimeout(() => {
+        el.textContent = randomQuote;
+        // حالت ظاهر شدن
+        el.style.opacity = "1";
+    }, 500);
+}
+
+// نمایش اولیه
+showMotivation();
+
+// تغییر هر 5 ثانیه
+setInterval(showMotivation, 5000);
