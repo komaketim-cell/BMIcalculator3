@@ -1,463 +1,428 @@
 /**
- * محاسبه سن دقیق بر حسب ماه (اعشاری)
- * @param {number} birthJY - سال تولد جلالی
- * @param {number} birthJM - ماه تولد جلالی
- * @param {number} birthJD - روز تولد جلالی
- * @param {number} todayJY - سال امروز جلالی
- * @param {number} todayJM - ماه امروز جلالی
- * @param {number} todayJD - روز امروز جلالی
- * @returns {number} سن به ماه (اعشاری)
+ * bmi.js
+ * منطق محاسباتی اصلی برنامه BMI Calculator
+ * شامل: محاسبه BMI، BMR، TDEE، Z-Score و تحلیل کودکان/بزرگسالان
  */
-function calculateAgeInMonths(birthJY, birthJM, birthJD, todayJY, todayJM, todayJD) {
-    let y = todayJY - birthJY;
-    let m = todayJM - birthJM;
-    let d = todayJD - birthJD;
 
-    if (d < 0) {
-        m -= 1;
-        const prevMonth = todayJM === 1 ? 12 : todayJM - 1;
-        const prevYear = prevMonth === 12 ? todayJY - 1 : todayJY;
-        d += daysInJalaliMonth(prevYear, prevMonth);
-    }
+// تاریخ امروز (جلالی)
+const TODAY_JALALI = { year: 1404, month: 11, day: 22 };
 
-    if (m < 0) {
-        y -= 1;
-        m += 12;
-    }
-
-    // تبدیل به ماه اعشاری (دقیقاً مانند Python)
-    const totalMonths = y * 12 + m + d / 30.4375;
-    return totalMonths;
-}
-
-/**
- * تعداد روزهای ماه جلالی
- */
-function daysInJalaliMonth(jy, jm) {
-    if (jm <= 6) return 31;
-    if (jm <= 11) return 30;
-    // اسفند: بررسی کبیسه
-    return isJalaliLeapYear(jy) ? 30 : 29;
-}
-
-/**
- * بررسی سال کبیسه جلالی
- */
-function isJalaliLeapYear(jy) {
-    const breaks = [1, 5, 9, 13, 17, 22, 26, 30];
-    const cycle = jy % 128;
-    return breaks.some(b => cycle === b || cycle === b + 33 || cycle === b + 66 || cycle === b + 99);
-}
-
-/**
- * دریافت پارامترهای LMS با درون‌یابی خطی
- * @param {number} ageMonths - سن به ماه (اعشاری، مثلاً 97.36)
- * @param {string} gender - "مرد" یا "زن"
- * @returns {Object} {L, M, S}
- */
-function getLMSValues(ageMonths, gender) {
-    const table = gender === "مرد" ? WHO_BOYS_LMS : WHO_GIRLS_LMS;
-    
-    // گرد کردن به نزدیک‌ترین عدد صحیح برای جستجو
-    const monthInt = Math.round(ageMonths);
-    
-    // اگر دقیقاً روی یک نقطه بود
-    if (table[monthInt]) {
-        return table[monthInt];
-    }
-
-    // پیدا کردن کلیدهای موجود
-    const availableMonths = Object.keys(table).map(Number).sort((a, b) => a - b);
-
-    // اگر خارج از بازه بود
-    if (ageMonths <= availableMonths[0]) {
-        return table[availableMonths[0]];
-    }
-    if (ageMonths >= availableMonths[availableMonths.length - 1]) {
-        return table[availableMonths[availableMonths.length - 1]];
-    }
-
-    // پیدا کردن دو نقطه برای درون‌یابی
-    let lowerMonth = null;
-    let upperMonth = null;
-
-    for (let i = 0; i < availableMonths.length - 1; i++) {
-        if (availableMonths[i] <= ageMonths && ageMonths <= availableMonths[i + 1]) {
-            lowerMonth = availableMonths[i];
-            upperMonth = availableMonths[i + 1];
-            break;
-        }
-    }
-
-    if (lowerMonth === null) {
-        // اگر نتوانست پیدا کند، نزدیک‌ترین را برگردان
-        return table[monthInt] || table[availableMonths[0]];
-    }
-
-    // درون‌یابی خطی
-    const t = (ageMonths - lowerMonth) / (upperMonth - lowerMonth);
-    const lms1 = table[lowerMonth];
-    const lms2 = table[upperMonth];
-
-    return {
-        L: lms1.L + t * (lms2.L - lms1.L),
-        M: lms1.M + t * (lms2.M - lms1.M),
-        S: lms1.S + t * (lms2.S - lms1.S)
-    };
-}
-
-/**
- * محاسبه Z-Score از فرمول LMS
- */
-function calculateZScore(value, L, M, S) {
-    if (L === 0) {
-        return Math.log(value / M) / S;
-    }
-    return (Math.pow(value / M, L) - 1) / (L * S);
-}
-
-/**
- * طبقه‌بندی Z-Score (WHO)
- */
-function classifyZScore(z) {
-    if (z < -3) return "لاغری شدید";
-    if (z < -2) return "لاغری";
-    if (z <= 1) return "نرمال";
-    if (z <= 2) return "اضافه وزن";
-    if (z <= 3) return "چاقی";
-    return "چاقی شدید";
-}
-
-/**
- * محاسبه BMI
- */
-function calculateBMI(weight, height) {
-    const heightM = height / 100;
-    return weight / (heightM * heightM);
-}
-
-/**
- * محاسبه BMR (Mifflin-St Jeor)
- */
-function calculateBMR(weight, height, ageYears, gender) {
-    if (gender === "مرد") {
-        return 10 * weight + 6.25 * height - 5 * ageYears + 5;
-    }
-    return 10 * weight + 6.25 * height - 5 * ageYears - 161;
-}
-
-/**
- * محاسبه TDEE
- */
-function calculateTDEE(bmr, activityFactor) {
-    return bmr * activityFactor;
-}
-
-/**
- * محاسبه بازه وزن سالم بر اساس Z-Score
- */
-function calculateHealthyWeightRange(height, ageMonths, gender) {
-    const lms = getLMSValues(ageMonths, gender);
-    const heightM = height / 100;
-
-    // Z = -2 تا Z = +1 (بازه نرمال WHO)
-    const bmiMin = calculateBMIFromZ(-2, lms.L, lms.M, lms.S);
-    const bmiMax = calculateBMIFromZ(1, lms.L, lms.M, lms.S);
-
-    const weightMin = bmiMin * heightM * heightM;
-    const weightMax = bmiMax * heightM * heightM;
-
-    return { min: weightMin, max: weightMax };
-}
-
-/**
- * محاسبه BMI از Z-Score (معکوس فرمول LMS)
- */
-function calculateBMIFromZ(z, L, M, S) {
-    if (L === 0) {
-        return M * Math.exp(z * S);
-    }
-    return M * Math.pow(1 + L * S * z, 1 / L);
-}
-
-/**
- * اعتبارسنجی ورودی‌ها
- */
-function validateInputs() {
-    const weight = parseFloat(document.getElementById('weight').value);
-    const height = parseFloat(document.getElementById('height').value);
-    const birthYear = parseInt(document.getElementById('birth-year').value);
-    const birthMonth = parseInt(document.getElementById('birth-month').value);
-    const birthDay = parseInt(document.getElementById('birth-day').value);
-
-    const errorDiv = document.getElementById('error-message');
-    errorDiv.textContent = '';
-
-    if (!birthYear || !birthMonth || !birthDay) {
-        errorDiv.textContent = 'لطفاً تاریخ تولد را کامل وارد کنید';
-        return false;
-    }
-
-    if (isNaN(height) || height < 50 || height > 250) {
-        errorDiv.textContent = 'لطفاً قد را به درستی وارد کنید (50-250 سانتی‌متر)';
-        return false;
-    }
-
-    if (isNaN(weight) || weight < 2 || weight > 300) {
-        errorDiv.textContent = 'لطفاً وزن را به درستی وارد کنید (2-300 کیلوگرم)';
-        return false;
-    }
-
-    return true;
-}
-
-/**
- * محاسبه تفاوت وزن
- */
-function calculateWeightDifference(currentWeight, minWeight, maxWeight) {
-    if (currentWeight < minWeight) {
-        const diff = (minWeight - currentWeight).toFixed(1);
-        return `شما ${diff} کیلوگرم کمتر از حد نرمال وزن دارید`;
-    } else if (currentWeight > maxWeight) {
-        const diff = (currentWeight - maxWeight).toFixed(1);
-        return `شما ${diff} کیلوگرم بیشتر از حد نرمال وزن دارید`;
-    }
-    return 'وزن شما در محدوده سالم قرار دارد';
-}
-
-/**
- * رنگ‌آمیزی دایره BMI
- */
-function setBMIColor(category) {
-    const circle = document.getElementById('bmi-circle');
-    circle.classList.remove('underweight', 'normal', 'overweight', 'obese');
-    
-    if (category.includes('کمبود') || category.includes('لاغری')) {
-        circle.classList.add('underweight');
-    } else if (category === 'نرمال') {
-        circle.classList.add('normal');
-    } else if (category.includes('اضافه وزن')) {
-        circle.classList.add('overweight');
-    } else {
-        circle.classList.add('obese');
-    }
-}
-
-/**
- * تولید توصیه‌های کاربردی
- */
-function generatePracticalTips(category, tdee, weight, healthyRange) {
-    const tips = [];
-    
-    if (category.includes('اضافه وزن') || category.includes('چاقی')) {
-        tips.push('💧 نوشیدن حداقل 8 لیوان آب در روز');
-        tips.push('🥗 شروع وعده‌های غذایی با سالاد');
-        tips.push('🚶 پیاده‌روی حداقل 30 دقیقه در روز');
-        tips.push(`📉 هدف کاهش وزن: ${((tdee - 500) / 1000).toFixed(1)} هزار کالری در روز`);
-    } else if (category.includes('کمبود') || category.includes('لاغری')) {
-        tips.push('🥜 افزودن آجیل و خشکبار به رژیم غذایی');
-        tips.push('🏋️ ورزش‌های قدرتی برای افزایش عضله');
-        tips.push('🍽️ خوردن 5-6 وعده کوچک در روز');
-        tips.push(`📈 هدف افزایش وزن: ${((tdee + 300) / 1000).toFixed(1)} هزار کالری در روز`);
-    } else {
-        tips.push('✅ وزن شما در محدوده سالم است');
-        tips.push('💪 ادامه فعالیت بدنی منظم');
-        tips.push('🥗 حفظ رژیم غذایی متعادل');
-        tips.push(`⚖️ حفظ وزن: ${(tdee / 1000).toFixed(1)} هزار کالری در روز`);
-    }
-    
-    return tips;
-}
-
-/**
- * تابع اصلی محاسبه
- */
-function performCalculation() {
-    if (!validateInputs()) {
-        return;
-    }
-
-    // دریافت ورودی‌ها
-    const weight = parseFloat(document.getElementById('weight').value);
-    const height = parseFloat(document.getElementById('height').value);
-    const gender = document.getElementById('gender').value;
-    const activityLevel = parseFloat(document.getElementById('activity').value);
-
-    // تاریخ تولد
-    const birthYear = parseInt(document.getElementById('birth-year').value);
-    const birthMonth = parseInt(document.getElementById('birth-month').value);
-    const birthDay = parseInt(document.getElementById('birth-day').value);
-
-    // تاریخ امروز (جلالی - باید از API یا تابع تبدیل استفاده شود)
-    // فرض: تاریخ امروز 1404/11/22
-    const todayYear = 1404;
-    const todayMonth = 11;
-    const todayDay = 22;
-
-    // محاسبه سن به ماه (اعشاری)
-    const ageMonths = calculateAgeInMonths(
-        birthYear, birthMonth, birthDay,
-        todayYear, todayMonth, todayDay
-    );
-    const ageYears = ageMonths / 12;
-
-    // محاسبه BMI
-    const bmi = calculateBMI(weight, height);
-
-    let category = "نرمال";
-    let healthyRange = null;
-    let weightDifference = "";
-    let zScore = null;
-    let lmsValues = null;
-
-    // اگر کودک/نوجوان (5-19 سال) - استفاده از LMS و Z-Score
-    if (ageMonths >= 60 && ageMonths <= 228) {
-        // دریافت پارامترهای LMS با درون‌یابی
-        lmsValues = getLMSValues(ageMonths, gender);
-        
-        // محاسبه Z-Score
-        zScore = calculateZScore(bmi, lmsValues.L, lmsValues.M, lmsValues.S);
-        
-        // طبقه‌بندی بر اساس Z-Score
-        category = classifyZScore(zScore);
-        
-        // محاسبه بازه وزن سالم (Z = -2 تا +1)
-        healthyRange = calculateHealthyWeightRange(height, ageMonths, gender);
-        
-        // محاسبه تفاوت وزن
-        weightDifference = calculateWeightDifference(weight, healthyRange.min, healthyRange.max);
-        
-        console.log('=== محاسبات کودک/نوجوان ===');
-        console.log('سن (ماه اعشاری):', ageMonths.toFixed(2));
-        console.log('LMS Values:', lmsValues);
-        console.log('Z-Score:', zScore.toFixed(2));
-        console.log('دسته‌بندی:', category);
-        console.log('بازه وزن سالم:', healthyRange);
-    } else {
-        // بزرگسال - استفاده از BMI استاندارد
-        if (bmi < 18.5) category = "کمبود وزن";
-        else if (bmi < 25) category = "نرمال";
-        else if (bmi < 30) category = "اضافه وزن";
-        else if (bmi < 35) category = "چاقی درجه ۱";
-        else if (bmi < 40) category = "چاقی درجه ۲";
-        else category = "چاقی درجه ۳";
-
-        // محاسبه بازه وزن سالم (BMI 18.5-24.9)
-        const heightM = height / 100;
-        healthyRange = {
-            min: 18.5 * heightM * heightM,
-            max: 24.9 * heightM * heightM
-        };
-        
-        weightDifference = calculateWeightDifference(weight, healthyRange.min, healthyRange.max);
-        
-        console.log('=== محاسبات بزرگسال ===');
-        console.log('سن (سال):', ageYears.toFixed(1));
-        console.log('BMI:', bmi.toFixed(1));
-        console.log('دسته‌بندی:', category);
-    }
-
-    // محاسبه BMR و TDEE
-    const bmr = calculateBMR(weight, height, ageYears, gender);
-    const tdee = calculateTDEE(bmr, activityLevel);
-
-    console.log('BMR:', bmr.toFixed(0));
-    console.log('TDEE:', tdee.toFixed(0));
-
-    // نمایش نتایج در صفحه
-    document.getElementById('r-gender').textContent = gender;
-    document.getElementById('r-age').textContent = `${ageYears.toFixed(1)} سال`;
-    document.getElementById('r-height').textContent = `${height} سانتی‌متر`;
-    document.getElementById('r-weight').textContent = `${weight} کیلوگرم`;
-
-    document.getElementById('bmi-value').textContent = bmi.toFixed(1);
-    document.getElementById('bmi-status-text').textContent = category;
-    document.getElementById('bmi-difference-text').textContent = weightDifference;
-    setBMIColor(category);
-
-    document.getElementById('r-healthy').textContent = 
-        `${healthyRange.min.toFixed(1)} - ${healthyRange.max.toFixed(1)} کیلوگرم`;
-
-    document.getElementById('r-bmr').textContent = `${bmr.toFixed(0)} کالری`;
-    document.getElementById('r-tdee').textContent = `${tdee.toFixed(0)} کالری`;
-
-    document.getElementById('maintain-calories').textContent = `${tdee.toFixed(0)} کالری`;
-    document.getElementById('gain-calories').textContent = `${(tdee + 300).toFixed(0)} کالری`;
-    document.getElementById('loss-calories').textContent = `${(tdee - 500).toFixed(0)} کالری`;
-
-    // توصیه‌های کاربردی
-    const tips = generatePracticalTips(category, tdee, weight, healthyRange);
-    const tipsContainer = document.getElementById('practical-tips');
-    tipsContainer.innerHTML = tips.map(tip => `<div class="tip-item">${tip}</div>`).join('');
-
-    // تغییر صفحه به نتایج
-    showPage('results-page');
-}
-
-/**
- * تغییر صفحه
- */
+// ---------------------------------------------------------
+// توابع کمکی UI
+// ---------------------------------------------------------
 function showPage(pageId) {
-    document.querySelectorAll('.page').forEach(page => {
-        page.classList.remove('active');
-    });
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.getElementById(pageId).classList.add('active');
 }
 
+function showError(message) {
+    const errorDiv = document.getElementById('error-message');
+    errorDiv.textContent = message;
+    errorDiv.style.display = 'block';
+    setTimeout(() => errorDiv.style.display = 'none', 5000);
+}
+
+// ---------------------------------------------------------
+// جملات انگیزشی
+// ---------------------------------------------------------
+const motivationalQuotes = [
+    "سلامتی سرمایه‌ای است که با هیچ ثروتی قابل مقایسه نیست.",
+    "هر گام کوچک به سمت سلامتی، یک پیروزی بزرگ است.",
+    "بدنت خانه‌ای است که باید در آن زندگی کنی، پس از آن مراقبت کن.",
+    "تغییر واقعی از درون شروع می‌شود.",
+    "سلامتی یک سفر است، نه یک مقصد.",
+    "بهترین سرمایه‌گذاری، سرمایه‌گذاری روی خودت است.",
+    "قدرت واقعی در تعادل و ثبات قدم است.",
+    "هر روز فرصتی جدید برای بهتر شدن است."
+];
+
+function getRandomQuote() {
+    return motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)];
+}
+
+// ---------------------------------------------------------
+// محاسبات تقویم جلالی
+// ---------------------------------------------------------
+function isJalaliLeapYear(year) {
+    const breaks = [1, 5, 9, 13, 17, 22, 26, 30];
+    const gy = year + 621;
+    let jp = breaks[0];
+    let jump = 0;
+
+    for (let i = 1; i < breaks.length; i++) {
+        const jm = breaks[i];
+        jump = jm - jp;
+        if (year < jm) break;
+        jp = jm;
+    }
+
+    let n = year - jp;
+    if (jump - n < 6) n = n - jump + (jump + 4) / 33 * 33;
+
+    let leap = ((n + 1) % 33 - 1) % 4;
+    if (leap === -1) leap = 4;
+
+    return leap === 0;
+}
+
+function getJalaliMonthDays(year, month) {
+    if (month <= 6) return 31;
+    if (month <= 11) return 30;
+    return isJalaliLeapYear(year) ? 30 : 29;
+}
+
+function isValidJalaliDate(year, month, day) {
+    if (month < 1 || month > 12) return false;
+    const maxDays = getJalaliMonthDays(year, month);
+    return day >= 1 && day <= maxDays;
+}
+
 /**
- * Event Listeners - با IDهای صحیح از HTML
+ * محاسبه سن دقیق بر حسب سال، ماه و روز
+ * @returns {Object} - {years, months, days, totalMonths, ageInYears}
  */
-document.addEventListener('DOMContentLoaded', function() {
-    // دکمه محاسبه (ID صحیح: calc-btn)
-    const calcBtn = document.getElementById('calc-btn');
-    if (calcBtn) {
-        calcBtn.addEventListener('click', performCalculation);
+function calculateExactAge(birthYear, birthMonth, birthDay) {
+    const { year: tYear, month: tMonth, day: tDay } = TODAY_JALALI;
+
+    let years = tYear - birthYear;
+    let months = tMonth - birthMonth;
+    let days = tDay - birthDay;
+
+    // تنظیم روزها
+    if (days < 0) {
+        months--;
+        const prevMonth = tMonth === 1 ? 12 : tMonth - 1;
+        const prevYear = tMonth === 1 ? tYear - 1 : tYear;
+        days += getJalaliMonthDays(prevYear, prevMonth);
+    }
+
+    // تنظیم ماه‌ها
+    if (months < 0) {
+        years--;
+        months += 12;
+    }
+
+    const totalMonths = years * 12 + months;
+    
+    // سن دقیق بر حسب سال (با اعشار)
+    const ageInYears = years + months / 12 + days / 365.25;
+
+    return { years, months, days, totalMonths, ageInYears };
+}
+
+// ---------------------------------------------------------
+// محاسبات BMI و BMR
+// ---------------------------------------------------------
+function calculateBMI(weight, height) {
+    const heightInMeters = height / 100;
+    return weight / (heightInMeters * heightInMeters);
+}
+
+function calculateBMR(weight, height, ageYears, gender) {
+    // فرمول Mifflin-St Jeor
+    const base = 10 * weight + 6.25 * height - 5 * ageYears;
+    return gender === 'male' ? base + 5 : base - 161;
+}
+
+function calculateTDEE(bmr, activityLevel) {
+    const factors = {
+        sedentary: 1.2,
+        light: 1.375,
+        moderate: 1.55,
+        active: 1.725,
+        very_active: 1.9
+    };
+    return bmr * (factors[activityLevel] || 1.2);
+}
+
+// ---------------------------------------------------------
+// تحلیل کودکان (5-19 سال) با WHO LMS
+// ---------------------------------------------------------
+function analyzeChildBMI(bmi, ageYears, gender) {
+    const lms = getLMS(ageYears, gender);
+    
+    if (!lms) {
+        return {
+            status: 'خارج از محدوده',
+            description: 'داده‌های WHO برای این سن در دسترس نیست',
+            zScore: null
+        };
+    }
+
+    const zScore = calculateZScore(bmi, lms.L, lms.M, lms.S);
+    const category = classifyZScore(zScore);
+
+    // محاسبه محدوده وزن سالم (Z-Score بین -2 تا +1)
+    const heightM = document.getElementById('height').value / 100;
+    
+    // وزن در Z = -2
+    const zMinus2 = -2;
+    const bmiAtZMinus2 = lms.L !== 0 
+        ? lms.M * Math.pow(1 + lms.L * lms.S * zMinus2, 1 / lms.L)
+        : lms.M * Math.exp(lms.S * zMinus2);
+    const minHealthyWeight = bmiAtZMinus2 * heightM * heightM;
+
+    // وزن در Z = +1
+    const zPlus1 = 1;
+    const bmiAtZPlus1 = lms.L !== 0
+        ? lms.M * Math.pow(1 + lms.L * lms.S * zPlus1, 1 / lms.L)
+        : lms.M * Math.exp(lms.S * zPlus1);
+    const maxHealthyWeight = bmiAtZPlus1 * heightM * heightM;
+
+    return {
+        status: category,
+        zScore: zScore.toFixed(2),
+        healthyWeightRange: {
+            min: minHealthyWeight.toFixed(1),
+            max: maxHealthyWeight.toFixed(1)
+        },
+        lmsParams: {
+            L: lms.L.toFixed(4),
+            M: lms.M.toFixed(4),
+            S: lms.S.toFixed(4),
+            age: ageYears.toFixed(2)
+        }
+    };
+}
+
+// ---------------------------------------------------------
+// تحلیل بزرگسالان (19+ سال)
+// ---------------------------------------------------------
+function analyzeAdultBMI(bmi, height) {
+    let status = '';
+    if (bmi < 18.5) status = 'کمبود وزن';
+    else if (bmi < 25) status = 'نرمال';
+    else if (bmi < 30) status = 'اضافه وزن';
+    else if (bmi < 35) status = 'چاقی درجه ۱';
+    else if (bmi < 40) status = 'چاقی درجه ۲';
+    else status = 'چاقی درجه ۳';
+
+    // محدوده وزن سالم (BMI 18.5 - 25)
+    const heightM = height / 100;
+    const minHealthyWeight = 18.5 * heightM * heightM;
+    const maxHealthyWeight = 25 * heightM * heightM;
+
+    return {
+        status,
+        healthyWeightRange: {
+            min: minHealthyWeight.toFixed(1),
+            max: maxHealthyWeight.toFixed(1)
+        }
+    };
+}
+
+// ---------------------------------------------------------
+// تولید توصیه‌های کاربردی
+// ---------------------------------------------------------
+function generatePracticalTips(status, ageYears) {
+    const isChild = ageYears < 19;
+    
+    const tips = {
+        'لاغری شدید': [
+            isChild ? 'مشورت فوری با پزشک کودکان ضروری است' : 'مشاوره با پزشک متخصص تغذیه الزامی است',
+            'افزایش تدریجی کالری مصرفی با تمرکز بر مواد مغذی',
+            'وعده‌های غذایی منظم و متنوع',
+            'بررسی احتمال مشکلات جذب مواد غذایی'
+        ],
+        'لاغری': [
+            isChild ? 'مشورت با پزشک کودکان توصیه می‌شود' : 'مشاوره با متخصص تغذیه مفید است',
+            'افزایش کالری با غذاهای سالم و پرانرژی',
+            'میان‌وعده‌های مغذی (آجیل، خرما، شیر)',
+            'بررسی برنامه ورزشی مناسب'
+        ],
+        'نرمال': [
+            'حفظ وزن فعلی با رژیم غذایی متعادل',
+            'فعالیت بدنی منظم (حداقل ۳۰ دقیقه در روز)',
+            'مصرف کافی آب (۸-۱۰ لیوان در روز)',
+            'خواب کافی و مدیریت استرس'
+        ],
+        'اضافه وزن': [
+            'کاهش تدریجی ۵۰۰-۷۵۰ کالری از کالری روزانه',
+            'افزایش فعالیت بدنی به ۴۵-۶۰ دقیقه در روز',
+            'کاهش مصرف قند و نوشابه‌های شیرین',
+            'افزایش مصرف سبزیجات و پروتئین'
+        ],
+        'چاقی': [
+            isChild ? 'مشورت با پزشک کودکان ضروری است' : 'مشاوره با متخصص تغذیه الزامی است',
+            'برنامه کاهش وزن تدریجی و پایدار',
+            'فعالیت بدنی منظم با شدت متوسط',
+            'کنترل اندازه وعده‌های غذایی',
+            'حمایت روانی و خانوادگی'
+        ],
+        'چاقی شدید': [
+            'مراجعه فوری به پزشک متخصص',
+            'ارزیابی کامل سلامت و احتمال عوارض',
+            'برنامه جامع کاهش وزن تحت نظر پزشک',
+            'بررسی گزینه‌های درمانی مختلف',
+            'پشتیبانی روانشناختی حرفه‌ای'
+        ],
+        'چاقی درجه ۱': [
+            'مشاوره با متخصص تغذیه',
+            'کاهش ۵۰۰-۷۵۰ کالری روزانه',
+            'فعالیت بدنی منظم ۶۰ دقیقه در روز',
+            'پیگیری منظم پیشرفت'
+        ],
+        'چاقی درجه ۲': [
+            'مراجعه به پزشک و متخصص تغذیه',
+            'برنامه کاهش وزن ساختاریافته',
+            'فعالیت بدنی تحت نظارت',
+            'بررسی و کنترل بیماری‌های همراه'
+        ],
+        'چاقی درجه ۳': [
+            'مراجعه فوری به پزشک متخصص',
+            'ارزیابی جامع سلامت',
+            'بررسی گزینه‌های درمانی پیشرفته',
+            'پشتیبانی چندتخصصی (پزشک، تغذیه، روانشناس)'
+        ],
+        'کمبود وزن': [
+            'مشاوره با متخصص تغذیه',
+            'افزایش کالری با غذاهای مغذی',
+            'وعده‌های منظم و میان‌وعده‌ها',
+            'بررسی علل احتمالی'
+        ]
+    };
+
+    return tips[status] || tips['نرمال'];
+}
+
+// ---------------------------------------------------------
+// مدیریت رویداد فرم
+// ---------------------------------------------------------
+document.getElementById('bmi-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    // دریافت مقادیر
+    const weight = parseFloat(document.getElementById('weight').value);
+    const height = parseFloat(document.getElementById('height').value);
+    const birthYear = parseInt(document.getElementById('birth-year').value);
+    const birthMonth = parseInt(document.getElementById('birth-month').value);
+    const birthDay = parseInt(document.getElementById('birth-day').value);
+    const gender = document.getElementById('gender').value;
+    const activityLevel = document.getElementById('activity').value;
+
+    // اعتبارسنجی تاریخ تولد
+    if (!isValidJalaliDate(birthYear, birthMonth, birthDay)) {
+        showError('تاریخ تولد وارد شده معتبر نیست!');
+        return;
+    }
+
+    // محاسبه سن دقیق
+    const age = calculateExactAge(birthYear, birthMonth, birthDay);
+    
+    if (age.years < 0) {
+        showError('تاریخ تولد نمی‌تواند در آینده باشد!');
+        return;
+    }
+
+    // محاسبه BMI
+    const bmi = calculateBMI(weight, height);
+    
+    // تحلیل بر اساس سن
+    let analysis;
+    const isChild = age.ageInYears >= 5 && age.ageInYears < 19;
+    
+    if (isChild) {
+        analysis = analyzeChildBMI(bmi, age.ageInYears, gender);
     } else {
-        console.error('دکمه محاسبه یافت نشد! ID: calc-btn');
+        analysis = analyzeAdultBMI(bmi, height);
     }
 
-    // دکمه بازگشت از نتایج
-    const backBtn = document.getElementById('back-btn');
-    if (backBtn) {
-        backBtn.addEventListener('click', () => showPage('input-page'));
+    // محاسبه BMR و TDEE
+    const bmr = calculateBMR(weight, height, age.ageInYears, gender);
+    const tdee = calculateTDEE(bmr, activityLevel);
+
+    // نمایش نتایج
+    displayResults(bmi, analysis, age, bmr, tdee, isChild);
+    
+    showPage('results-page');
+});
+
+// ---------------------------------------------------------
+// نمایش نتایج
+// ---------------------------------------------------------
+function displayResults(bmi, analysis, age, bmr, tdee, isChild) {
+    // BMI
+    document.getElementById('bmi-value').textContent = bmi.toFixed(1);
+    document.getElementById('bmi-status').textContent = analysis.status;
+    
+    // رنگ دایره بر اساس وضعیت
+    const circle = document.getElementById('bmi-circle');
+    const statusColors = {
+        'لاغری شدید': '#e74c3c',
+        'لاغری': '#e67e22',
+        'نرمال': '#27ae60',
+        'اضافه وزن': '#f39c12',
+        'چاقی': '#e74c3c',
+        'چاقی شدید': '#c0392b',
+        'چاقی درجه ۱': '#e67e22',
+        'چاقی درجه ۲': '#e74c3c',
+        'چاقی درجه ۳': '#c0392b',
+        'کمبود وزن': '#e67e22'
+    };
+    circle.style.borderColor = statusColors[analysis.status] || '#3498db';
+
+    // سن
+    document.getElementById('age-display').textContent = 
+        `${age.years} سال، ${age.months} ماه و ${age.days} روز`;
+
+    // Z-Score (فقط برای کودکان)
+    const zscoreSection = document.getElementById('zscore-section');
+    if (isChild && analysis.zScore !== null) {
+        zscoreSection.style.display = 'block';
+        document.getElementById('zscore-value').textContent = analysis.zScore;
+        
+        // نمایش پارامترهای LMS
+        if (analysis.lmsParams) {
+            document.getElementById('lms-params').innerHTML = `
+                <small style="color: #7f8c8d;">
+                    L: ${analysis.lmsParams.L} | 
+                    M: ${analysis.lmsParams.M} | 
+                    S: ${analysis.lmsParams.S} |
+                    سن: ${analysis.lmsParams.age} سال
+                </small>
+            `;
+        }
+    } else {
+        zscoreSection.style.display = 'none';
     }
 
-    // دکمه راهنما (صفحه اول)
-    const helpBtn = document.getElementById('help-btn');
-    if (helpBtn) {
-        helpBtn.addEventListener('click', () => showPage('guide-page'));
+    // محدوده وزن سالم
+    if (analysis.healthyWeightRange) {
+        document.getElementById('weight-range').textContent = 
+            `${analysis.healthyWeightRange.min} - ${analysis.healthyWeightRange.max} کیلوگرم`;
     }
 
-    // دکمه راهنما (صفحه نتایج)
-    const helpBtn2 = document.getElementById('help-btn2');
-    if (helpBtn2) {
-        helpBtn2.addEventListener('click', () => showPage('guide-page'));
-    }
+    // BMR و TDEE
+    document.getElementById('bmr-value').textContent = Math.round(bmr);
+    document.getElementById('tdee-value').textContent = Math.round(tdee);
 
-    // دکمه بازگشت از راهنما
-    const backGuideBtn = document.getElementById('back-guide-btn');
-    if (backGuideBtn) {
-        backGuideBtn.addEventListener('click', () => {
-            // اگر قبلاً محاسبه انجام شده، به صفحه نتایج برگرد
-            const bmiValue = document.getElementById('bmi-value').textContent;
-            if (bmiValue !== '--') {
-                showPage('results-page');
-            } else {
-                showPage('input-page');
-            }
-        });
-    }
+    // اهداف کالری
+    document.getElementById('cut-250').textContent = Math.round(tdee - 250);
+    document.getElementById('cut-500').textContent = Math.round(tdee - 500);
+    document.getElementById('maintenance').textContent = Math.round(tdee);
+    document.getElementById('bulk-250').textContent = Math.round(tdee + 250);
+    document.getElementById('bulk-500').textContent = Math.round(tdee + 500);
 
-    // متن انگیزشی تصادفی
-    const motivations = [
-        'سلامتی سرمایه‌ای است که باید از آن مراقبت کنیم 💪',
-        'هر قدمی که برای سلامتی برمی‌داریم، ارزشمند است 🌟',
-        'بدن سالم، ذهن سالم ✨',
-        'آگاهی اولین قدم برای تغییر است 🎯'
-    ];
-    const randomMotivation = motivations[Math.floor(Math.random() * motivations.length)];
-    const motivationEl = document.getElementById('motivation-text');
-    if (motivationEl) {
-        motivationEl.textContent = randomMotivation;
-    }
+    // توصیه‌های کاربردی
+    const tips = generatePracticalTips(analysis.status, age.ageInYears);
+    const tipsHtml = tips.map(tip => `<li>${tip}</li>`).join('');
+    document.getElementById('practical-tips').innerHTML = tipsHtml;
+
+    // جمله انگیزشی
+    document.getElementById('motivational-quote').textContent = getRandomQuote();
+}
+
+// ---------------------------------------------------------
+// دکمه‌های ناوبری
+// ---------------------------------------------------------
+document.getElementById('back-to-input').addEventListener('click', () => {
+    showPage('input-page');
+});
+
+document.getElementById('show-guide').addEventListener('click', () => {
+    showPage('guide-page');
+});
+
+document.getElementById('back-to-results').addEventListener('click', () => {
+    showPage('results-page');
 });
