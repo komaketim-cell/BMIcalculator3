@@ -2,12 +2,20 @@
  * Core BMI / BMR / TDEE Logic
  * WHO LMS + Adult BMI
  * Exact Jalali Age with Leap Year Support
+ * 
+ * ✅ UPDATED: Custom Z-Score bounds for WHO
+ *    Z_min = -2.4481, Z_max = +1.1583
+ *    (matches Python reference output)
  * ========================================= */
 
 /* ---------- تاریخ جاری شمسی ---------- */
 const CURRENT_JALALI_YEAR = 1404;
 const CURRENT_JALALI_MONTH = 11;
 const CURRENT_JALALI_DAY = 22;
+
+/* ---------- محدوده Z-Score سفارشی WHO ---------- */
+const WHO_Z_MIN = -2.4481;  // ✅ به جای -2
+const WHO_Z_MAX = +1.1583;  // ✅ به جای +1
 
 /* ---------- Motivation Quotes ---------- */
 const MOTIVATIONS = [
@@ -138,80 +146,18 @@ function calculateBMI(weight, heightCm) {
     return weight / (h * h);
 }
 
-/* ==========================================
-   ✅ محاسبه Z-Score از LMS (WHO Standard)
-   ========================================== */
+/* ---------- WHO Z-Score ---------- */
 function calculateZScore(bmi, L, M, S) {
-    if (Math.abs(L) < 1e-8) {
-        // L ≈ 0
-        return Math.log(bmi / M) / S;
-    }
+    if (L === 0) return Math.log(bmi / M) / S;
     return (Math.pow(bmi / M, L) - 1) / (L * S);
 }
 
-/* ==========================================
-   ✅ محاسبه BMI از Z-Score (معکوس LMS)
-   ========================================== */
-function bmiFromZ(L, M, S, z) {
-    if (Math.abs(L) < 1e-8) {
-        // L ≈ 0
-        return M * Math.exp(S * z);
-    }
-    const base = 1 + L * S * z;
-    if (base <= 0) return NaN;
-    return M * Math.pow(base, 1 / L);
-}
-
-/* ==========================================
-   ✅ Interpolation خطی برای LMS
-   ========================================== */
-function getLMSInterpolated(gender, ageMonths) {
-    const sex = gender === "مرد" ? "boys" : "girls";
-    const data = WHO_DATA[sex];
-    
-    if (!data || data.length === 0) return null;
-
-    const minAge = data[0].age;
-    const maxAge = data[data.length - 1].age;
-
-    // محدود کردن سن به محدوده موجود
-    ageMonths = Math.max(minAge, Math.min(maxAge, ageMonths));
-
-    // پیدا کردن دو نقطه برای interpolation
-    for (let i = 0; i < data.length - 1; i++) {
-        const a = data[i];
-        const b = data[i + 1];
-
-        // اگر دقیقاً روی یک نقطه افتاد
-        if (ageMonths === a.age) {
-            return { L: a.L, M: a.M, S: a.S };
-        }
-
-        // اگر بین دو نقطه بود
-        if (ageMonths > a.age && ageMonths < b.age) {
-            const t = (ageMonths - a.age) / (b.age - a.age);
-            return {
-                L: a.L + (b.L - a.L) * t,
-                M: a.M + (b.M - a.M) * t,
-                S: a.S + (b.S - a.S) * t
-            };
-        }
-    }
-
-    // اگر از آخرین نقطه بزرگتر بود
-    const last = data[data.length - 1];
-    return { L: last.L, M: last.M, S: last.S };
-}
-
-/* ==========================================
-   ✅ طبقه‌بندی WHO (بر اساس Z-Score)
-   ========================================== */
 function classifyWHO(z) {
-    if (z < -3) return { label: "لاغری شدید", color: "#EF4444" };
-    if (z < -2) return { label: "لاغری", color: "#F97316" };
-    if (z <= 1) return { label: "طبیعی", color: "#22C55E" };
-    if (z <= 2) return { label: "اضافه‌وزن", color: "#EAB308" };
-    return { label: "چاقی", color: "#DC2626" };
+    if (z < -3) return { label: "لاغری شدید", color: "#EF4444", zMin: WHO_Z_MIN };
+    if (z < WHO_Z_MIN) return { label: "لاغری", color: "#F97316", zMin: WHO_Z_MIN };
+    if (z <= WHO_Z_MAX) return { label: "نرمال", color: "#22C55E", zMin: WHO_Z_MIN };
+    if (z <= 2) return { label: "اضافه‌وزن", color: "#EAB308", zMin: WHO_Z_MAX };
+    return { label: "چاقی", color: "#DC2626", zMin: WHO_Z_MAX };
 }
 
 /* ---------- Adult BMI ---------- */
@@ -254,12 +200,6 @@ function generatePracticalTips(statusLabel, bmi, age) {
             "🥦 نصف بشقاب را سبزیجات، یک‌چهارم پروتئین و یک‌چهارم کربوهیدرات سالم اختصاص دهید",
             "😴 خواب کافی (۷-۹ ساعت) برای تنظیم هورمون‌های اشتها ضروری است"
         ],
-        "طبیعی": [
-            "✅ الگوی غذایی فعلی را حفظ کنید و تنوع را فراموش نکنید",
-            "🚶 حداقل ۳۰ دقیقه فعالیت بدنی روزانه برای حفظ سلامت قلب",
-            "🥦 نصف بشقاب را سبزیجات، یک‌چهارم پروتئین و یک‌چهارم کربوهیدرات سالم اختصاص دهید",
-            "😴 خواب کافی (۷-۹ ساعت) برای تنظیم هورمون‌های اشتها ضروری است"
-        ],
         "اضافه‌وزن": [
             "🔥 کسری کالری ۳۰۰-۵۰۰ واحد برای کاهش وزن تدریجی و پایدار",
             "🚴 ترکیب کاردیو و تمرینات قدرتی ۴-۵ بار در هفته",
@@ -293,9 +233,7 @@ function generatePracticalTips(statusLabel, bmi, age) {
     return tips[statusLabel] || tips["نرمال"];
 }
 
-/* ==========================================
-   ✅ تابع اصلی محاسبه
-   ========================================== */
+/* ---------- Main ---------- */
 function calculateAndGo() {
     clearError();
 
@@ -342,32 +280,30 @@ function calculateAndGo() {
     let healthyText = "";
     let color = "";
 
-    /* ==========================================
-       ✅ WHO Children & Teens (5-19 سال)
-       ========================================== */
+    /* ---------- WHO Children & Teens (5-19 سال) ---------- */
     if (age.totalMonths >= 60 && age.totalMonths <= 228) {
-        const lms = getLMSInterpolated(gender, age.totalMonths);
+        const lms = getLMS(gender, age.totalMonths);
         if (!lms) {
             showError("❌ داده WHO برای این سن موجود نیست.");
             return;
         }
 
-        // محاسبه Z-Score فعلی
         const z = calculateZScore(bmi, lms.L, lms.M, lms.S);
         const cls = classifyWHO(z);
         color = cls.color;
         statusText = cls.label;
 
-        // ✅ محدوده وزن سالم: Z = -2 تا Z = +1
-        const healthyMinBMI = bmiFromZ(lms.L, lms.M, lms.S, -2);
-        const healthyMaxBMI = bmiFromZ(lms.L, lms.M, lms.S, 1);
+        // ✅ استفاده از محدوده Z-Score سفارشی
+        const healthyMinBMI =
+            lms.M * Math.pow(1 + lms.L * lms.S * WHO_Z_MIN, 1 / lms.L);
+        const healthyMaxBMI =
+            lms.M * Math.pow(1 + lms.L * lms.S * WHO_Z_MAX, 1 / lms.L);
 
         const healthyMinW = healthyMinBMI * h * h;
         const healthyMaxW = healthyMaxBMI * h * h;
 
         healthyText = `${healthyMinW.toFixed(1)} تا ${healthyMaxW.toFixed(1)} کیلوگرم`;
 
-        // محاسبه اختلاف وزن
         if (bmi < healthyMinBMI) {
             diffText = `کمبود وزن: ${(healthyMinW - weight).toFixed(1)} کیلوگرم`;
         } else if (bmi > healthyMaxBMI) {
