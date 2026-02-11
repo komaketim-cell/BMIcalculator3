@@ -1,429 +1,390 @@
-// ============================================================
-//  bmi.js  –  نسخه نهایی با منطق LMS بر اساس ماه
-//  هماهنگ با کد مرجع Python (Mifflin-St Jeor + WHO LMS)
-// ============================================================
+/* ========================================
+ * BMI، BMR و TDEE Calculator
+ * نسخه نهایی - سازگار با WHO Data (ماه‌های 60-228)
+ * ======================================== */
 
-'use strict';
+// ============ پیکربندی اولیه ============
+const TODAY_JALALI = { year: 1404, month: 11, day: 22 };
 
-// ──────────────────────────────────────────
-//  ۱. ابزارهای تقویم شمسی
-// ──────────────────────────────────────────
+const motivationalMessages = [
+    "سلامتی شما برای ما مهم است 💚",
+    "یک قدم به سمت سلامتی 🎯",
+    "بدن سالم، زندگی شاد ✨",
+    "مراقب خودت باش 🌟"
+];
 
-function isLeapJalali(year) {
-    const leapYears = [1, 5, 9, 13, 17, 22, 26, 30];
-    const cycle = ((year - 474) % 2820 + 2820) % 2820 + 474;
-    return leapYears.includes((cycle - 474) % 2820 % 128 % 29);
-}
-
-function jalaliDaysInMonth(year, month) {
-    if (month <= 6) return 31;
-    if (month <= 11) return 30;
-    return isLeapJalali(year) ? 30 : 29;
-}
-
-/** سن دقیق بر حسب ماه (عدد اعشاری) از تاریخ تولد شمسی تا امروز */
-function calcAgeMonths(birthYear, birthMonth, birthDay) {
-    const today = getTodayJalali();
-    let years  = today.year  - birthYear;
-    let months = today.month - birthMonth;
-    let days   = today.day   - birthDay;
-
-    if (days < 0) {
-        months -= 1;
-        days += jalaliDaysInMonth(birthYear, ((birthMonth - 2 + 12) % 12) + 1);
-    }
-    if (months < 0) {
-        years  -= 1;
-        months += 12;
-    }
-
-    const totalMonths = years * 12 + months + days / 30.4375;
-    return totalMonths;          // ماه دقیق (اعشاری)
-}
-
-function getTodayJalali() {
-    // تبدیل میلادی به شمسی
-    const g = new Date();
-    return gregorianToJalali(g.getFullYear(), g.getMonth() + 1, g.getDate());
-}
-
-function gregorianToJalali(gy, gm, gd) {
-    const g_d_no = [0,31,59+1,90+1,120+1,151+1,181+1,212+1,243+1,273+1,304+1,334+1];
-    let jy, jm, jd;
-    const gy2 = (gm > 2) ? (gy + 1) : gy;
-    let days = 365 * gy + Math.floor((gy2 + 3) / 4) - Math.floor((gy2 + 99) / 100)
-             + Math.floor((gy2 + 399) / 400) - 80 + gd + g_d_no[gm - 1];
-    jy = -1444;
-    days -= 365 * jy + Math.floor(jy / 4) - Math.floor(jy / 100) + Math.floor(jy / 400);
-    let dy = days % 365;
-    if (dy < 186) { dy++; jm = Math.ceil(dy / 31); jd = dy - 31 * (jm - 1); }
-    else           { dy -= 186; jm = Math.ceil(dy / 30) + 6; jd = dy - 30 * (jm - 7); }
-    jy += Math.floor(days / 365);
-    // تصحیح اگر روز صفر یا منفی شد
-    if (jd <= 0) { jm--; if (jm <= 0) { jy--; jm = 12; } jd += jalaliDaysInMonth(jy, jm); }
-    return { year: jy, month: jm, day: jd };
-}
-
-// ──────────────────────────────────────────
-//  ۲. داده‌های LMS (از who-data.js تزریق می‌شود)
-//     کلیدها بر حسب ماه (60 تا 228)
-// ──────────────────────────────────────────
-
-// WHO_LMS_DATA باید از who-data.js در صفحه لود شده باشد:
-//   WHO_LMS_DATA = { boys: { 60: {L,M,S}, 61: {L,M,S}, ... },
-//                    girls: { ... } }
-
-// ──────────────────────────────────────────
-//  ۳. درون‌یابی خطی LMS و محاسبه Z-Score
-// ──────────────────────────────────────────
+// ============ Helper Functions ============
 
 /**
- * درون‌یابی خطی بین دو ماه در جدول LMS
- * @param {Object} table  - جدول جنس (boys یا girls)
- * @param {number} ageM   - سن به ماه (اعشاری)
- * @returns {{L,M,S}}
+ * نمایش پیام خطا
  */
-function interpolateLMS(table, ageM) {
-    const keys = Object.keys(table).map(Number).sort((a, b) => a - b);
-    const minKey = keys[0];
-    const maxKey = keys[keys.length - 1];
+function showError(message) {
+    const errorDiv = document.getElementById('error-message');
+    errorDiv.textContent = message;
+    errorDiv.style.display = 'block';
+    setTimeout(() => {
+        errorDiv.style.display = 'none';
+    }, 4000);
+}
 
-    if (ageM <= minKey) return table[minKey];
-    if (ageM >= maxKey) return table[maxKey];
+/**
+ * تبدیل تاریخ شمسی به روز (برای محاسبه اختلاف)
+ */
+function jalaliToDay(year, month, day) {
+    const daysInMonth = [31, 31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 29];
+    let totalDays = year * 365 + Math.floor(year / 33) * 8;
+    for (let i = 0; i < month - 1; i++) {
+        totalDays += daysInMonth[i];
+    }
+    totalDays += day;
+    return totalDays;
+}
 
-    const lo = keys.filter(k => k <= ageM).pop();
-    const hi = keys.find(k => k > ageM);
+/**
+ * محاسبه سن به ماه اعشاری دقیق (شمسی)
+ */
+function calcAgeMonths(birthYear, birthMonth, birthDay) {
+    const birthDays = jalaliToDay(birthYear, birthMonth, birthDay);
+    const todayDays = jalaliToDay(TODAY_JALALI.year, TODAY_JALALI.month, TODAY_JALALI.day);
+    
+    const diffDays = todayDays - birthDays;
+    const ageMonths = diffDays / 30.4375; // میانگین دقیق روزهای ماه
+    
+    return ageMonths;
+}
 
-    if (lo === hi || hi === undefined) return table[lo];
+/**
+ * محاسبه سن سالانه (فقط برای نمایش)
+ */
+function calcAgeYears(birthYear, birthMonth, birthDay) {
+    const ageMonths = calcAgeMonths(birthYear, birthMonth, birthDay);
+    return Math.floor(ageMonths / 12);
+}
 
-    const t = (ageM - lo) / (hi - lo);   // کسر درون‌یابی [0,1]
-    const lLo = table[lo], lHi = table[hi];
-
+/**
+ * درون‌یابی خطی پارامترهای LMS
+ */
+function interpolateLMS(gender, ageMonths) {
+    const table = gender === "مرد" ? WHO_BOYS_LMS : WHO_GIRLS_LMS;
+    
+    // محدود کردن به بازه 60-228 ماه
+    if (ageMonths < 60) ageMonths = 60;
+    if (ageMonths > 228) ageMonths = 228;
+    
+    const lowerMonth = Math.floor(ageMonths);
+    const upperMonth = Math.ceil(ageMonths);
+    
+    // اگر دقیقاً روی یک ماه صحیح باشیم
+    if (lowerMonth === upperMonth) {
+        return table[lowerMonth];
+    }
+    
+    const lowerLMS = table[lowerMonth];
+    const upperLMS = table[upperMonth];
+    
+    // اگر یکی از دو نقطه موجود نباشد، از نزدیک‌ترین استفاده کن
+    if (!lowerLMS) return upperLMS;
+    if (!upperLMS) return lowerLMS;
+    
+    // درون‌یابی خطی
+    const fraction = ageMonths - lowerMonth;
     return {
-        L: lLo.L + t * (lHi.L - lLo.L),
-        M: lLo.M + t * (lHi.M - lLo.M),
-        S: lLo.S + t * (lHi.S - lLo.S),
+        L: lowerLMS.L + (upperLMS.L - lowerLMS.L) * fraction,
+        M: lowerLMS.M + (upperLMS.M - lowerLMS.M) * fraction,
+        S: lowerLMS.S + (upperLMS.S - lowerLMS.S) * fraction
     };
 }
 
 /**
- * محاسبه Z-Score بر اساس فرمول WHO LMS:
- *   اگر L ≠ 0 :  Z = ( (BMI/M)^L − 1 ) / (L × S)
- *   اگر L = 0  :  Z = ln(BMI/M) / S
+ * محاسبه Z-score
  */
 function calcZScore(bmi, L, M, S) {
-    if (Math.abs(L) < 1e-10) {
+    if (L !== 0) {
+        return (Math.pow(bmi / M, L) - 1) / (L * S);
+    } else {
         return Math.log(bmi / M) / S;
     }
-    return (Math.pow(bmi / M, L) - 1) / (L * S);
 }
 
 /**
- * دریافت وضعیت BMI برای کودکان ۵–۱۹ سال بر اساس Z-Score
+ * تعیین وضعیت BMI کودک بر اساس Z-score
  */
 function getBMIStatusChild(zScore) {
-    if      (zScore < -3)  return { status: 'لاغری شدید',    color: '#e74c3c' };
-    else if (zScore < -2)  return { status: 'لاغری',          color: '#e67e22' };
-    else if (zScore < 1)   return { status: 'وزن طبیعی',      color: '#27ae60' };
-    else if (zScore < 2)   return { status: 'اضافه وزن',      color: '#f39c12' };
-    else if (zScore < 3)   return { status: 'چاقی',            color: '#e74c3c' };
-    else                   return { status: 'چاقی مرضی',       color: '#c0392b' };
+    if (zScore < -2) return { status: "کم‌وزن شدید", color: "#e74c3c" };
+    if (zScore < -1) return { status: "کم‌وزن", color: "#f39c12" };
+    if (zScore <= 1) return { status: "وزن نرمال", color: "#27ae60" };
+    if (zScore <= 2) return { status: "اضافه‌وزن", color: "#f39c12" };
+    return { status: "چاقی", color: "#e74c3c" };
 }
 
 /**
- * محاسبه کامل LMS برای کودک
- * @param {number} bmi
- * @param {number} ageMonths  - سن به ماه (اعشاری)
- * @param {string} sex        - 'male' | 'female'
- * @returns {{ zScore, status, color } | null}
+ * محاسبه BMI و وضعیت برای بزرگسالان
  */
-function calcChildBMI(bmi, ageMonths, sex) {
-    if (typeof WHO_LMS_DATA === 'undefined') {
-        console.error('WHO_LMS_DATA تعریف نشده است.');
-        return null;
+function calcBMIAdult(weight, height) {
+    const heightM = height / 100;
+    const bmi = weight / (heightM * heightM);
+    
+    let status, color;
+    if (bmi < 18.5) {
+        status = "کم‌وزن";
+        color = "#f39c12";
+    } else if (bmi < 25) {
+        status = "وزن نرمال";
+        color = "#27ae60";
+    } else if (bmi < 30) {
+        status = "اضافه‌وزن";
+        color = "#f39c12";
+    } else {
+        status = "چاقی";
+        color = "#e74c3c";
     }
-    const table = (sex === 'male') ? WHO_LMS_DATA.boys : WHO_LMS_DATA.girls;
-    if (!table) return null;
-
-    const { L, M, S } = interpolateLMS(table, ageMonths);
-    const z = calcZScore(bmi, L, M, S);
-    return { zScore: parseFloat(z.toFixed(4)), ...getBMIStatusChild(z) };
+    
+    return { bmi, status, color };
 }
-
-// ──────────────────────────────────────────
-//  ۴. BMI برای بزرگسالان
-// ──────────────────────────────────────────
-
-function getBMIStatusAdult(bmi) {
-    if      (bmi < 18.5) return { status: 'لاغری',       color: '#e67e22' };
-    else if (bmi < 25)   return { status: 'وزن طبیعی',   color: '#27ae60' };
-    else if (bmi < 30)   return { status: 'اضافه وزن',   color: '#f39c12' };
-    else                 return { status: 'چاقی',          color: '#e74c3c' };
-}
-
-// ──────────────────────────────────────────
-//  ۵. BMR (Mifflin-St Jeor) و TDEE
-// ──────────────────────────────────────────
 
 /**
- * BMR بر اساس فرمول Mifflin-St Jeor
- * @param {number} weight  - کیلوگرم
- * @param {number} height  - سانتی‌متر
- * @param {number} ageYears- سال
- * @param {string} sex     - 'male' | 'female'
+ * محاسبه BMI و وضعیت برای کودکان (5-19 سال)
  */
-function calcBMR(weight, height, ageYears, sex) {
-    const base = 10 * weight + 6.25 * height - 5 * ageYears;
-    return sex === 'male' ? base + 5 : base - 161;
-}
-
-const ACTIVITY_FACTORS = {
-    sedentary:    { label: 'کم‌تحرک (بدون ورزش)',             factor: 1.2   },
-    light:        { label: 'کم ورزش (۱-۳ روز در هفته)',        factor: 1.375 },
-    moderate:     { label: 'ورزش متوسط (۳-۵ روز در هفته)',     factor: 1.55  },
-    active:       { label: 'ورزش سنگین (۶-۷ روز در هفته)',     factor: 1.725 },
-    very_active:  { label: 'ورزشکار حرفه‌ای / کار فیزیکی سنگین', factor: 1.9  },
-};
-
-/** TDEE برای هر سطح فعالیت */
-function calcAllTDEE(bmr) {
-    return Object.entries(ACTIVITY_FACTORS).map(([key, { label, factor }]) => ({
-        key,
-        label,
-        calories: Math.round(bmr * factor),
-    }));
-}
-
-// ──────────────────────────────────────────
-//  ۶. وزن ایده‌آل (Devine)
-// ──────────────────────────────────────────
-
-function calcIdealWeight(height, sex) {
-    const hInch = height / 2.54;
-    const extra = Math.max(0, hInch - 60);
-    if (sex === 'male')   return parseFloat((50  + 2.3 * extra).toFixed(1));
-    else                  return parseFloat((45.5 + 2.3 * extra).toFixed(1));
-}
-
-// ──────────────────────────────────────────
-//  ۷. رابط کاربری (Event Listeners)
-// ──────────────────────────────────────────
-
-document.addEventListener('DOMContentLoaded', () => {
-
-    // ── المان‌های ورودی ──
-    const weightInput    = document.getElementById('weight');
-    const heightInput    = document.getElementById('height');
-    const sexSelect      = document.getElementById('sex');
-    const ageTypeSelect  = document.getElementById('age-type');
-    const ageYearsWrap   = document.getElementById('age-years-wrap');
-    const ageBirthWrap   = document.getElementById('age-birth-wrap');
-    const ageInput       = document.getElementById('age');
-    const birthYearInput = document.getElementById('birth-year');
-    const birthMonthInput= document.getElementById('birth-month');
-    const birthDayInput  = document.getElementById('birth-day');
-    const activitySelect = document.getElementById('activity');
-    const calcBtn        = document.getElementById('calc-btn');
-    const errorDiv       = document.getElementById('error-msg');
-
-    // ── صفحه‌ها ──
-    const pages = {
-        input:  document.getElementById('input-page'),
-        result: document.getElementById('result-page'),
-        guide:  document.getElementById('guide-page'),
+function calcBMIChild(gender, weight, height, ageMonths) {
+    const heightM = height / 100;
+    const bmi = weight / (heightM * heightM);
+    
+    const lms = interpolateLMS(gender, ageMonths);
+    const zScore = calcZScore(bmi, lms.L, lms.M, lms.S);
+    const statusInfo = getBMIStatusChild(zScore);
+    
+    return {
+        bmi,
+        status: statusInfo.status,
+        color: statusInfo.color,
+        zScore
     };
+}
 
-    const navBtns = {
-        result: document.getElementById('nav-result'),
-        guide:  document.getElementById('nav-guide'),
-        back:   document.getElementById('back-btn'),
-    };
-
-    // ── نمایش صفحه‌ها ──
-    function showPage(name) {
-        Object.values(pages).forEach(p => p && p.classList.remove('active'));
-        if (pages[name]) pages[name].classList.add('active');
+/**
+ * محاسبه BMR (متابولیسم پایه) - فرمول Mifflin-St Jeor
+ */
+function calcBMR(gender, weight, height, ageYears) {
+    let bmr;
+    if (gender === "مرد") {
+        bmr = 10 * weight + 6.25 * height - 5 * ageYears + 5;
+    } else {
+        bmr = 10 * weight + 6.25 * height - 5 * ageYears - 161;
     }
+    return Math.round(bmr);
+}
 
-    if (navBtns.guide)  navBtns.guide.addEventListener('click',  () => showPage('guide'));
-    if (navBtns.result) navBtns.result.addEventListener('click', () => showPage('result'));
-    if (navBtns.back)   navBtns.back.addEventListener('click',   () => showPage('input'));
-
-    // ── تغییر نوع ورودی سن ──
-    if (ageTypeSelect) {
-        ageTypeSelect.addEventListener('change', () => {
-            const isBirth = ageTypeSelect.value === 'birth';
-            if (ageYearsWrap) ageYearsWrap.style.display = isBirth ? 'none' : 'block';
-            if (ageBirthWrap) ageBirthWrap.style.display = isBirth ? 'block' : 'none';
-        });
+/**
+ * محاسبه محدوده وزن سالم
+ */
+function calcHealthyWeightRange(height, ageYears) {
+    const heightM = height / 100;
+    
+    // برای کودکان و نوجوانان
+    if (ageYears < 20) {
+        return "برای کودکان و نوجوانان نیاز به مشاوره متخصص تغذیه است";
     }
+    
+    // برای بزرگسالان: BMI 18.5 تا 24.9
+    const minWeight = (18.5 * heightM * heightM).toFixed(1);
+    const maxWeight = (24.9 * heightM * heightM).toFixed(1);
+    
+    return `${minWeight} - ${maxWeight} کیلوگرم`;
+}
 
-    // ── دکمه محاسبه ──
-    if (calcBtn) calcBtn.addEventListener('click', calculate);
-
-    function showError(msg) {
-        if (errorDiv) { errorDiv.textContent = msg; errorDiv.style.display = 'block'; }
+/**
+ * محاسبه اختلاف با وزن نرمال
+ */
+function calcWeightDifference(weight, height, ageYears) {
+    if (ageYears < 20) return "";
+    
+    const heightM = height / 100;
+    const currentBMI = weight / (heightM * heightM);
+    
+    if (currentBMI < 18.5) {
+        const targetWeight = 18.5 * heightM * heightM;
+        const diff = (targetWeight - weight).toFixed(1);
+        return `برای رسیدن به وزن نرمال، ${diff} کیلوگرم افزایش وزن نیاز است`;
+    } else if (currentBMI > 24.9) {
+        const targetWeight = 24.9 * heightM * heightM;
+        const diff = (weight - targetWeight).toFixed(1);
+        return `برای رسیدن به وزن نرمال، ${diff} کیلوگرم کاهش وزن نیاز است`;
+    } else {
+        return "وزن شما در محدوده سالم قرار دارد ✅";
     }
-    function clearError() {
-        if (errorDiv) { errorDiv.textContent = ''; errorDiv.style.display = 'none'; }
+}
+
+/**
+ * تولید توصیه‌های کاربردی
+ */
+function generateTips(bmiStatus, tdee) {
+    const tips = [];
+    
+    if (bmiStatus === "وزن نرمال") {
+        tips.push("✅ وزن شما در محدوده سالم است. برای حفظ آن:");
+        tips.push("• حدود " + tdee + " کالری در روز مصرف کنید");
+        tips.push("• ورزش منظم (حداقل 150 دقیقه در هفته)");
+        tips.push("• خواب کافی (7-9 ساعت)");
+    } else if (bmiStatus === "اضافه‌وزن" || bmiStatus === "چاقی") {
+        tips.push("⚠️ برای کاهش وزن سالم:");
+        tips.push("• کسری کالری تدریجی (500 کالری کمتر از TDEE)");
+        tips.push("• ورزش ترکیبی (قدرتی + هوازی)");
+        tips.push("• پرهیز از غذاهای فرآوری‌شده");
+        tips.push("• مشاوره با متخصص تغذیه");
+    } else if (bmiStatus === "کم‌وزن" || bmiStatus === "کم‌وزن شدید") {
+        tips.push("⚠️ برای افزایش وزن سالم:");
+        tips.push("• مازاد کالری تدریجی (300 کالری بیشتر از TDEE)");
+        tips.push("• غذاهای پرکالری و مغذی");
+        tips.push("• ورزش قدرتی برای عضله‌سازی");
+        tips.push("• مشاوره با متخصص تغذیه");
     }
+    
+    tips.push("");
+    tips.push("⚠️ نکته مهم: این محاسبات تخمینی هستند و نباید جایگزین مشاوره پزشکی شوند.");
+    
+    return tips.join("<br>");
+}
 
-    // ──────────────────────────────────────
-    //  تابع اصلی محاسبه
-    // ──────────────────────────────────────
-    function calculate() {
-        clearError();
+// ============ Event Handlers ============
 
-        // ── دریافت مقادیر پایه ──
-        const weight = parseFloat(weightInput?.value);
-        const height = parseFloat(heightInput?.value);
-        const sex    = sexSelect?.value;                    // 'male' | 'female'
-        const activity = activitySelect?.value || 'sedentary';
+/**
+ * تابع اصلی محاسبه
+ */
+function calculate() {
+    // خواندن ورودی‌ها
+    const gender = document.getElementById('gender').value;
+    const birthYear = parseInt(document.getElementById('birth-year').value);
+    const birthMonth = parseInt(document.getElementById('birth-month').value);
+    const birthDay = parseInt(document.getElementById('birth-day').value);
+    const height = parseFloat(document.getElementById('height').value);
+    const weight = parseFloat(document.getElementById('weight').value);
+    const activityLevel = parseFloat(document.getElementById('activity').value);
+    
+    // اعتبارسنجی
+    if (!birthYear || !birthMonth || !birthDay) {
+        showError('لطفاً تاریخ تولد کامل را وارد کنید');
+        return;
+    }
+    
+    if (!height || height < 50 || height > 250) {
+        showError('لطفاً قد معتبر وارد کنید (50-250 سانتی‌متر)');
+        return;
+    }
+    
+    if (!weight || weight < 2 || weight > 300) {
+        showError('لطفاً وزن معتبر وارد کنید (2-300 کیلوگرم)');
+        return;
+    }
+    
+    // محاسبه سن
+    const ageMonths = calcAgeMonths(birthYear, birthMonth, birthDay);
+    const ageYears = Math.floor(ageMonths / 12);
+    
+    if (ageYears < 5) {
+        showError('این ابزار برای افراد 5 سال به بالا طراحی شده است');
+        return;
+    }
+    
+    // محاسبه BMI
+    let bmiResult;
+    if (ageYears < 20) {
+        bmiResult = calcBMIChild(gender, weight, height, ageMonths);
+    } else {
+        bmiResult = calcBMIAdult(weight, height);
+    }
+    
+    // محاسبه BMR و TDEE
+    const bmr = calcBMR(gender, weight, height, ageYears);
+    const tdee = Math.round(bmr * activityLevel);
+    
+    // نمایش نتایج در صفحه جدید
+    document.getElementById('r-gender').textContent = gender;
+    document.getElementById('r-age').textContent = `${ageYears} سال`;
+    document.getElementById('r-height').textContent = `${height} سانتی‌متر`;
+    document.getElementById('r-weight').textContent = `${weight} کیلوگرم`;
+    
+    // BMI
+    const bmiCircle = document.getElementById('bmi-circle');
+    document.getElementById('bmi-value').textContent = bmiResult.bmi.toFixed(1);
+    document.getElementById('bmi-status-text').textContent = bmiResult.status;
+    bmiCircle.style.borderColor = bmiResult.color;
+    
+    // اختلاف وزن
+    const diffText = calcWeightDifference(weight, height, ageYears);
+    document.getElementById('bmi-difference-text').textContent = diffText;
+    
+    // محدوده وزن سالم
+    document.getElementById('r-healthy').textContent = calcHealthyWeightRange(height, ageYears);
+    
+    // BMR و TDEE
+    document.getElementById('r-bmr').textContent = `${bmr} کالری`;
+    document.getElementById('r-tdee').textContent = `${tdee} کالری`;
+    
+    // توصیه‌های کالری
+    document.getElementById('maintain-calories').textContent = `${tdee} کالری`;
+    document.getElementById('gain-calories').textContent = `${tdee + 300} کالری`;
+    document.getElementById('loss-calories').textContent = `${Math.max(1200, tdee - 500)} کالری`;
+    
+    // توصیه‌های کاربردی
+    document.getElementById('practical-tips').innerHTML = generateTips(bmiResult.status, tdee);
+    
+    // نمایش صفحه نتایج
+    showPage('results-page');
+}
 
-        if (!weight || !height || weight <= 0 || height <= 0) {
-            return showError('لطفاً وزن و قد را به‌درستی وارد کنید.');
-        }
+/**
+ * نمایش صفحه مشخص
+ */
+function showPage(pageId) {
+    document.querySelectorAll('.page').forEach(page => {
+        page.classList.remove('active');
+    });
+    document.getElementById(pageId).classList.add('active');
+}
 
-        // ── محاسبه سن ──
-        let ageMonths;      // سن به ماه (دقیق، اعشاری)
-        let ageYearsDisplay;
+// ============ Event Listeners ============
 
-        const ageType = ageTypeSelect?.value || 'years';
-
-        if (ageType === 'birth') {
-            const by = parseInt(birthYearInput?.value);
-            const bm = parseInt(birthMonthInput?.value);
-            const bd = parseInt(birthDayInput?.value);
-
-            if (!by || !bm || !bd || by < 1300 || bm < 1 || bm > 12 || bd < 1 || bd > 31) {
-                return showError('لطفاً تاریخ تولد را به‌درستی وارد کنید.');
-            }
-            ageMonths = calcAgeMonths(by, bm, bd);
+document.addEventListener('DOMContentLoaded', function() {
+    // نمایش پیام انگیزشی تصادفی
+    const randomMsg = motivationalMessages[Math.floor(Math.random() * motivationalMessages.length)];
+    document.getElementById('motivation-text').textContent = randomMsg;
+    
+    // دکمه محاسبه
+    document.getElementById('calc-btn').addEventListener('click', calculate);
+    
+    // دکمه بازگشت از نتایج
+    document.getElementById('back-btn').addEventListener('click', function() {
+        showPage('input-page');
+    });
+    
+    // دکمه‌های راهنما
+    document.getElementById('help-btn').addEventListener('click', function() {
+        showPage('guide-page');
+    });
+    
+    document.getElementById('help-btn2').addEventListener('click', function() {
+        showPage('guide-page');
+    });
+    
+    // دکمه بازگشت از راهنما
+    document.getElementById('back-guide-btn').addEventListener('click', function() {
+        // اگر از صفحه نتایج آمده‌ایم، برگردیم به نتایج
+        const resultsPage = document.getElementById('results-page');
+        if (resultsPage.classList.contains('active') || 
+            document.getElementById('bmi-value').textContent !== '--') {
+            showPage('results-page');
         } else {
-            const ageYears = parseFloat(ageInput?.value);
-            if (!ageYears || ageYears <= 0) {
-                return showError('لطفاً سن را به‌درستی وارد کنید.');
+            showPage('input-page');
+        }
+    });
+    
+    // اجازه محاسبه با Enter
+    const inputs = document.querySelectorAll('input, select');
+    inputs.forEach(input => {
+        input.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                calculate();
             }
-            ageMonths = ageYears * 12;
-        }
-
-        if (ageMonths <= 0) {
-            return showError('سن محاسبه‌شده معتبر نیست.');
-        }
-
-        const ageYears = ageMonths / 12;
-        ageYearsDisplay = ageYears.toFixed(1);
-
-        // ── BMI ──
-        const heightM = height / 100;
-        const bmi = weight / (heightM * heightM);
-
-        // ── وضعیت BMI ──
-        let bmiStatus, bmiColor, zScoreDisplay = null;
-
-        const isChild = (ageMonths >= 60 && ageMonths <= 228);   // ۵–۱۹ سال
-
-        if (isChild) {
-            const childResult = calcChildBMI(bmi, ageMonths, sex);
-            if (childResult) {
-                bmiStatus     = childResult.status;
-                bmiColor      = childResult.color;
-                zScoreDisplay = childResult.zScore;
-            } else {
-                // fallback به جداول بزرگسالان
-                const r = getBMIStatusAdult(bmi);
-                bmiStatus = r.status; bmiColor = r.color;
-            }
-        } else {
-            const r = getBMIStatusAdult(bmi);
-            bmiStatus = r.status; bmiColor = r.color;
-        }
-
-        // ── وزن ایده‌آل و اختلاف ──
-        const idealWeight = calcIdealWeight(height, sex);
-        const weightDiff  = parseFloat((weight - idealWeight).toFixed(1));
-
-        // ── BMR و TDEE ──
-        const bmr  = calcBMR(weight, height, ageYears, sex);
-        const tdee = calcAllTDEE(bmr);
-
-        // ── نمایش نتایج ──
-        renderResults({
-            weight, height, sex, ageYearsDisplay, ageMonths,
-            bmi: parseFloat(bmi.toFixed(2)),
-            bmiStatus, bmiColor, zScoreDisplay,
-            idealWeight, weightDiff,
-            bmr: Math.round(bmr),
-            tdee, activity,
         });
-
-        showPage('result');
-    }
-
-    // ──────────────────────────────────────
-    //  رندر خروجی
-    // ──────────────────────────────────────
-    function renderResults(d) {
-
-        // اطلاعات کلی
-        setHTML('res-weight',  `${d.weight} کیلوگرم`);
-        setHTML('res-height',  `${d.height} سانتی‌متر`);
-        setHTML('res-sex',     d.sex === 'male' ? 'مرد' : 'زن');
-        setHTML('res-age',     `${d.ageYearsDisplay} سال`);
-
-        // دایره BMI
-        const circle = document.getElementById('bmi-circle');
-        if (circle) {
-            circle.textContent   = d.bmi.toFixed(1);
-            circle.style.background = d.bmiColor;
-        }
-
-        // وضعیت
-        const statusSpan = document.getElementById('bmi-status-text');
-        if (statusSpan) {
-            statusSpan.textContent  = d.bmiStatus;
-            statusSpan.style.color  = d.bmiColor;
-        }
-
-        // Z-Score (فقط کودکان)
-        const zRow = document.getElementById('zscore-row');
-        if (zRow) {
-            if (d.zScoreDisplay !== null) {
-                zRow.style.display = 'block';
-                setHTML('zscore-val', d.zScoreDisplay.toFixed(2));
-            } else {
-                zRow.style.display = 'none';
-            }
-        }
-
-        // اختلاف وزن
-        const diffText = d.weightDiff === 0
-            ? 'وزن ایده‌آل دارید'
-            : d.weightDiff > 0
-                ? `${d.weightDiff} کیلوگرم اضافه وزن`
-                : `${Math.abs(d.weightDiff)} کیلوگرم کمبود وزن`;
-        setHTML('weight-diff', diffText);
-        setHTML('ideal-weight-val', `${d.idealWeight} کیلوگرم`);
-
-        // BMR
-        setHTML('bmr-val', `${d.bmr} کیلوکالری`);
-
-        // TDEE – هایلایت سطح فعلی
-        const tdeeContainer = document.getElementById('tdee-list');
-        if (tdeeContainer) {
-            tdeeContainer.innerHTML = d.tdee.map(item => `
-                <div class="calorie-item ${item.key === d.activity ? 'active-activity' : ''}">
-                    <span class="calorie-label">${item.label}</span>
-                    <span class="calorie-value">${item.calories.toLocaleString('fa-IR')} کیلوکالری</span>
-                </div>
-            `).join('');
-        }
-    }
-
-    // ── کمکی ──
-    function setHTML(id, html) {
-        const el = document.getElementById(id);
-        if (el) el.innerHTML = html;
-    }
-
+    });
 });
