@@ -94,164 +94,152 @@ async function generatePDFReport() {
             format: 'a4'
         });
 
-        let y = 20; // موقعیت عمودی
+        const pageW = 210;
+        const pageH = 297;
+        const margin = 15;
+        const contentW = pageW - margin * 2;
+        let y = 20;
 
-        // تابع کمکی برای افزودن متن راست‌چین
-        const addText = (text, fontSize = 12, isBold = false, color = [0, 0, 0]) => {
+        // ---- helper: رسم باکس پس‌زمینه ----
+        const fillRect = (x, rectY, w, h, r, g, b) => {
+            doc.setFillColor(r, g, b);
+            doc.rect(x, rectY, w, h, 'F');
+        };
+
+        // ---- helper: متن راست‌چین ----
+        const rtl = (text, fontSize, r, g, b, posY) => {
             doc.setFontSize(fontSize);
-            doc.setTextColor(...color);
-            doc.text(text, 200, y, { align: 'right' });
-            y += fontSize * 0.5 + 2;
+            doc.setTextColor(r, g, b);
+            doc.text(String(text), pageW - margin, posY, { align: 'right' });
         };
 
-        // تابع افزودن جداکننده
-        const addLine = () => {
-            doc.setDrawColor(79, 70, 229);
-            doc.setLineWidth(0.5);
-            doc.line(15, y, 195, y);
-            y += 8;
+        // ---- helper: متن مرکز ----
+        const center = (text, fontSize, r, g, b, posY) => {
+            doc.setFontSize(fontSize);
+            doc.setTextColor(r, g, b);
+            doc.text(String(text), pageW / 2, posY, { align: 'center' });
         };
 
-        // تابع افزودن باکس رنگی
-        const addBox = (bgColor, height = 10) => {
-            doc.setFillColor(...bgColor);
-            doc.rect(15, y - 5, 180, height, 'F');
+        // ---- helper: خط جداکننده ----
+        const hr = (r = 226, g = 232, b = 240) => {
+            doc.setDrawColor(r, g, b);
+            doc.setLineWidth(0.4);
+            doc.line(margin, y, pageW - margin, y);
+            y += 6;
         };
 
-        // Header
-        addBox([79, 70, 229, 20]);
-        doc.setTextColor(255, 255, 255);
-        doc.setFontSize(20);
-        doc.text('گزارش تحلیل شاخص توده بدنی', 200, y, { align: 'right' });
-        y += 10;
-        doc.setFontSize(10);
-        doc.text(`تاریخ: ${today}`, 200, y, { align: 'right' });
-        y += 15;
+        // ==== HEADER ====
+        fillRect(0, 0, pageW, 28, 79, 70, 229);
+        center('گزارش تحلیل شاخص توده بدنی', 18, 255, 255, 255, 13);
+        center('تاریخ: ' + today, 10, 220, 220, 255, 22);
+        y = 38;
 
-        // بخش اطلاعات فردی
-        doc.setTextColor(0, 0, 0);
-        doc.setFontSize(14);
-        doc.text('اطلاعات فردی', 200, y, { align: 'right' });
-        y += 8;
-        addLine();
+        // ==== اطلاعات فردی ====
+        fillRect(margin, y - 2, contentW, 8, 241, 245, 249);
+        rtl('اطلاعات فردی', 13, 30, 41, 59, y + 4);
+        y += 12;
 
-        const personalInfo = [
+        const infoRows = [
             ['جنسیت:', data.gender],
             ['سن:', data.age],
             ['قد:', data.height],
             ['وزن:', data.weight]
         ];
 
-        personalInfo.forEach(([label, value]) => {
+        infoRows.forEach(([label, value]) => {
             doc.setFontSize(11);
             doc.setTextColor(100, 116, 139);
-            doc.text(label, 200, y, { align: 'right' });
-            doc.setTextColor(0, 0, 0);
-            doc.text(value, 150, y, { align: 'right' });
-            y += 6;
-        });
-
-        y += 5;
-
-        // بخش BMI (هایلایت)
-        addBox([238, 242, 255]);
-        y += 3;
-        doc.setFontSize(14);
-        doc.setTextColor(79, 70, 229);
-        doc.text('نتایج شاخص توده بدنی (BMI)', 200, y, { align: 'right' });
-        y += 10;
-
-        // مقدار BMI
-        doc.setFontSize(32);
-        doc.setTextColor(79, 70, 229);
-        doc.text(data.bmi, 105, y, { align: 'center' });
-        y += 12;
-
-        doc.setFontSize(16);
-        doc.setTextColor(30, 41, 59);
-        doc.text(data.status, 105, y, { align: 'center' });
-        y += 15;
-
-        // تحلیل
-        doc.setFontSize(10);
-        doc.setTextColor(51, 65, 85);
-        const diffLines = doc.splitTextToSize(data.diff, 170);
-        diffLines.forEach(line => {
-            doc.text(line, 200, y, { align: 'right' });
-            y += 5;
-        });
-        y += 3;
-        doc.text(`محدوده سالم: ${data.healthy}`, 200, y, { align: 'right' });
-        y += 10;
-
-        // بخش متابولیسم
-        addBox([240, 253, 244]);
-        y += 3;
-        doc.setFontSize(14);
-        doc.setTextColor(34, 197, 94);
-        doc.text('اطلاعات متابولیسم', 200, y, { align: 'right' });
-        y += 10;
-
-        const metabolismInfo = [
-            ['متابولیسم پایه (BMR):', data.bmr],
-            ['کالری روزانه (TDEE):', data.tdee]
-        ];
-
-        metabolismInfo.forEach(([label, value]) => {
-            doc.setFontSize(11);
-            doc.setTextColor(100, 116, 139);
-            doc.text(label, 200, y, { align: 'right' });
-            doc.setTextColor(34, 197, 94);
-            doc.text(value, 120, y, { align: 'right' });
+            doc.text(label, pageW - margin, y, { align: 'right' });
+            doc.setTextColor(30, 41, 59);
+            doc.text(String(value), pageW - margin - 35, y, { align: 'right' });
             y += 7;
         });
 
         y += 5;
+        hr();
 
-        // بخش کالری
-        addBox([255, 247, 237]);
-        y += 3;
-        doc.setFontSize(14);
-        doc.setTextColor(249, 115, 22);
-        doc.text('راهنمای کالری روزانه', 200, y, { align: 'right' });
+        // ==== نتایج BMI ====
+        fillRect(margin, y - 2, contentW, 8, 238, 242, 255);
+        rtl('نتایج شاخص توده بدنی (BMI)', 13, 79, 70, 229, y + 4);
+        y += 15;
+
+        // دایره BMI
+        doc.setFillColor(79, 70, 229);
+        doc.circle(pageW / 2, y + 8, 18, 'F');
+        center(data.bmi, 22, 255, 255, 255, y + 10);
+        y += 30;
+
+        center(data.status, 14, 30, 41, 59, y);
         y += 10;
 
-        const calorieInfo = [
+        // تحلیل
+        doc.setFontSize(10);
+        doc.setTextColor(51, 65, 85);
+        const diffLines = doc.splitTextToSize(data.diff, contentW - 10);
+        diffLines.forEach(line => {
+            doc.text(line, pageW - margin, y, { align: 'right' });
+            y += 5;
+        });
+
+        doc.setTextColor(79, 70, 229);
+        doc.text('محدوده سالم: ' + data.healthy, pageW - margin, y, { align: 'right' });
+        y += 10;
+
+        hr();
+
+        // ==== متابولیسم ====
+        fillRect(margin, y - 2, contentW, 8, 240, 253, 244);
+        rtl('اطلاعات متابولیسم', 13, 22, 163, 74, y + 4);
+        y += 13;
+
+        const metaRows = [
+            ['متابولیسم پایه (BMR):', data.bmr],
+            ['کالری روزانه (TDEE):', data.tdee]
+        ];
+
+        metaRows.forEach(([label, value]) => {
+            doc.setFontSize(11);
+            doc.setTextColor(100, 116, 139);
+            doc.text(label, pageW - margin, y, { align: 'right' });
+            doc.setTextColor(22, 163, 74);
+            doc.text(String(value), pageW - margin - 55, y, { align: 'right' });
+            y += 8;
+        });
+
+        y += 3;
+        hr();
+
+        // ==== راهنمای کالری ====
+        fillRect(margin, y - 2, contentW, 8, 255, 247, 237);
+        rtl('راهنمای کالری روزانه', 13, 249, 115, 22, y + 4);
+        y += 13;
+
+        const calRows = [
             ['حفظ وزن:', data.maintain],
             ['افزایش وزن:', data.gain],
             ['کاهش وزن:', data.loss]
         ];
 
-        calorieInfo.forEach(([label, value]) => {
+        calRows.forEach(([label, value]) => {
             doc.setFontSize(11);
             doc.setTextColor(71, 85, 105);
-            doc.text(label, 200, y, { align: 'right' });
+            doc.text(label, pageW - margin, y, { align: 'right' });
             doc.setTextColor(249, 115, 22);
-            doc.text(value, 140, y, { align: 'right' });
-            y += 7;
+            doc.text(String(value), pageW - margin - 40, y, { align: 'right' });
+            y += 8;
         });
 
-        y += 10;
-
-        // Footer
-        doc.setDrawColor(226, 232, 240);
-        doc.setLineWidth(0.3);
-        doc.line(15, y, 195, y);
         y += 8;
 
-        doc.setFontSize(9);
-        doc.setTextColor(100, 116, 139);
-        doc.text('این گزارش توسط محاسبه‌گر BMI تولید شده است', 105, y, { align: 'center' });
-        y += 5;
-        doc.setTextColor(220, 38, 38);
-        const warningText = doc.splitTextToSize('⚠️ این گزارش صرفاً جنبه اطلاع‌رسانی دارد و جایگزین مشاوره پزشکی نیست', 170);
-        warningText.forEach(line => {
-            doc.text(line, 105, y, { align: 'center' });
-            y += 4;
-        });
+        // ==== FOOTER ====
+        hr(226, 232, 240);
+        center('این گزارش توسط محاسبه‌گر BMI تولید شده است', 9, 100, 116, 139, y);
+        y += 6;
+        center('⚠️ این گزارش صرفاً جنبه اطلاع‌رسانی دارد و جایگزین مشاوره پزشکی نیست', 9, 220, 38, 38, y);
 
         // ذخیره PDF
-        doc.save(`BMI-Report-${today.replace(/\//g, '-')}.pdf`);
+        const safeDateStr = today.replace(/\//g, '-');
+        doc.save('BMI-Report-' + safeDateStr + '.pdf');
         
         console.log('✅ PDF با موفقیت ایجاد شد');
         alert('✅ گزارش PDF با موفقیت دانلود شد!');
