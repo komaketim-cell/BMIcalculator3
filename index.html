@@ -5,24 +5,82 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>محاسبه BMI، BMR و TDEE</title>
     <link rel="stylesheet" href="style.css">
-    <!-- ✅ استایل دکمه PDF (فقط برای دکمه جدید - style.css دست‌نخورده) -->
+    
+    <!-- کتابخانه html2pdf برای تولید PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
     <style>
+        /* استایل دکمه PDF */
         #pdf-btn {
-            background: linear-gradient(135deg, #7c3aed, #4f46e5);
+            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
             color: white;
-            border: none;
             padding: 12px 24px;
+            border: none;
             border-radius: 12px;
-            font-size: 15px;
-            font-weight: 600;
+            font-size: 16px;
+            font-weight: bold;
             cursor: pointer;
-            transition: opacity 0.2s, transform 0.1s;
-            font-family: inherit;
-            flex: 1;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
         }
-        #pdf-btn:hover   { opacity: 0.9; transform: translateY(-1px); }
-        #pdf-btn:active  { transform: translateY(0); }
-        #pdf-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        
+        #pdf-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+        }
+        
+        /* استایل صفحه پروفایل */
+        .history-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-right: 4px solid #4F46E5;
+            transition: transform 0.2s;
+        }
+        
+        .history-item:hover {
+            transform: translateX(-5px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .history-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            font-size: 14px;
+        }
+        
+        .btn-danger {
+            background: #EF4444;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .btn-danger:hover {
+            background: #DC2626;
+        }
+        
+        .btn-outline {
+            background: transparent;
+            color: #64748B;
+            border: 2px solid #64748B;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .btn-outline:hover {
+            background: #64748B;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -94,7 +152,10 @@
                 </div>
 
                 <button id="calc-btn" class="btn-primary">محاسبه</button>
-                <button id="help-btn" class="btn-secondary">راهنما</button>
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <button id="help-btn" class="btn-secondary" style="flex: 1;">راهنما</button>
+                    <button id="profile-btn" class="btn-secondary" style="flex: 1;">📋 پروفایل و تاریخچه</button>
+                </div>
             </div>
 
             <!-- فوتر صفحه ورود -->
@@ -187,12 +248,36 @@
                 <div id="practical-tips"></div>
             </div>
 
-            <!-- ✅ دکمه‌های پایین صفحه نتایج (back + pdf) -->
             <div style="display: flex; gap: 10px; margin-top: 20px;">
                 <button id="back-btn" class="btn-primary" style="flex: 1;">محاسبه مجدد</button>
-                <button id="help-btn2" class="btn-secondary" style="flex: 1;">راهنما</button>
-                <!-- ✅ اضافه شده: دکمه PDF -->
-                <button id="pdf-btn">📄 گزارش PDF</button>
+                <button id="pdf-btn" style="flex: 1;">📄 دانلود PDF</button>
+            </div>
+            
+            <button id="help-btn2" class="btn-secondary" style="width: 100%; margin-top: 10px;">راهنما</button>
+        </div>
+    </div>
+
+    <!-- ===== صفحه پروفایل و تاریخچه ===== -->
+    <div class="page" id="profile-page">
+        <div class="container">
+            <div class="header">
+                <h1>📋 پروفایل و تاریخچه</h1>
+            </div>
+            
+            <!-- تاریخچه محاسبات -->
+            <div class="card" style="background: #F8FAFC;">
+                <h3 style="color: #1E293B; margin-bottom: 15px;">📊 تاریخچه محاسبات (آخرین 10 مورد)</h3>
+                <div id="history-list"></div>
+            </div>
+
+            <!-- دکمه‌های عملیات -->
+            <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: center;">
+                <button onclick="clearHistoryConfirm()" class="btn-danger">
+                    🗑️ پاک کردن تاریخچه
+                </button>
+                <button onclick="showPage('input-page')" class="btn-outline">
+                    بازگشت
+                </button>
             </div>
         </div>
     </div>
@@ -239,10 +324,8 @@
 
     <script src="who-data.js"></script>
     <script src="bmi.js"></script>
-    <!-- ✅ اضافه شده: کتابخانه PDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <!-- ✅ اضافه شده: سیستم پروفایل و گزارش -->
     <script src="profile-report.js"></script>
+    
     <script>
         // پر کردن سال‌ها (1300 تا 1450)
         const yearSelect = document.getElementById('birth-year');
@@ -260,6 +343,42 @@
             opt.value = d;
             opt.textContent = d;
             daySelect.appendChild(opt);
+        }
+        
+        // اتصال دکمه پروفایل
+        document.getElementById("profile-btn").onclick = showProfilePage;
+        
+        // نمایش تاریخچه در صفحه پروفایل
+        function showProfilePage() {
+            const history = ProfileManager.loadHistory();
+            const historyList = document.getElementById('history-list');
+            
+            if (history.length === 0) {
+                historyList.innerHTML = '<p style="text-align: center; color: #64748B; padding: 20px;">تاریخچه‌ای موجود نیست</p>';
+            } else {
+                const last10 = history.slice(0, 10);
+                historyList.innerHTML = last10.map((item, index) => `
+                    <div class="history-item">
+                        <div class="history-grid">
+                            <div><strong>تاریخ:</strong> ${item.date}</div>
+                            <div><strong>BMI:</strong> <span style="color: #4F46E5; font-weight: bold;">${item.bmi}</span></div>
+                            <div><strong>وزن:</strong> ${item.weight} کیلوگرم</div>
+                            <div><strong>وضعیت:</stron.status}</div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            showPage('profile-page');
+        }
+        
+        // تایید پاک کردن تاریخچه
+        function clearHistoryConfirm() {
+            if (confirm('آیا مطمئن هستید که می‌خواهید تمام تاریخچه را پاک کنید؟')) {
+                ProfileManager.clearHistory();
+                alert('✅ تاریخچه با موفقیت پاک شد');
+                showProfilePage();
+            }
         }
     </script>
 </body>
