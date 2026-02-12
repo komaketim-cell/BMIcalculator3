@@ -155,210 +155,35 @@
         }
 
         /* =========================================
-         * ✅ کشوی سفارشی انتخاب سال - نسخه نهایی
+         * ✅ Select Box ساده برای انتخاب سال
          * ========================================= */
-        .year-input-wrapper {
-            position: relative;
-        }
-
-        .year-display {
+        .year-select {
             width: 100%;
-            padding: 12px 40px 12px 16px;
+            padding: 12px 16px;
             border: 2px solid #e0e0e0;
             border-radius: 8px;
             font-size: clamp(0.9rem, 2vw, 1rem);
             font-family: inherit;
+            transition: var(--transition);
             background: white;
             cursor: pointer;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
             color: var(--text-primary);
         }
 
-        .year-display:hover {
+        .year-select:hover {
             border-color: var(--primary-light);
-            background: #f8f9fa;
         }
 
-        .year-display.active {
+        .year-select:focus {
+            outline: none;
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
         }
 
-        .year-display::after {
-            content: '▼';
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-            transition: transform 0.3s ease;
-        }
-
-        .year-display.active::after {
-            transform: rotate(180deg);
-        }
-
-        /* Overlay */
-        .year-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            opacity: 0;
-            visibility: hidden;
-            transition: var(--transition);
-            z-index: 999;
-            backdrop-filter: blur(2px);
-        }
-
-        .year-overlay.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        /* کشوی کناری */
-        .year-dropdown {
-            position: fixed;
-            top: 0;
-            right: -400px;
-            width: 90%;
-            max-width: 400px;
-            height: 100vh;
-            background: white;
-            box-shadow: -4px 0 20px rgba(0, 0, 0, 0.3);
-            z-index: 1000;
-            transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .year-dropdown.active {
-            right: 0;
-        }
-
-        /* هدر کشو */
-        .year-dropdown-header {
-            padding: 20px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            color: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .year-dropdown-title {
-            font-size: 1.3rem;
-            font-weight: 600;
-        }
-
-        .year-close-btn {
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            color: white;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 1.3rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: var(--transition);
-        }
-
-        .year-close-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: rotate(90deg);
-        }
-
-        /* لیست سال‌ها */
-        .year-list-container {
-            flex: 1;
-            overflow-y: auto;
-            padding: 10px;
-        }
-
-        .year-list-container::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .year-list-container::-webkit-scrollbar-track {
-            background: #f1f1f1;
-        }
-
-        .year-list-container::-webkit-scrollbar-thumb {
-            background: var(--primary);
-            border-radius: 4px;
-        }
-
-        .year-section-label {
-            padding: 12px 16px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-            background: #f5f5f5;
-            border-radius: 6px;
-            margin: 8px 0;
-            text-align: center;
-        }
-
-        .year-item {
-            padding: 14px 20px;
-            margin: 6px 0;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: var(--transition);
-            font-size: 1.1rem;
-            text-align: center;
-            border: 2px solid transparent;
-            background: white;
-        }
-
-        .year-item:hover {
-            background: #f0f7ff;
-            border-color: var(--primary-light);
-            transform: translateX(-4px);
-        }
-
-        .year-item.selected {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            color: white;
-            font-weight: 600;
-            box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3);
-        }
-
-        .year-item.highlight {
-            position: relative;
-            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
-            color: #000;
+        /* استایل برای سال جاری در لیست */
+        .year-select option.current-year {
+            background: #ffd700;
             font-weight: 700;
-            border-color: #ffa000;
-        }
-
-        .year-item.highlight::before {
-            content: '⭐';
-            margin-left: 8px;
-        }
-
-        .year-item.highlight::after {
-            content: 'سال جاری';
-            position: absolute;
-            top: -8px;
-            right: 8px;
-            background: #ff6b6b;
-            color: white;
-            font-size: 0.65rem;
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-weight: 600;
-        }
-
-        .year-item.focused {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.2);
         }
 
         /* =========================================
@@ -672,11 +497,6 @@
             .radio-group {
                 grid-template-columns: 1fr;
             }
-
-            .year-dropdown {
-                width: 100%;
-                max-width: 100%;
-            }
         }
 
         /* =========================================
@@ -766,15 +586,12 @@
                     </div>
                 </div>
 
-                <!-- ✅ کشوی سفارشی انتخاب سال تولد -->
+                <!-- ✅ Select Box ساده برای انتخاب سال تولد -->
                 <div class="form-group">
-                    <label>سال تولد (شمسی)</label>
-                    <div class="year-input-wrapper">
-                        <div class="year-display" id="year-input">
-                            سال تولد: 1405
-                        </div>
-                        <input type="hidden" id="birth-year" name="birth-year" value="1405">
-                    </div>
+                    <label for="birth-year">سال تولد (شمسی)</label>
+                    <select id="birth-year" name="birth-year" class="year-select" required>
+                        <!-- سال‌ها به صورت داینامیک اضافه می‌شوند -->
+                    </select>
                 </div>
 
                 <!-- Weight Input -->
@@ -934,292 +751,60 @@
 
     </div>
 
-    <!-- ✅ کشوی کناری انتخاب سال -->
-    <div class="year-overlay" id="year-overlay"></div>
-    <div class="year-dropdown" id="year-dropdown">
-        <div class="year-dropdown-header">
-            <span class="year-dropdown-title">📅 انتخاب سال تولد</span>
-            <button class="year-close-btn" id="year-close">×</button>
-        </div>
-        <div class="year-list-container">
-            <div class="year-list" id="year-list">
-                <!-- سال‌ها به صورت داینامیک اینجا اضافه می‌شوند -->
-            </div>
-        </div>
-    </div>
-
     <!-- jsPDF Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <script>
         /* =========================================
-         * ✅✅✅ سیستم کشوی سفارشی انتخاب سال - نسخه نهایی با Auto-Update
+         * ✅ پر کردن Select Box سال تولد (1300 - 1450)
          * ========================================= */
-        class YearDropdown {
-            constructor() {
-                this.input = document.getElementById('year-input');
-                this.dropdown = document.getElementById('year-dropdown');
-                this.overlay = document.getElementById('year-overlay');
-                this.list = document.getElementById('year-list');
-                this.closeBtn = document.getElementById('year-close');
-                this.hiddenInput = document.getElementById('birth-year');
-                
-                this.selectedYear = null;
-                this.focusedIndex = -1;
-                this.years = [];
-                this.searchBuffer = '';
-                this.searchTimeout = null;
-                
-                // ✅ تشخیص خودکار سال جاری شمسی (Auto-Update)
-                this.currentJalaliYear = this.getCurrentJalaliYear();
-                
-                this.init();
-            }
+        function populateYearSelect() {
+            const yearSelect = document.getElementById('birth-year');
+            const currentYear = getCurrentJalaliYear();
             
-            // ✅ محاسبه سال جاری شمسی از تاریخ سیستم
-            getCurrentJalaliYear() {
-                const gregorianDate = new Date();
-                const jalaliDateStr = gregorianDate.toLocaleDateString('fa-IR');
-                const yearMatch = jalaliDateStr.match(/(\d{4})/);
-                
-                if (yearMatch) {
-                    return parseInt(yearMatch[1]);
-                }
-                
-                // اگر نتوانست پیدا کند، پیش‌فرض 1405
-                return 1405;
-            }
+            // پاک کردن محتوای قبلی
+            yearSelect.innerHTML = '';
             
-            init() {
-                this.generateYears();
-                this.renderYears();
-                this.attachEvents();
-                // ✅ پیش‌فرض روی سال جاری
-                this.setDefaultYear(this.currentJalaliYear);
-            }
+            // اضافه کردن option پیش‌فرض
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.textContent = 'انتخاب کنید...';
+            defaultOption.disabled = true;
+            defaultOption.selected = true;
+            yearSelect.appendChild(defaultOption);
             
-            generateYears() {
-                const currentYear = this.currentJalaliYear;
+            // اضافه کردن سال‌ها از 1450 به 1300 (نزولی)
+            for (let year = 1450; year >= 1300; year--) {
+                const option = document.createElement('option');
+                option.value = year;
                 
-                // ✅ ترتیب: سال جاری در ابتدا، سپس 1450 تا سال بعد از جاری، سپس سال قبل از جاری تا 1300
-                this.years = [
-                    { value: currentYear, label: String(currentYear), highlight: true }
-                ];
-                
-                // سال‌های بالاتر از سال جاری
-                for (let y = 1450; y > currentYear; y--) {
-                    this.years.push({ value: y, label: String(y), highlight: false });
-                }
-                
-                // سال‌های پایین‌تر از سال جاری
-                for (let y = currentYear - 1; y >= 1300; y--) {
-                    this.years.push({ value: y, label: String(y), highlight: false });
-                }
-            }
-            
-            renderYears() {
-                this.list.innerHTML = '';
-                
-                const currentYear = this.currentJalaliYear;
-                
-                // قسمت اول: سال جاری
-                const yearCurrent = this.years[0];
-                const itemCurrent = this.createYearItem(yearCurrent, 0);
-                this.list.appendChild(itemCurrent);
-                
-                // قسمت دوم: سال‌های بالاتر
-                const higherYears = this.years.filter(y => y.value > currentYear);
-                if (higherYears.length > 0) {
-                    const higherLabel = document.createElement('div');
-                    higherLabel.className = 'year-section-label';
-                    higherLabel.textContent = '▲ سال‌های بالاتر';
-                    this.list.appendChild(higherLabel);
-                    
-                    higherYears.forEach((year, index) => {
-                        this.list.appendChild(this.createYearItem(year, index + 1));
-                    });
-                }
-                
-                // قسمت سوم: سال‌های پایین‌تر
-                const lowerYears = this.years.filter(y => y.value < currentYear);
-                if (lowerYears.length > 0) {
-                    const lowerLabel = document.createElement('div');
-                    lowerLabel.className = 'year-section-label';
-                    lowerLabel.textContent = '▼ سال‌های پایین‌تر';
-                    this.list.appendChild(lowerLabel);
-                    
-                    lowerYears.forEach((year, index) => {
-                        const globalIndex = 1 + higherYears.length + index;
-                        this.list.appendChild(this.createYearItem(year, globalIndex));
-                    });
-                }
-            }
-            
-            createYearItem(year, index) {
-                const div = document.createElement('div');
-                div.className = 'year-item';
-                div.textContent = year.label;
-                div.dataset.value = year.value;
-                div.dataset.index = index;
-                
-                if (year.highlight) {
-                    div.classList.add('highlight');
-                }
-                
-                if (this.selectedYear === year.value) {
-                    div.classList.add('selected');
-                }
-                
-                div.addEventListener('click', () => this.selectYear(year.value));
-                
-                return div;
-            }
-            
-            attachEvents() {
-                // باز کردن کشو
-                this.input.addEventListener('click', () => this.open());
-                this.input.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        this.open();
-                    }
-                });
-                
-                // بستن کشو
-                this.closeBtn.addEventListener('click', () => this.close());
-                this.overlay.addEventListener('click', () => this.close());
-                
-                // کیبورد ناویگیشن
-                document.addEventListener('keydown', (e) => {
-                    if (!this.dropdown.classList.contains('active')) return;
-                    
-                    switch(e.key) {
-                        case 'Escape':
-                            e.preventDefault();
-                            this.close();
-                            break;
-                        case 'ArrowDown':
-                            e.preventDefault();
-                            this.moveFocus(1);
-                            break;
-                        case 'ArrowUp':
-                            e.preventDefault();
-                            this.moveFocus(-1);
-                            break;
-                        case 'Enter':
-                            e.preventDefault();
-                            if (this.focusedIndex >= 0 && this.focusedIndex < this.years.length) {
-                                this.selectYear(this.years[this.focusedIndex].value);
-                            }
-                            break;
-                        default:
-                            // جستجوی سریع با تایپ اعداد
-                            if (/^[0-9]$/.test(e.key)) {
-                                this.handleSearch(e.key);
-                            }
-                    }
-                });
-            }
-            
-            open() {
-                this.dropdown.classList.add('active');
-                this.overlay.classList.add('active');
-                this.input.classList.add('active');
-                
-                // ✅ اسکرول به سال انتخاب شده یا سال جاری - دقیقاً در وسط viewport
-                setTimeout(() => {
-                    const targetYear = this.selectedYear || this.currentJalaliYear;
-                    const targetItem = this.list.querySelector(`[data-value="${targetYear}"]`);
-                    if (targetItem) {
-                        // اسکرول دقیق به وسط با block: 'center'
-                        targetItem.scrollIntoView({ 
-                            block: 'center', 
-                            behavior: 'smooth',
-                            inline: 'nearest'
-                        });
-                        this.focusedIndex = parseInt(targetItem.dataset.index);
-                        this.updateFocusedItem();
-                    }
-                }, 150); // تاخیر کمی بیشتر برای رندر کامل
-            }
-            
-            close() {
-                this.dropdown.classList.remove('active');
-                this.overlay.classList.remove('active');
-                this.input.classList.remove('active');
-                this.focusedIndex = -1;
-                this.updateFocusedItem();
-            }
-            
-            selectYear(year) {
-                this.selectedYear = year;
-                this.hiddenInput.value = year;
-                this.input.textContent = `سال تولد: ${year}`;
-                
-                // آپدیت کلاس selected
-                this.list.querySelectorAll('.year-item').forEach(item => {
-                    item.classList.remove('selected');
-                    if (parseInt(item.dataset.value) === year) {
-                        item.classList.add('selected');
-                    }
-                });
-                
-                this.close();
-            }
-            
-            setDefaultYear(year) {
-                this.selectYear(year);
-            }
-            
-            moveFocus(direction) {
-                const items = Array.from(this.list.querySelectorAll('.year-item'));
-                
-                if (this.focusedIndex === -1) {
-                    this.focusedIndex = 0;
+                // اگر سال جاری است، علامت بزنیم
+                if (year === currentYear) {
+                    option.textContent = `${year} ⭐ (سال جاری)`;
+                    option.classList.add('current-year');
+                    option.selected = true; // انتخاب پیش‌فرض
                 } else {
-                    this.focusedIndex += direction;
-                    
-                    // محدوده‌بندی
-                    if (this.focusedIndex < 0) this.focusedIndex = 0;
-                    if (this.focusedIndex >= items.length) this.focusedIndex = items.length - 1;
+                    option.textContent = year;
                 }
                 
-                this.updateFocusedItem();
-                
-                // اسکرول به آیتم فوکوس شده
-                const focusedItem = items[this.focusedIndex];
-                if (focusedItem) {
-                    focusedItem.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-                }
+                yearSelect.appendChild(option);
+            }
+        }
+
+        /* =========================================
+         * محاسبه سال جاری شمسی از تاریخ سیستم
+         * ========================================= */
+        function getCurrentJalaliYear() {
+            const gregorianDate = new Date();
+            const jalaliDateStr = gregorianDate.toLocaleDateString('fa-IR');
+            const yearMatch = jalaliDateStr.match(/(\d{4})/);
+            
+            if (yearMatch) {
+                return parseInt(yearMatch[1]);
             }
             
-            updateFocusedItem() {
-                const items = this.list.querySelectorAll('.year-item');
-                items.forEach((item, index) => {
-                    item.classList.toggle('focused', index === this.focusedIndex);
-                });
-            }
-            
-            handleSearch(digit) {
-                clearTimeout(this.searchTimeout);
-                
-                this.searchBuffer += digit;
-                
-                // جستجوی سال شروع شده با این اعداد
-                const searchYear = parseInt(this.searchBuffer);
-                const targetItem = this.list.querySelector(`[data-value="${searchYear}"]`);
-                
-                if (targetItem) {
-                    targetItem.scrollIntoView({ block: 'center', behavior: 'smooth' });
-                    this.focusedIndex = parseInt(targetItem.dataset.index);
-                    this.updateFocusedItem();
-                }
-                
-                // پاک کردن بافر بعد از 1 ثانیه
-                this.searchTimeout = setTimeout(() => {
-                    this.searchBuffer = '';
-                }, 1000);
-            }
+            // اگر نتوانست پیدا کند، پیش‌فرض 1405
+            return 1405;
         }
 
         /* =========================================
@@ -1483,7 +1068,7 @@
             const activity = document.querySelector('input[name="activity"]:checked').value;
             
             // Validate
-            if (!age || !weight || !height) {
+            if (!age || !weight || !height || !birthYear) {
                 alert('لطفاً تمام فیلدها را پر کنید');
                 return;
             }
@@ -1516,8 +1101,8 @@
          * Initialize Application
          * ========================================= */
         document.addEventListener('DOMContentLoaded', function() {
-            // ✅ راه‌اندازی کشوی انتخاب سال
-            new YearDropdown();
+            // ✅ پر کردن لیست سال‌ها
+            populateYearSelect();
             
             // Display history on load
             BMICalculator.displayHistory();
