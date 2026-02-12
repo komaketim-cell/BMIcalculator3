@@ -7,12 +7,11 @@
     <!-- جلوگیری از خطای favicon -->
     <link rel="icon" href="data:," />
     <link rel="stylesheet" href="style.css">
-    
-    <!-- کتابخانه jsPDF برای تولید PDF -->
+
+    <!-- ✅ کتابخانه jsPDF — نه html2pdf -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    
+
     <style>
-        /* استایل دکمه PDF */
         #pdf-btn {
             background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
             color: white;
@@ -25,13 +24,10 @@
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
         }
-        
         #pdf-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
         }
-        
-        /* استایل صفحه پروفایل */
         .history-item {
             background: white;
             padding: 15px;
@@ -40,19 +36,16 @@
             border-right: 4px solid #4F46E5;
             transition: transform 0.2s;
         }
-        
         .history-item:hover {
             transform: translateX(-5px);
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
-        
         .history-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 10px;
             font-size: 14px;
         }
-        
         .btn-danger {
             background: #EF4444;
             color: white;
@@ -63,11 +56,7 @@
             font-size: 14px;
             transition: all 0.3s;
         }
-        
-        .btn-danger:hover {
-            background: #DC2626;
-        }
-        
+        .btn-danger:hover { background: #DC2626; }
         .btn-outline {
             background: transparent;
             color: #64748B;
@@ -78,14 +67,11 @@
             font-size: 14px;
             transition: all 0.3s;
         }
-        
-        .btn-outline:hover {
-            background: #64748B;
-            color: white;
-        }
+        .btn-outline:hover { background: #64748B; color: white; }
     </style>
 </head>
 <body>
+
     <!-- ===== صفحه ورودی ===== -->
     <div class="page active" id="input-page">
         <div class="container">
@@ -108,9 +94,7 @@
                 <div class="input-group">
                     <label>تاریخ تولد (شمسی):</label>
                     <div style="display: flex; gap: 10px;">
-                        <select id="birth-year" style="flex: 2;">
-                            <option value="">سال</option>
-                        </select>
+                        <select id="birth-year" style="flex: 2;"><option value="">سال</option></select>
                         <select id="birth-month" style="flex: 1;">
                             <option value="">ماه</option>
                             <option value="1">فروردین</option>
@@ -126,9 +110,7 @@
                             <option value="11">بهمن</option>
                             <option value="12">اسفند</option>
                         </select>
-                        <select id="birth-day" style="flex: 1;">
-                            <option value="">روز</option>
-                        </select>
+                        <select id="birth-day" style="flex: 1;"><option value="">روز</option></select>
                     </div>
                 </div>
 
@@ -160,7 +142,6 @@
                 </div>
             </div>
 
-            <!-- فوتر صفحه ورود -->
             <div class="footer-credit">
                 توسعه یافته توسط تیم «کمکتیم»<br>
                 <a href="https://Komaketim.ir" target="_blank">Komaketim.ir</a>
@@ -175,7 +156,6 @@
                 <h1>نتایج محاسبات</h1>
             </div>
 
-            <!-- اطلاعات کلی -->
             <div class="card info-card">
                 <h3>اطلاعات شما</h3>
                 <div class="info-grid">
@@ -186,7 +166,6 @@
                 </div>
             </div>
 
-            <!-- شاخص توده بدنی (BMI) -->
             <div class="card bmi-card">
                 <h3>شاخص توده بدنی (BMI)</h3>
                 <div class="bmi-display">
@@ -204,20 +183,17 @@
                 </div>
             </div>
 
-            <!-- محدوده وزن سالم -->
             <div class="card result-card">
                 <h3>محدوده وزن سالم</h3>
                 <div class="result-value" id="r-healthy">--</div>
             </div>
 
-            <!-- کارت‌های BMR و TDEE -->
             <div class="results-grid">
                 <div class="card result-card">
                     <h3>BMR</h3>
                     <p class="result-label">متابولیسم پایه</p>
                     <div class="result-value" id="r-bmr">--</div>
                 </div>
-
                 <div class="card result-card">
                     <h3>TDEE</h3>
                     <p class="result-label">کالری روزانه</p>
@@ -225,7 +201,6 @@
                 </div>
             </div>
 
-            <!-- توصیه‌های کالری -->
             <div class="card">
                 <h3>توصیه‌های کالری</h3>
                 <div class="calorie-recommendations">
@@ -244,7 +219,6 @@
                 </div>
             </div>
 
-            <!-- توصیه‌های کاربردی -->
             <div class="card">
                 <h3>💡 توصیه‌های کاربردی</h3>
                 <div id="practical-tips"></div>
@@ -254,7 +228,7 @@
                 <button id="back-btn" class="btn-primary" style="flex: 1;">محاسبه مجدد</button>
                 <button id="pdf-btn" style="flex: 1;">📄 دانلود PDF</button>
             </div>
-            
+
             <button id="help-btn2" class="btn-secondary" style="width: 100%; margin-top: 10px;">راهنما</button>
         </div>
     </div>
@@ -265,21 +239,15 @@
             <div class="header">
                 <h1>📋 پروفایل و تاریخچه</h1>
             </div>
-            
-            <!-- تاریخچه محاسبات -->
+
             <div class="card" style="background: #F8FAFC;">
-                <h3 style="color: #1E293B; margin-bottom: 15px;">📊 تاریخچه محاسبات (آخرین 10 مورد)</h3>
+                <h3 style="color: #1E293B; margin-bottom: 15px;">📊 تاریخچه محاسبات (آخرین ۱۰ مورد)</h3>
                 <div id="history-list"></div>
             </div>
 
-            <!-- دکمه‌های عملیات -->
             <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: center;">
-                <button onclick="clearHistoryConfirm()" class="btn-danger">
-                    🗑️ پاک کردن تاریخچه
-                </button>
-                <button onclick="showPage('input-page')" class="btn-outline">
-                    بازگشت
-                </button>
+                <button onclick="clearHistoryConfirm()" class="btn-danger">🗑️ پاک کردن تاریخچه</button>
+                <button onclick="showPage('input-page')" class="btn-outline">بازگشت</button>
             </div>
         </div>
     </div>
@@ -326,10 +294,11 @@
 
     <script src="who-data.js"></script>
     <script src="bmi.js"></script>
+    <!-- ✅ نام فایل دقیقاً همین است -->
     <script src="profile-report-final.js"></script>
-    
+
     <script>
-        // پر کردن سال‌ها (1300 تا 1450)
+        // پر کردن سال‌ها
         const yearSelect = document.getElementById('birth-year');
         for (let y = 1450; y >= 1300; y--) {
             const opt = document.createElement('option');
@@ -338,7 +307,7 @@
             yearSelect.appendChild(opt);
         }
 
-        // پر کردن روزها (1 تا 31)
+        // پر کردن روزها
         const daySelect = document.getElementById('birth-day');
         for (let d = 1; d <= 31; d++) {
             const opt = document.createElement('option');
@@ -346,35 +315,33 @@
             opt.textContent = d;
             daySelect.appendChild(opt);
         }
-        
-        // اتصال دکمه پروفایل
-        document.getElementById("profile-btn").onclick = showProfilePage;
-        
-        // نمایش تاریخچه در صفحه پروفایل
+
+        // دکمه پروفایل
+        document.getElementById('profile-btn').onclick = showProfilePage;
+
         function showProfilePage() {
             const history = ProfileManager.loadHistory();
             const historyList = document.getElementById('history-list');
-            
+
             if (history.length === 0) {
-                historyList.innerHTML = '<p style="text-align: center; color: #64748B; padding: 20px;">تاریخچه‌ای موجود نیست</p>';
+                historyList.innerHTML = '<p style="text-align:center;color:#64748B;padding:20px;">تاریخچه‌ای موجود نیست</p>';
             } else {
                 const last10 = history.slice(0, 10);
-                historyList.innerHTML = last10.map((item, index) => `
+                historyList.innerHTML = last10.map(item => `
                     <div class="history-item">
                         <div class="history-grid">
                             <div><strong>تاریخ:</strong> ${item.date}</div>
-                            <div><strong>BMI:</strong> <span style="color: #4F46E5; font-weight: bold;">${item.bmi}</span></div>
+                            <div><strong>BMI:</strong> <span style="color:#4F46E5;font-weight:bold;">${item.bmi}</span></div>
                             <div><strong>وزن:</strong> ${item.weight} کیلوگرم</div>
                             <div><strong>وضعیت:</strong> ${item.status}</div>
                         </div>
                     </div>
                 `).join('');
             }
-            
+
             showPage('profile-page');
         }
-        
-        // تایید پاک کردن تاریخچه
+
         function clearHistoryConfirm() {
             if (confirm('آیا مطمئن هستید که می‌خواهید تمام تاریخچه را پاک کنید؟')) {
                 ProfileManager.clearHistory();
