@@ -358,6 +358,25 @@ function calculateAndGo() {
     document.getElementById("practical-tips").innerHTML = tipsHTML;
 
     showPage("results-page");
+
+    /* ========================================
+     * ✅ اضافه شده: ذخیره نتایج در پروفایل
+     * (فقط اگر profile-report.js لود شده باشد)
+     * ======================================== */
+    if (typeof ProfileManager !== "undefined") {
+        ProfileManager.saveResult({
+            date: `${CURRENT_JALALI_YEAR}/${CURRENT_JALALI_MONTH}/${CURRENT_JALALI_DAY}`,
+            gender: gender,
+            age: `${age.years} سال، ${age.months} ماه و ${age.days} روز`,
+            height: height,
+            weight: weight,
+            bmi: bmi.toFixed(2),
+            status: statusText,
+            bmr: Math.round(bmr),
+            tdee: Math.round(tdee),
+            healthyRange: healthyText
+        });
+    }
 }
 
 /* ---------- Events ---------- */
