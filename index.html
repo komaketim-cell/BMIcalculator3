@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>محاسبه BMI، BMR و TDEE</title>
-    <link rel="icon" href="data:," />
+    <link rel="icon" href="logo.png" type="image/png" />
     <link rel="stylesheet" href="style.css">
 
     <!-- ✅ فونت‌های فارسی زیبا -->
@@ -77,38 +77,43 @@
         }
         .btn-outline:hover { background: #64748B; color: white; }
 
-        /* ✅ استایل لوگو در فوتر صفحه ورودی */
+        /* ✅ استایل لوگو در فوتر صفحه ورودی - وسط‌چین شده */
         .footer-credit {
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             gap: 15px;
             margin-top: 30px;
-            padding: 20px;
+            padding: 25px;
             background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%);
             border-radius: 12px;
             direction: rtl;
+            text-align: center;
         }
         .footer-logo {
-            width: 60px;
-            height: 60px;
+            width: 70px;
+            height: 70px;
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
         }
         .footer-text {
-            text-align: right;
-            line-height: 1.8;
+            text-align: center;
+            line-height: 2;
         }
         .footer-text strong {
             font-size: 18px;
             color: #1E293B;
             font-weight: 700;
+            display: block;
+            margin-bottom: 5px;
         }
         .footer-text a {
             color: #4F46E5;
             font-weight: 600;
             text-decoration: none;
             transition: all 0.3s;
+            font-size: 16px;
         }
         .footer-text a:hover {
             color: #7C3AED;
@@ -370,7 +375,7 @@
             font-weight: 800;
         }
 
-        /* فوتر PDF */
+        /* فوتر PDF - وسط‌چین شده */
         .pdf-footer {
             margin-top: 40px;
             padding-top: 25px;
@@ -379,6 +384,7 @@
         }
         .pdf-footer-logo {
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             gap: 15px;
@@ -392,12 +398,15 @@
         .pdf-footer-text {
             color: #475569;
             font-size: 13px;
-            line-height: 1.8;
+            line-height: 2;
             font-weight: 500;
+            text-align: center;
         }
         .pdf-footer-text strong {
             color: #1E293B;
             font-weight: 700;
+            display: block;
+            margin-bottom: 5px;
         }
         .pdf-footer-website {
             color: #4F46E5;
@@ -489,11 +498,11 @@
                 </div>
             </div>
 
-            <!-- ✅ فوتر با لوگو -->
+            <!-- ✅ فوتر با لوگو - وسط‌چین شده -->
             <div class="footer-credit">
-                <img src="https://komaketim.ir/wp-content/uploads/2024/01/logo.png" alt="لوگو کمکتیم" class="footer-logo">
+                <img src="logo.png" alt="لوگو کمکتیم" class="footer-logo">
                 <div class="footer-text">
-                    <strong>توسعه یافته توسط تیم «کمکتیم»</strong><br>
+                    <strong>توسعه یافته توسط تیم «کمکتیم»</strong>
                     <a href="https://Komaketim.ir" target="_blank">Komaketim.ir</a>
                 </div>
             </div>
@@ -648,7 +657,7 @@
         <!-- هدر با لوگو کمکتیم -->
         <div class="pdf-logo-header">
             <div class="pdf-logo-container">
-                <img src="https://komaketim.ir/wp-content/uploads/2024/01/logo.png" alt="کمکتیم" class="pdf-logo">
+                <img src="logo.png" alt="کمکتیم" class="pdf-logo">
                 <div class="pdf-site-name">کمکتیم</div>
             </div>
             <h1 class="pdf-header-title">گزارش تحلیل کامل شاخص‌های سلامت</h1>
@@ -709,7 +718,7 @@
             </div>
         </div>
 
-        <!-- بخش متابولیسم -->
+        <!-- ✅ بخش متابولیسم - حالا نمایش داده می‌شود -->
         <div class="pdf-section">
             <h2 class="pdf-section-title">
                 <span class="pdf-section-icon">🔥</span>
@@ -756,15 +765,13 @@
             </div>
         </div>
 
-        <!-- فوتر با لوگو -->
+        <!-- ✅ فوتر با لوگو - وسط‌چین شده -->
         <div class="pdf-footer">
             <div class="pdf-footer-logo">
-                <img src="https://komaketim.ir/wp-content/uploads/2024/01/logo.png" alt="کمکتیم">
-                <div>
-                    <div class="pdf-footer-text">
-                        <strong>این گزارش توسط تیم کمکتیم تولید شده است</strong><br>
-                        این گزارش جنبه اطلاع‌رسانی دارد و جایگزین مشاوره پزشکی نیست
-                    </div>
+                <img src="logo.png" alt="کمکتیم">
+                <div class="pdf-footer-text">
+                    <strong>این گزارش توسط تیم کمکتیم تولید شده است</strong>
+                    این گزارش جنبه اطلاع‌رسانی دارد و جایگزین مشاوره پزشکی نیست
                     <div class="pdf-footer-website">Komaketim.ir</div>
                 </div>
             </div>
@@ -847,8 +854,11 @@
             document.getElementById('pdf-status').textContent = getData('bmi-status-text');
             document.getElementById('pdf-diff').textContent = getData('bmi-difference-text');
             document.getElementById('pdf-healthy').textContent = getData('r-healthy');
+            
+            // ✅ اضافه شدن BMR و TDEE به PDF
             document.getElementById('pdf-bmr').textContent = getData('r-bmr');
             document.getElementById('pdf-tdee').textContent = getData('r-tdee');
+            
             document.getElementById('pdf-maintain').textContent = getData('maintain-calories');
             document.getElementById('pdf-gain').textContent = getData('gain-calories');
             document.getElementById('pdf-loss').textContent = getData('loss-calories');
