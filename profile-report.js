@@ -20,11 +20,9 @@ const ProfileManager = {
     saveResult(result) {
         let history = this.loadHistory();
         history.unshift(result);
-        
         if (history.length > this.MAX_HISTORY) {
             history = history.slice(0, this.MAX_HISTORY);
         }
-        
         localStorage.setItem(this.HISTORY_KEY, JSON.stringify(history));
     },
 
@@ -44,7 +42,7 @@ const ProfileManager = {
  * ========================================= */
 async function generatePDFReport() {
     console.log('🚀 شروع تولید PDF با jsPDF...');
-    
+
     // بررسی وجود jsPDF
     if (typeof window.jspdf === 'undefined') {
         console.error('❌ کتابخانه jsPDF لود نشده است');
@@ -54,30 +52,30 @@ async function generatePDFReport() {
 
     const { jsPDF } = window.jspdf;
 
-    // خواندن داده‌ها
+    // خواندن داده‌ها از صفحه
     const getData = (id, defaultValue = 'نامشخص') => {
         const element = document.getElementById(id);
         return element ? (element.textContent.trim() || defaultValue) : defaultValue;
     };
 
     const data = {
-        gender: getData('r-gender'),
-        age: getData('r-age'),
-        height: getData('r-height'),
-        weight: getData('r-weight'),
-        bmi: getData('bmi-value'),
-        status: getData('bmi-status-text'),
-        diff: getData('bmi-difference-text'),
-        healthy: getData('r-healthy'),
-        bmr: getData('r-bmr'),
-        tdee: getData('r-tdee'),
+        gender:   getData('r-gender'),
+        age:      getData('r-age'),
+        height:   getData('r-height'),
+        weight:   getData('r-weight'),
+        bmi:      getData('bmi-value'),
+        status:   getData('bmi-status-text'),
+        diff:     getData('bmi-difference-text'),
+        healthy:  getData('r-healthy'),
+        bmr:      getData('r-bmr'),
+        tdee:     getData('r-tdee'),
         maintain: getData('maintain-calories'),
-        gain: getData('gain-calories'),
-        loss: getData('loss-calories')
+        gain:     getData('gain-calories'),
+        loss:     getData('loss-calories')
     };
 
-    // بررسی داده‌ها
-    if (data.bmi === 'نامشخص' || data.bmi === '--') {
+    // بررسی اینکه محاسبه انجام شده
+    if (!data.bmi || data.bmi === '--' || data.bmi === 'نامشخص') {
         alert('❌ خطا: لطفاً ابتدا محاسبات را انجام دهید.');
         return;
     }
@@ -85,9 +83,8 @@ async function generatePDFReport() {
     console.log('📊 داده‌ها خوانده شد:', data);
 
     const today = new Date().toLocaleDateString('fa-IR');
-    
+
     try {
-        // ایجاد PDF
         const doc = new jsPDF({
             orientation: 'portrait',
             unit: 'mm',
@@ -95,32 +92,28 @@ async function generatePDFReport() {
         });
 
         const pageW = 210;
-        const pageH = 297;
         const margin = 15;
         const contentW = pageW - margin * 2;
         let y = 20;
 
-        // ---- helper: رسم باکس پس‌زمینه ----
-        const fillRect = (x, rectY, w, h, r, g, b) => {
+        // helpers
+        const fillRect = (x, ry, w, h, r, g, b) => {
             doc.setFillColor(r, g, b);
-            doc.rect(x, rectY, w, h, 'F');
+            doc.rect(x, ry, w, h, 'F');
         };
 
-        // ---- helper: متن راست‌چین ----
         const rtl = (text, fontSize, r, g, b, posY) => {
             doc.setFontSize(fontSize);
             doc.setTextColor(r, g, b);
             doc.text(String(text), pageW - margin, posY, { align: 'right' });
         };
 
-        // ---- helper: متن مرکز ----
         const center = (text, fontSize, r, g, b, posY) => {
             doc.setFontSize(fontSize);
             doc.setTextColor(r, g, b);
             doc.text(String(text), pageW / 2, posY, { align: 'center' });
         };
 
-        // ---- helper: خط جداکننده ----
         const hr = (r = 226, g = 232, b = 240) => {
             doc.setDrawColor(r, g, b);
             doc.setLineWidth(0.4);
@@ -172,7 +165,6 @@ async function generatePDFReport() {
         center(data.status, 14, 30, 41, 59, y);
         y += 10;
 
-        // تحلیل
         doc.setFontSize(10);
         doc.setTextColor(51, 65, 85);
         const diffLines = doc.splitTextToSize(data.diff, contentW - 10);
@@ -192,12 +184,10 @@ async function generatePDFReport() {
         rtl('اطلاعات متابولیسم', 13, 22, 163, 74, y + 4);
         y += 13;
 
-        const metaRows = [
+        [
             ['متابولیسم پایه (BMR):', data.bmr],
             ['کالری روزانه (TDEE):', data.tdee]
-        ];
-
-        metaRows.forEach(([label, value]) => {
+        ].forEach(([label, value]) => {
             doc.setFontSize(11);
             doc.setTextColor(100, 116, 139);
             doc.text(label, pageW - margin, y, { align: 'right' });
@@ -209,18 +199,16 @@ async function generatePDFReport() {
         y += 3;
         hr();
 
-        // ==== راهنمای کالری ====
+        // ==== کالری ====
         fillRect(margin, y - 2, contentW, 8, 255, 247, 237);
         rtl('راهنمای کالری روزانه', 13, 249, 115, 22, y + 4);
         y += 13;
 
-        const calRows = [
+        [
             ['حفظ وزن:', data.maintain],
             ['افزایش وزن:', data.gain],
             ['کاهش وزن:', data.loss]
-        ];
-
-        calRows.forEach(([label, value]) => {
+        ].forEach(([label, value]) => {
             doc.setFontSize(11);
             doc.setTextColor(71, 85, 105);
             doc.text(label, pageW - margin, y, { align: 'right' });
@@ -235,14 +223,12 @@ async function generatePDFReport() {
         hr(226, 232, 240);
         center('این گزارش توسط محاسبه‌گر BMI تولید شده است', 9, 100, 116, 139, y);
         y += 6;
-        center('⚠️ این گزارش صرفاً جنبه اطلاع‌رسانی دارد و جایگزین مشاوره پزشکی نیست', 9, 220, 38, 38, y);
+        center('این گزارش جنبه اطلاع‌رسانی دارد و جایگزین مشاوره پزشکی نیست', 9, 220, 38, 38, y);
 
-        // ذخیره PDF
         const safeDateStr = today.replace(/\//g, '-');
         doc.save('BMI-Report-' + safeDateStr + '.pdf');
-        
+
         console.log('✅ PDF با موفقیت ایجاد شد');
-        alert('✅ گزارش PDF با موفقیت دانلود شد!');
 
     } catch (err) {
         console.error('❌ خطا در تولید PDF:', err);
@@ -253,18 +239,18 @@ async function generatePDFReport() {
 /* =========================================
  * Event Listeners
  * ========================================= */
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     console.log('📱 سیستم پروفایل و گزارش‌گیری آماده است');
-    
+
     const pdfBtn = document.getElementById('pdf-btn');
     if (pdfBtn) {
-        pdfBtn.onclick = function(e) {
+        pdfBtn.addEventListener('click', function (e) {
             e.preventDefault();
-            console.log('🖱️ کلیک روی دکمه PDF');
+            console.log('🖱️ کلیک رومه PDF');
             generatePDFReport();
-        };
+        });
         console.log('✅ دکمه PDF متصل شد');
     } else {
-        console.warn('⚠️ دکمه PDF یافت نشد - ممکن است در صفحه نتایج نباشید');
+        console.warn('⚠️ دکمه PDF یافت نشد');
     }
 });
