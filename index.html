@@ -20,282 +20,6 @@
             font-family: 'Vazirmatn', Tahoma, Arial, sans-serif;
         }
 
-        /* =========================================
-         * ✅✅✅ کشوی کناری با اسکرول دوطرفه
-         * ========================================= */
-        
-        /* باکس ورودی سفارشی */
-        .custom-year-input {
-            width: 100%;
-            padding: 12px 40px 12px 15px;
-            border: 2px solid #CBD5E1;
-            border-radius: 8px;
-            font-size: 15px;
-            font-weight: 600;
-            color: #1E293B;
-            background: white;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            user-select: none;
-        }
-        
-        .custom-year-input:hover {
-            border-color: #4F46E5;
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-        }
-        
-        .custom-year-input.active {
-            border-color: #4F46E5;
-            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15);
-        }
-        
-        .custom-year-input::after {
-            content: '◄';
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #64748B;
-            font-size: 14px;
-            transition: transform 0.3s ease;
-        }
-        
-        .custom-year-input.active::after {
-            transform: translateY(-50%) rotate(180deg);
-        }
-        
-        /* کانتینر کشو */
-        .year-dropdown-container {
-            position: relative;
-        }
-        
-        /* ✅✅ کشوی کناری */
-        .year-dropdown {
-            position: fixed;
-            top: 0;
-            right: -400px;
-            width: 350px;
-            height: 100vh;
-            background: white;
-            box-shadow: -5px 0 30px rgba(0, 0, 0, 0.2);
-            z-index: 1000;
-            transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .year-dropdown.active {
-            right: 0;
-        }
-        
-        /* هدر کشو */
-        .year-dropdown-header {
-            background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
-            padding: 20px;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            flex-shrink: 0;
-        }
-        
-        .year-dropdown-title {
-            font-size: 18px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .year-dropdown-close {
-            background: rgba(255,255,255,0.2);
-            border: none;
-            color: white;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-            font-weight: bold;
-        }
-        
-        .year-dropdown-close:hover {
-            background: rgba(255,255,255,0.3);
-            transform: scale(1.1);
-        }
-        
-        /* ✅ کانتینر اصلی لیست با اسکرول */
-        .year-dropdown-list {
-            flex: 1;
-            overflow-y: auto;
-            padding: 0;
-            position: relative;
-            scroll-behavior: smooth;
-        }
-        
-        /* اسکرول‌بار سفارشی */
-        .year-dropdown-list::-webkit-scrollbar {
-            width: 10px;
-        }
-        
-        .year-dropdown-list::-webkit-scrollbar-track {
-            background: #F1F5F9;
-        }
-        
-        .year-dropdown-list::-webkit-scrollbar-thumb {
-            background: linear-gradient(180deg, #4F46E5 0%, #7C3AED 100%);
-            border-radius: 5px;
-            transition: background 0.2s;
-        }
-        
-        .year-dropdown-list::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(180deg, #7C3AED 0%, #4F46E5 100%);
-        }
-        
-        /* ✅ آیتم سال */
-        .year-item {
-            padding: 14px 20px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-size: 16px;
-            font-weight: 600;
-            color: #475569;
-            border-bottom: 1px solid #F1F5F9;
-            user-select: none;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        
-        .year-item:hover {
-            background: linear-gradient(90deg, #F8FAFC 0%, #EEF2FF 100%);
-            color: #4F46E5;
-            padding-right: 25px;
-        }
-        
-        /* ✅✅ هایلایت سال 1405 - در وسط */
-        .year-item.highlight {
-            background: linear-gradient(90deg, #FEF3C7 0%, #FDE68A 100%);
-            color: #92400E;
-            font-weight: 800;
-            font-size: 20px;
-            padding: 18px 20px;
-            border: 3px solid #FBBF24;
-            border-right: none;
-            border-left: none;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            box-shadow: 0 2px 10px rgba(251, 191, 36, 0.3);
-        }
-        
-        .year-item.highlight::before {
-            content: '⭐';
-            font-size: 22px;
-            margin-left: 10px;
-        }
-        
-        .year-item.highlight::after {
-            content: 'سال فعلی';
-            font-size: 11px;
-            background: #92400E;
-            color: #FEF3C7;
-            padding: 3px 8px;
-            border-radius: 12px;
-            font-weight: 700;
-        }
-        
-        /* سال انتخاب شده */
-        .year-item.selected {
-            background: linear-gradient(90deg, #4F46E5 0%, #7C3AED 100%);
-            color: white;
-            font-weight: 700;
-        }
-        
-        .year-item.selected::after {
-            content: '✓';
-            font-size: 18px;
-            font-weight: bold;
-        }
-        
-        /* حالت فوکوس صفحه کلید */
-        .year-item.focused {
-            background: linear-gradient(90deg, #E0E7FF 0%, #C7D2FE 100%);
-            color: #4338CA;
-            outline: 3px solid #818CF8;
-            outline-offset: -3px;
-        }
-        
-        /* Overlay برای بستن کشو */
-        .year-dropdown-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.4);
-            z-index: 999;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(2px);
-        }
-        
-        .year-dropdown-overlay.active {
-            opacity: 1;
-            visibility: visible;
-        }
-        
-        /* ✅ نشانگر جهت اسکرول */
-        .scroll-indicator {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(79, 70, 229, 0.9);
-            color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 700;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.3s;
-            z-index: 20;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        }
-        
-        .scroll-indicator.top {
-            top: 80px;
-        }
-        
-        .scroll-indicator.bottom {
-            bottom: 20px;
-        }
-        
-        .year-dropdown-list:hover .scroll-indicator {
-            opacity: 1;
-        }
-        
-        /* ✅ موبایل */
-        @media (max-width: 640px) {
-            .year-dropdown {
-                width: 100%;
-                right: -100%;
-            }
-            
-            .year-dropdown.active {
-                right: 0;
-            }
-        }
-
-        /* ========================================= */
-
         #pdf-btn {
             background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
             color: white;
@@ -857,38 +581,10 @@
                     </select>
                 </div>
 
-                <!-- ✅✅✅ کشوی کناری سفارشی سال تولد -->
                 <div class="input-group">
                     <label>تاریخ تولد (شمسی):</label>
                     <div style="display: flex; gap: 10px;">
-                        <!-- کانتینر کشوی سفارشی -->
-                        <div class="year-dropdown-container" style="flex: 2; position: relative;">
-                            <div class="custom-year-input" id="year-input" tabindex="0">
-                                انتخاب سال تولد
-                            </div>
-                            
-                            <!-- Overlay -->
-                            <div class="year-dropdown-overlay" id="year-overlay"></div>
-                            
-                            <!-- ✅✅ کشوی کناری -->
-                            <div class="year-dropdown" id="year-dropdown">
-                                <div class="year-dropdown-header">
-                                    <span class="year-dropdown-title">🗓️ انتخاب سال تولد</span>
-                                    <button class="year-dropdown-close" id="year-close">×</button>
-                                </div>
-                                <div class="year-dropdown-list" id="year-list">
-                                    <!-- نشانگر اسکرول بالا -->
-                                    <div class="scroll-indicator top">▲ سال‌های بالاتر</div>
-                                    <!-- سال‌ها از طریق JavaScript اضافه می‌شوند -->
-                                    <!-- نشانگر اسکرول پایین -->
-                                    <div class="scroll-indicator bottom">▼ سال‌های پایین‌تر</div>
-                                </div>
-                            </div>
-                            
-                            <!-- Input مخفی برای ذخیره مقدار -->
-                            <input type="hidden" id="birth-year" value="">
-                        </div>
-                        
+                        <select id="birth-year" style="flex: 2;"><option value="">سال</option></select>
                         <select id="birth-month" style="flex: 1;">
                             <option value="">ماه</option>
                             <option value="1">فروردین</option>
@@ -1064,4 +760,526 @@
                 </div>
             </div>
 
-            <!-- ✅ دکمه‌های جذ
+            <!-- ✅ دکمه‌های جذاب و مدرن -->
+            <div class="profile-buttons-container">
+                <button onclick="clearHistoryConfirm()" class="btn-danger">
+                    🗑️ پاک کردن تاریخچه
+                </button>
+                <button onclick="showPage('input-page')" class="btn-outline">
+                    ← بازگشت به صفحه اصلی
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== صفحه راهنما ===== -->
+    <div class="page" id="guide-page">
+        <div class="container">
+            <div class="header">
+                <h1>راهنمای استفاده</h1>
+            </div>
+
+            <div class="card">
+                <h3>📊 شاخص توده بدنی (BMI)</h3>
+                <p>نسبت وزن به مجذور قد که وضعیت وزن را نشان می‌دهد.</p>
+                <ul>
+                    <li><strong>کودکان و نوجوانان (5-19 سال):</strong> براساس نمودارهای رشد WHO</li>
+                    <li><strong>بزرگسالان:</strong> کمتر از 18.5 (کم‌وزن)، 18.5-24.9 (نرمال)، 25-29.9 (اضافه‌وزن)، بالای 30 (چاقی)</li>
+                </ul>
+
+                <h3>🔥 BMR (متابولیسم پایه)</h3>
+                <p>کالری مورد نیاز بدن در حالت استراحت کامل.</p>
+
+                <h3>⚡ TDEE (کالری روزانه)</h3>
+                <p>کالری کل مورد نیاز با در نظر گرفتن سطح فعالیت.</p>
+
+                <h3>🎯 توصیه‌های کالری</h3>
+                <ul>
+                    <li><strong>کاهش وزن:</strong> 500 کالری کمتر از TDEE</li>
+                    <li><strong>حفظ وزن:</strong> برابر با TDEE</li>
+                    <li><strong>افزایش وزن:</strong> 300 کالری بیشتر از TDEE</li>
+                </ul>
+
+                <h3>⚠️ نکات مهم</h3>
+                <ul>
+                    <li>این محاسبات تخمینی هستند و نباید جایگزین مشاوره پزشکی شوند</li>
+                    <li>برای کودکان و نوجوانان حتماً با متخصص تغذیه مشورت کنید</li>
+                    <li>تغییرات وزن باید تدریجی و با نظارت پزشک باشد</li>
+                </ul>
+            </div>
+
+            <button id="back-guide-btn" class="btn-primary">بازگشت</button>
+        </div>
+    </div>
+
+    <!-- ✅ قالب PDF گرافیکی و حرفه‌ای - فشرده شده برای یک صفحه A4 -->
+    <div id="pdf-template">
+        <!-- هدر با لوگو کمکتیم -->
+        <div class="pdf-logo-header">
+            <div class="pdf-logo-container">
+                <img src="logo.png" alt="کمکتیم" class="pdf-logo">
+                <div class="pdf-site-name">کمکتیم</div>
+            </div>
+            <h1 class="pdf-header-title">گزارش تحلیل کامل شاخص‌های سلامت</h1>
+            <p class="pdf-header-subtitle">تاریخ: <span id="pdf-date"></span></p>
+        </div>
+
+        <!-- بخش اطلاعات فردی -->
+        <div class="pdf-section">
+            <h2 class="pdf-section-title">
+                <span class="pdf-section-icon">👤</span>
+                اطلاعات فردی
+            </h2>
+            <div class="pdf-info-cards">
+                <div class="pdf-info-card">
+                    <div class="pdf-info-card-label">جنسیت</div>
+                    <div class="pdf-info-card-value" id="pdf-gender">--</div>
+                </div>
+                <div class="pdf-info-card">
+                    <div class="pdf-info-card-label">سن</div>
+                    <div class="pdf-info-card-value" id="pdf-age">--</div>
+                </div>
+                <div class="pdf-info-card">
+                    <div class="pdf-info-card-label">قد</div>
+                    <div class="pdf-info-card-value" id="pdf-height">--</div>
+                </div>
+                <div class="pdf-info-card">
+                    <div class="pdf-info-card-label">وزن</div>
+                    <div class="pdf-info-card-value" id="pdf-weight">--</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- بخش BMI گرافیکی -->
+        <div class="pdf-section">
+            <h2 class="pdf-section-title">
+                <span class="pdf-section-icon">📊</span>
+                شاخص توده بدنی (BMI)
+            </h2>
+            <div class="pdf-bmi-container">
+                <div class="pdf-bmi-circle" id="pdf-bmi-circle-style">
+                    <span class="pdf-bmi-value" id="pdf-bmi">--</span>
+                    <span class="pdf-bmi-label">BMI</span>
+                </div>
+                <div class="pdf-bmi-details">
+                    <div class="pdf-bmi-status">
+                        <div class="pdf-bmi-status-label">وضعیت فعلی</div>
+                        <div class="pdf-bmi-status-value" id="pdf-status">--</div>
+                    </div>
+                    <div class="pdf-bmi-status">
+                        <div class="pdf-bmi-status-label">تفاوت با وزن سالم</div>
+                        <div class="pdf-bmi-status-value" id="pdf-diff" style="font-size: 14px;">--</div>
+                    </div>
+                    <div class="pdf-bmi-status" style="border-right-color: #16A34A;">
+                        <div class="pdf-bmi-status-label">محدوده وزن سالم</div>
+                        <div class="pdf-bmi-status-value" id="pdf-healthy" style="color: #16A34A; font-size: 14px;">--</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ✅ بخش متابولیسم - با عناوین دقیق -->
+        <div class="pdf-section">
+            <h2 class="pdf-section-title">
+                <span class="pdf-section-icon">🔥</span>
+                اطلاعات متابولیسم و انرژی
+            </h2>
+            <div class="pdf-metabolism-cards">
+                <div class="pdf-metabolism-card">
+                    <div class="pdf-metabolism-icon">⚡</div>
+                    <div class="pdf-metabolism-label">متابولیسم پایه (BMR)</div>
+                    <div class="pdf-metabolism-value" id="pdf-bmr">--</div>
+                    <div class="pdf-metabolism-unit">کالری در روز</div>
+                </div>
+                <div class="pdf-metabolism-card">
+                    <div class="pdf-metabolism-icon">💪</div>
+                    <div class="pdf-metabolism-label">کالری روزانه کل (TDEE)</div>
+                    <div class="pdf-metabolism-value" id="pdf-tdee">--</div>
+                    <div class="pdf-metabolism-unit">کالری در روز</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- بخش راهنمای کالری - با عناوین دقیق -->
+        <div class="pdf-section">
+            <h2 class="pdf-section-title">
+                <span class="pdf-section-icon">🎯</span>
+                برنامه کالری شخصی‌سازی شده
+            </h2>
+            <div class="pdf-calorie-cards">
+                <div class="pdf-calorie-card">
+                    <div class="pdf-calorie-icon">📉</div>
+                    <div class="pdf-calorie-label">کاهش وزن بدون<br>افت عضلات</div>
+                    <div class="pdf-calorie-value" id="pdf-loss">--</div>
+                </div>
+                <div class="pdf-calorie-card" style="background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%); border-color: #FCD34D;">
+                    <div class="pdf-calorie-icon">⚖️</div>
+                    <div class="pdf-calorie-label">ثابت نگه داشتن<br>وزن</div>
+                    <div class="pdf-calorie-value" id="pdf-maintain">--</div>
+                </div>
+                <div class="pdf-calorie-card">
+                    <div class="pdf-calorie-icon">📈</div>
+                    <div class="pdf-calorie-label">افزایش وزن و<br>حجم عضلات</div>
+                    <div class="pdf-calorie-value" id="pdf-gain">--</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ✅ بخش توصیه‌های کاربردی -->
+        <div class="pdf-section pdf-tips-section">
+            <h2 class="pdf-tips-title">
+                <span>💡</span>
+                توصیه‌های کاربردی
+            </h2>
+            <ul class="pdf-tips-list" id="pdf-tips-content">
+                <!-- محتوای توصیه‌ها از طریق JavaScript اضافه می‌شود -->
+            </ul>
+        </div>
+
+        <!-- ✅ فوتر با لوگو - وسط‌چین شده -->
+        <div class="pdf-footer">
+            <div class="pdf-footer-logo">
+                <img src="logo.png" alt="کمکتیم">
+                <div class="pdf-footer-text">
+                    <strong>این گزارش توسط تیم کمکتیم تولید شده است</strong>
+                    این گزارش جنبه اطلاع‌رسانی دارد و جایگزین مشاوره پزشکی نیست
+                    <div class="pdf-footer-website">Komaketim.ir</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ✅ لود کردن فایل‌های JS -->
+    <script src="who-data.js"></script>
+    <script src="bmi.js"></script>
+
+    <!-- ✅ کد اصلی برنامه -->
+    <script>
+    /* =========================================
+     * Profile & Report Management System
+     * ========================================= */
+    const ProfileManager = {
+        STORAGE_KEY: 'bmi_user_profile',
+        HISTORY_KEY: 'bmi_calculation_history',
+        MAX_HISTORY: 50,
+
+        saveProfile(profileData) {
+            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(profileData));
+        },
+
+        loadProfile() {
+            const data = localStorage.getItem(this.STORAGE_KEY);
+            return data ? JSON.parse(data) : null;
+        },
+
+        saveResult(result) {
+            let history = this.loadHistory();
+            history.unshift(result);
+            if (history.length > this.MAX_HISTORY) {
+                history = history.slice(0, this.MAX_HISTORY);
+            }
+            localStorage.setItem(this.HISTORY_KEY, JSON.stringify(history));
+        },
+
+        loadHistory() {
+            const data = localStorage.getItem(this.HISTORY_KEY);
+            return data ? JSON.parse(data) : [];
+        },
+
+        clearHistory() {
+            localStorage.removeItem(this.HISTORY_KEY);
+        }
+    };
+
+    /* =========================================
+     * PDF Generator - نسخه اصلاح شده با پشتیبانی کامل از توصیه‌ها
+     * ========================================= */
+    async function generatePDFReport() {
+        console.log('🎨 شروع تولید PDF گرافیکی...');
+
+        if (typeof html2canvas === 'undefined' || typeof window.jspdf === 'undefined') {
+            alert('❌ خطا: کتابخانه‌های PDF لود نشده‌اند.');
+            return;
+        }
+
+        const getData = (id, defaultValue = 'نامشخص') => {
+            const element = document.getElementById(id);
+            return element ? (element.textContent.trim() || defaultValue) : defaultValue;
+        };
+
+        const bmiValue = getData('bmi-value');
+        if (!bmiValue || bmiValue === '--' || bmiValue === 'نامشخص') {
+            alert('❌ لطفاً ابتدا محاسبات را انجام دهید.');
+            return;
+        }
+
+        try {
+            // پر کردن داده‌ها
+            const today = new Date().toLocaleDateString('fa-IR');
+            document.getElementById('pdf-date').textContent = today;
+            document.getElementById('pdf-gender').textContent = getData('r-gender');
+            document.getElementById('pdf-age').textContent = getData('r-age');
+            document.getElementById('pdf-height').textContent = getData('r-height');
+            document.getElementById('pdf-weight').textContent = getData('r-weight');
+            document.getElementById('pdf-bmi').textContent = getData('bmi-value');
+            document.getElementById('pdf-status').textContent = getData('bmi-status-text');
+            document.getElementById('pdf-diff').textContent = getData('bmi-difference-text');
+            document.getElementById('pdf-healthy').textContent = getData('r-healthy');
+            
+            // ✅ اضافه شدن BMR و TDEE به PDF
+            document.getElementById('pdf-bmr').textContent = getData('r-bmr');
+            document.getElementById('pdf-tdee').textContent = getData('r-tdee');
+            
+            document.getElementById('pdf-maintain').textContent = getData('maintain-calories');
+            document.getElementById('pdf-gain').textContent = getData('gain-calories');
+            document.getElementById('pdf-loss').textContent = getData('loss-calories');
+
+            // ✅✅ رفع مشکل: اضافه کردن توصیه‌های کاربردی به PDF با روش صحیح
+            const tipsElement = document.getElementById('practical-tips');
+            const pdfTipsContent = document.getElementById('pdf-tips-content');
+            
+            console.log('🔍 بررسی محتوای توصیه‌ها:', tipsElement?.innerHTML);
+            
+            if (tipsElement && pdfTipsContent) {
+                // پاک کردن محتوای قبلی
+                pdfTipsContent.innerHTML = '';
+                
+                // استخراج همه li ها از بخش توصیه‌های کاربردی
+                const tipsList = tipsElement.querySelectorAll('li');
+                
+                console.log('📝 تعداد توصیه‌ها پیدا شده:', tipsList.length);
+                
+                if (tipsList.length > 0) {
+                    // کپی هر توصیه به PDF
+                    tipsList.forEach((tipItem, index) => {
+                        const newLi = document.createElement('li');
+                        newLi.textContent = tipItem.textContent.trim();
+                        pdfTipsContent.appendChild(newLi);
+                        console.log(`✓ توصیه ${index + 1} اضافه شد:`, tipItem.textContent.trim());
+                    });
+                } else {
+                    // اگر توصیه‌ای نبود، یک پیام پیش‌فرض بگذار
+                    const defaultLi = document.createElement('li');
+                    defaultLi.textContent = 'برای دریافت توصیه‌های شخصی‌سازی شده، با متخصص تغذیه مشورت کنید.';
+                    pdfTipsContent.appendChild(defaultLi);
+                    console.log('⚠️ هیچ توصیه‌ای یافت نشد، پیام پیش‌فرض اضافه شد');
+                }
+            } else {
+                console.error('❌ عنصر توصیه‌ها یافت نشد!');
+            }
+
+            // رنگ‌بندی دایره BMI بر اساس وضعیت
+            const bmiCircle = document.getElementById('pdf-bmi-circle-style');
+            const bmiNum = parseFloat(bmiValue);
+            let gradient = 'linear-gradient(135deg, #10B981 0%, #059669 100%)'; // سبز (نرمال)
+            
+            if (bmiNum < 18.5) {
+                gradient = 'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)'; // آبی (کم‌وزن)
+            } else if (bmiNum >= 25 && bmiNum < 30) {
+                gradient = 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)'; // نارنجی (اضافه‌وزن)
+            } else if (bmiNum >= 30) {
+                gradient = 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)'; // قرمز (چاقی)
+            }
+            bmiCircle.style.background = gradient;
+
+            // نمایش موقت قالب PDF
+            const template = document.getElementById('pdf-template');
+            template.style.left = '0';
+            template.style.top = '0';
+
+            // ✅ تاخیر برای رندر کامل محتوا
+            console.log('⏳ منتظر رندر کامل محتوا...');
+            await new Promise(resolve => setTimeout(resolve, 800));
+
+            // تبدیل به تصویر با کیفیت بالا
+            console.log('📸 شروع عکس‌برداری از قالب PDF...');
+            const canvas = await html2canvas(template, {
+                scale: 2.5,
+                useCORS: true,
+                allowTaint: true,
+                backgroundColor: '#F8FAFC',
+                logging: false,
+                windowWidth: 900,
+                windowHeight: 1200
+            });
+
+            template.style.left = '-9999px';
+
+            // ایجاد PDF
+            const { jsPDF } = window.jspdf;
+            const imgWidth = 210; // A4 width in mm
+            const pageHeight = 297; // A4 height in mm
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+            
+            const pdf = new jsPDF({
+                orientation: 'portrait',
+                unit: 'mm',
+                format: 'a4',
+                compress: true
+            });
+
+            const imgData = canvas.toDataURL('image/jpeg', 0.95);
+            
+            // اگر محتوا از یک صفحه بیشتر شد، فشرده‌سازی انجام شود
+            if (imgHeight > pageHeight) {
+                const scaleFactor = pageHeight / imgHeight;
+                const scaledWidth = imgWidth * scaleFactor;
+                const scaledHeight = pageHeight;
+                const xOffset = (imgWidth - scaledWidth) / 2;
+                pdf.addImage(imgData, 'JPEG', xOffset, 0, scaledWidth, scaledHeight);
+            } else {
+                pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
+            }
+
+            const safeDateStr = today.replace(/\//g, '-');
+            pdf.save(`گزارش-BMI-${safeDateStr}.pdf`);
+
+            console.log('✅ PDF گرافیکی با موفقیت ایجاد شد');
+            alert('✅ فایل PDF با موفقیت دانلود شد!');
+
+        } catch (err) {
+            console.error('❌ خطا:', err);
+            alert('خطا در تولید PDF: ' + err.message);
+        }
+    }
+
+    /* =========================================
+     * ✅✅ NEW: تابع پر کردن سال‌ها - سال 1405 در ابتدا
+     * ========================================= */
+    function populateYearDropdown() {
+        const yearSelect = document.getElementById('birth-year');
+        const startYear = 1300;
+        const endYear = 1450;
+        
+        // پاک کردن گزینه‌های قبلی (به جز اولی که "سال" است)
+        while (yearSelect.options.length > 1) {
+            yearSelect.remove(1);
+        }
+        
+        // ✅ ابتدا سال 1405 را اضافه می‌کنیم
+        const option1405 = document.createElement('option');
+        option1405.value = 1405;
+        option1405.textContent = '1405';
+        yearSelect.appendChild(option1405);
+        
+        // ✅ سال‌های بالاتر از 1405 (به ترتیب نزولی: 1450 تا 1406)
+        for (let year = endYear; year > 1405; year--) {
+            const option = document.createElement('option');
+            option.value = year;
+            option.textContent = year;
+            yearSelect.appendChild(option);
+        }
+        
+        // ✅ سال‌های پایین‌تر از 1405 (به ترتیب نزولی: 1404 تا 1300)
+        for (let year = 1404; year >= startYear; year--) {
+            const option = document.createElement('option');
+            option.value = year;
+            option.textContent = year;
+            yearSelect.appendChild(option);
+        }
+        
+        // ✅ انتخاب پیش‌فرض روی 1405
+        yearSelect.value = '1405';
+    }
+
+    /* =========================================
+     * Event Listeners
+     * ========================================= */
+    document.addEventListener('DOMContentLoaded', function () {
+        // ✅✅ فراخوانی تابع جدید برای پر کردن سال‌ها
+        populateYearDropdown();
+
+        // پر کردن روزها
+        const daySelect = document.getElementById('birth-day');
+        for (let d = 1; d <= 31; d++) {
+            const opt = document.createElement('option');
+            opt.value = d;
+            opt.textContent = d;
+            daySelect.appendChild(opt);
+        }
+
+        // دکمه PDF
+        const pdfBtn = document.getElementById('pdf-btn');
+        if (pdfBtn) {
+            pdfBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                generatePDFReport();
+            });
+        }
+
+        // دکمه پروفایل
+        const profileBtn = document.getElementById('profile-btn');
+        if (profileBtn) {
+            profileBtn.addEventListener('click', showProfilePage);
+        }
+
+        // ✅✅ NEW: فعال‌سازی کلید Enter برای محاسبات
+        const calculateButton = document.getElementById('calc-btn');
+        const inputFields = [
+            document.getElementById('birth-year'),
+            document.getElementById('birth-month'),
+            document.getElementById('birth-day'),
+            document.getElementById('height'),
+            document.getElementById('weight'),
+            document.getElementById('gender'),
+            document.getElementById('activity')
+        ];
+        
+        // افزودن event listener به هر فیلد
+        inputFields.forEach(field => {
+            if (field) {
+                field.addEventListener('keypress', function(event) {
+                    if (event.key === 'Enter') {
+                        event.preventDefault();
+                        calculateButton.click();
+                    }
+                });
+            }
+        });
+        
+        // افزودن event listener به کل صفحه ورودی
+        const loginContainer = document.querySelector('.page.active .card');
+        if (loginContainer) {
+            loginContainer.addEventListener('keypress', function(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    calculateButton.click();
+                }
+            });
+        }
+    });
+
+    function showProfilePage() {
+        const history = ProfileManager.loadHistory();
+        const historyList = document.getElementById('history-list');
+
+        if (history.length === 0) {
+            historyList.innerHTML = '<p style="text-align:center;color:#64748B;padding:20px;">تاریخچه‌ای موجود نیست</p>';
+        } else {
+            const last10 = history.slice(0, 10);
+            historyList.innerHTML = last10.map(item => `
+                <div class="history-item">
+                    <div class="history-grid">
+                        <div><strong>تاریخ:</strong> ${item.date}</div>
+                        <div><strong>BMI:</strong> <span style="color:#4F46E5;font-weight:bold;">${item.bmi}</span></div>
+                        <div><strong>وزن:</strong> ${item.weight} کیلوگرم</div>
+                        <div><strong>وضعیت:</strong> ${item.status}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        showPage('profile-page');
+    }
+
+    function clearHistoryConfirm() {
+        if (confirm('⚠️ آیا مطمئن هستید که می‌خواهید تمام تاریخچه را پاک کنید؟\n\nاین عملیات قابل بازگشت نیست!')) {
+            ProfileManager.clearHistory();
+            alert('✅ تاریخچه با موفقیت پاک شد');
+            showProfilePage();
+        }
+    }
+    </script>
+
+</body>
+</html>
