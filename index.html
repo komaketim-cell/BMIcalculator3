@@ -120,270 +120,266 @@
             text-decoration: underline;
         }
 
-        /* ✅ استایل قالب PDF - فشرده‌سازی شده برای یک صفحه A4 */
+        /* ✅ استایل قالب PDF - گرافیکی و زیبا */
         #pdf-template {
             position: fixed;
             left: -9999px;
             top: 0;
-            width: 900px;
+            width: 1000px;
             background: linear-gradient(135deg, #F8FAFC 0%, #FFFFFF 100%);
-            padding: 35px;
+            padding: 50px;
             font-family: 'Vazirmatn', Tahoma, Arial, sans-serif;
             direction: rtl;
         }
 
-        /* هدر PDF با لوگو - فشرده */
+        /* هدر PDF با لوگو */
         .pdf-logo-header {
             background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
-            padding: 25px;
-            border-radius: 15px;
+            padding: 40px;
+            border-radius: 20px;
             text-align: center;
             position: relative;
-            margin-bottom: 25px;
-            box-shadow: 0 15px 40px rgba(79, 70, 229, 0.3);
+            margin-bottom: 40px;
+            box-shadow: 0 20px 50px rgba(79, 70, 229, 0.3);
         }
         .pdf-logo-container {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 15px;
-            margin-bottom: 10px;
+            gap: 20px;
+            margin-bottom: 15px;
         }
         .pdf-logo {
-            width: 60px;
-            height: 60px;
+            width: 80px;
+            height: 80px;
             background: white;
-            border-radius: 12px;
-            padding: 8px;
-            box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+            border-radius: 15px;
+            padding: 10px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
         }
         .pdf-site-name {
             color: white;
-            font-size: 28px;
+            font-size: 36px;
             font-weight: 800;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
         }
         .pdf-header-title {
             color: white;
-            font-size: 24px;
+            font-size: 32px;
             font-weight: 700;
-            margin: 10px 0 5px 0;
+            margin: 15px 0 10px 0;
         }
         .pdf-header-subtitle {
             color: rgba(255,255,255,0.9);
-            font-size: 13px;
+            font-size: 16px;
             font-weight: 400;
         }
 
-        /* بخش‌های اطلاعاتی - فشرده */
+        /* بخش‌های اطلاعاتی */
         .pdf-section {
             background: white;
-            padding: 18px;
-            border-radius: 12px;
-            margin-bottom: 15px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
             border: 2px solid #E2E8F0;
         }
         .pdf-section-title {
             color: #1E293B;
-            font-size: 18px;
+            font-size: 24px;
             font-weight: 700;
-            margin: 0 0 12px 0;
-            padding-bottom: 8px;
-            border-bottom: 2px solid #4F46E5;
+            margin: 0 0 20px 0;
+            padding-bottom: 12px;
+            border-bottom: 3px solid #4F46E5;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
         .pdf-section-icon {
-            font-size: 20px;
+            font-size: 28px;
         }
 
-        /* کارت‌های اطلاعاتی - فشرده */
+        /* کارت‌های اطلاعاتی */
         .pdf-info-cards {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            margin-top: 12px;
+            gap: 15px;
+            margin-top: 20px;
         }
         .pdf-info-card {
             background: linear-gradient(135deg, #F8FAFC 0%, #E8EAF6 100%);
-            padding: 12px;
-            border-radius: 10px;
+            padding: 20px;
+            border-radius: 12px;
             text-align: center;
             border: 2px solid #C7D2FE;
+            transition: all 0.3s;
         }
         .pdf-info-card-label {
             color: #64748B;
-            font-size: 11px;
+            font-size: 13px;
             font-weight: 500;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
         }
         .pdf-info-card-value {
             color: #1E293B;
-            font-size: 16px;
+            font-size: 20px;
             font-weight: 700;
         }
 
-        /* دایره BMI گرافیکی - فشرده */
+        /* دایره BMI گرافیکی */
         .pdf-bmi-container {
             display: flex;
             align-items: center;
             justify-content: space-around;
-            margin: 15px 0;
+            margin: 30px 0;
         }
         .pdf-bmi-circle {
-            width: 150px;
-            height: 150px;
+            width: 200px;
+            height: 200px;
             border-radius: 50%;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 10px 30px rgba(79, 70, 229, 0.4);
+            box-shadow: 0 15px 40px rgba(79, 70, 229, 0.4);
             position: relative;
         }
         .pdf-bmi-value {
             color: white;
-            font-size: 42px;
+            font-size: 56px;
             font-weight: 800;
-            text-shadow: 2px 2px 6px rgba(0,0,0,0.3);
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
         }
         .pdf-bmi-label {
             color: rgba(255,255,255,0.95);
-            font-size: 12px;
+            font-size: 14px;
             font-weight: 600;
-            margin-top: 3px;
+            margin-top: 5px;
         }
         .pdf-bmi-details {
             flex: 1;
-            padding-right: 20px;
+            padding-right: 30px;
         }
         .pdf-bmi-status {
             background: linear-gradient(135deg, #F8FAFC 0%, #E8EAF6 100%);
-            padding: 12px;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            border-right: 4px solid #4F46E5;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border-right: 5px solid #4F46E5;
         }
         .pdf-bmi-status-label {
             color: #64748B;
-            font-size: 11px;
+            font-size: 14px;
             font-weight: 500;
-            margin-bottom: 3px;
+            margin-bottom: 5px;
         }
         .pdf-bmi-status-value {
             color: #1E293B;
-            font-size: 16px;
+            font-size: 22px;
             font-weight: 700;
         }
 
-        /* کارت‌های متابولیسم - فشرده */
+        /* نوار پیشرفت گرافیکی */
+        .pdf-progress-container {
+            margin: 20px 0;
+        }
+        .pdf-progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #64748B;
+        }
+        .pdf-progress-bar {
+            height: 25px;
+            background: #E2E8F0;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+        .pdf-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4F46E5 0%, #7C3AED 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 13px;
+            font-weight: 700;
+            transition: width 0.5s ease;
+        }
+
+        /* کارت‌های متابولیسم */
         .pdf-metabolism-cards {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
+            gap: 20px;
         }
         .pdf-metabolism-card {
             background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%);
-            padding: 15px;
-            border-radius: 12px;
+            padding: 25px;
+            border-radius: 15px;
             text-align: center;
             border: 2px solid #86EFAC;
         }
         .pdf-metabolism-icon {
-            font-size: 28px;
-            margin-bottom: 6px;
+            font-size: 40px;
+            margin-bottom: 10px;
         }
         .pdf-metabolism-label {
             color: #064E3B;
-            font-size: 11px;
+            font-size: 14px;
             font-weight: 600;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
         }
         .pdf-metabolism-value {
             color: #059669;
-            font-size: 24px;
+            font-size: 32px;
             font-weight: 800;
         }
         .pdf-metabolism-unit {
             color: #064E3B;
-            font-size: 10px;
+            font-size: 13px;
             font-weight: 500;
-            margin-top: 3px;
+            margin-top: 5px;
         }
 
-        /* کارت‌های کالری - فشرده */
+        /* کارت‌های کالری */
         .pdf-calorie-cards {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
+            gap: 15px;
         }
         .pdf-calorie-card {
             background: linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%);
-            padding: 12px;
-            border-radius: 10px;
+            padding: 20px;
+            border-radius: 12px;
             text-align: center;
             border: 2px solid #FED7AA;
         }
         .pdf-calorie-icon {
-            font-size: 24px;
-            margin-bottom: 5px;
+            font-size: 32px;
+            margin-bottom: 8px;
         }
         .pdf-calorie-label {
             color: #7C2D12;
-            font-size: 10px;
+            font-size: 13px;
             font-weight: 600;
-            margin-bottom: 5px;
-            line-height: 1.3;
+            margin-bottom: 8px;
+            line-height: 1.4;
         }
         .pdf-calorie-value {
             color: #EA580C;
-            font-size: 20px;
+            font-size: 26px;
             font-weight: 800;
         }
 
-        /* ✅ بخش توصیه‌های کاربردی در PDF - فشرده */
-        .pdf-tips-section {
-            background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
-            padding: 15px;
-            border-radius: 12px;
-            border: 2px solid #FCD34D;
-        }
-        .pdf-tips-title {
-            color: #78350F;
-            font-size: 16px;
-            font-weight: 700;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .pdf-tips-list {
-            color: #92400E;
-            font-size: 11px;
-            line-height: 1.6;
-            list-style: none;
-            padding: 0;
-        }
-        .pdf-tips-list li {
-            margin-bottom: 6px;
-            padding-right: 15px;
-            position: relative;
-        }
-        .pdf-tips-list li:before {
-            content: "✓";
-            position: absolute;
-            right: 0;
-            color: #F59E0B;
-            font-weight: bold;
-        }
-
-        /* فوتر PDF - وسط‌چین شده و فشرده */
+        /* فوتر PDF - وسط‌چین شده */
         .pdf-footer {
-            margin-top: 20px;
-            padding-top: 15px;
-            border-top: 2px solid #E2E8F0;
+            margin-top: 40px;
+            padding-top: 25px;
+            border-top: 3px solid #E2E8F0;
             text-align: center;
         }
         .pdf-footer-logo {
@@ -391,18 +387,18 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            margin-bottom: 8px;
+            gap: 15px;
+            margin-bottom: 15px;
         }
         .pdf-footer-logo img {
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
         }
         .pdf-footer-text {
             color: #475569;
-            font-size: 10px;
-            line-height: 1.6;
+            font-size: 13px;
+            line-height: 2;
             font-weight: 500;
             text-align: center;
         }
@@ -410,13 +406,23 @@
             color: #1E293B;
             font-weight: 700;
             display: block;
-            margin-bottom: 3px;
+            margin-bottom: 5px;
         }
         .pdf-footer-website {
             color: #4F46E5;
             font-weight: 700;
-            font-size: 11px;
-            margin-top: 3px;
+            font-size: 15px;
+            margin-top: 5px;
+        }
+
+        /* نمودار دایره‌ای BMI */
+        .pdf-chart-container {
+            margin: 25px 0;
+            text-align: center;
+        }
+        .pdf-chart-canvas {
+            max-width: 400px;
+            margin: 0 auto;
         }
     </style>
 </head>
@@ -646,7 +652,7 @@
         </div>
     </div>
 
-    <!-- ✅ قالب PDF گرافیکی و حرفه‌ای - فشرده شده برای یک صفحه A4 -->
+    <!-- ✅ قالب PDF گرافیکی و حرفه‌ای -->
     <div id="pdf-template">
         <!-- هدر با لوگو کمکتیم -->
         <div class="pdf-logo-header">
@@ -702,17 +708,17 @@
                     </div>
                     <div class="pdf-bmi-status">
                         <div class="pdf-bmi-status-label">تفاوت با وزن سالم</div>
-                        <div class="pdf-bmi-status-value" id="pdf-diff" style="font-size: 14px;">--</div>
+                        <div class="pdf-bmi-status-value" id="pdf-diff" style="font-size: 18px;">--</div>
                     </div>
                     <div class="pdf-bmi-status" style="border-right-color: #16A34A;">
                         <div class="pdf-bmi-status-label">محدوده وزن سالم</div>
-                        <div class="pdf-bmi-status-value" id="pdf-healthy" style="color: #16A34A; font-size: 14px;">--</div>
+                        <div class="pdf-bmi-status-value" id="pdf-healthy" style="color: #16A34A; font-size: 18px;">--</div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- ✅ بخش متابولیسم - با عناوین دقیق -->
+        <!-- ✅ بخش متابولیسم - حالا نمایش داده می‌شود -->
         <div class="pdf-section">
             <h2 class="pdf-section-title">
                 <span class="pdf-section-icon">🔥</span>
@@ -734,7 +740,7 @@
             </div>
         </div>
 
-        <!-- بخش راهنمای کالری - با عناوین دقیق -->
+        <!-- بخش راهنمای کالری -->
         <div class="pdf-section">
             <h2 class="pdf-section-title">
                 <span class="pdf-section-icon">🎯</span>
@@ -748,26 +754,15 @@
                 </div>
                 <div class="pdf-calorie-card" style="background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%); border-color: #FCD34D;">
                     <div class="pdf-calorie-icon">⚖️</div>
-                    <div class="pdf-calorie-label">ثابت نگه داشتن<br>وزن</div>
+                    <div class="pdf-calorie-label">حفظ وزن<br>فعلی</div>
                     <div class="pdf-calorie-value" id="pdf-maintain">--</div>
                 </div>
                 <div class="pdf-calorie-card">
                     <div class="pdf-calorie-icon">📈</div>
-                    <div class="pdf-calorie-label">افزایش وزن و<br>حجم عضلات</div>
+                    <div class="pdf-calorie-label">افزایش وزن و<br>عضله‌سازی</div>
                     <div class="pdf-calorie-value" id="pdf-gain">--</div>
                 </div>
             </div>
-        </div>
-
-        <!-- ✅ بخش توصیه‌های کاربردی -->
-        <div class="pdf-section pdf-tips-section">
-            <h2 class="pdf-tips-title">
-                <span>💡</span>
-                توصیه‌های کاربردی
-            </h2>
-            <ul class="pdf-tips-list" id="pdf-tips-content">
-                <!-- محتوای توصیه‌ها از طریق JavaScript اضافه می‌شود -->
-            </ul>
         </div>
 
         <!-- ✅ فوتر با لوگو - وسط‌چین شده -->
@@ -868,25 +863,6 @@
             document.getElementById('pdf-gain').textContent = getData('gain-calories');
             document.getElementById('pdf-loss').textContent = getData('loss-calories');
 
-            // ✅ اضافه کردن توصیه‌های کاربردی به PDF
-            const tipsElement = document.getElementById('practical-tips');
-            const pdfTipsContent = document.getElementById('pdf-tips-content');
-            
-            if (tipsElement && pdfTipsContent) {
-                const tipsHTML = tipsElement.innerHTML;
-                // تبدیل ul/li به ساختار PDF
-                const tempDiv = document.createElement('div');
-                tempDiv.innerHTML = tipsHTML;
-                const tipItems = tempDiv.querySelectorAll('li');
-                
-                pdfTipsContent.innerHTML = '';
-                tipItems.forEach(item => {
-                    const li = document.createElement('li');
-                    li.textContent = item.textContent;
-                    pdfTipsContent.appendChild(li);
-                });
-            }
-
             // رنگ‌بندی دایره BMI بر اساس وضعیت
             const bmiCircle = document.getElementById('pdf-bmi-circle-style');
             const bmiNum = parseFloat(bmiValue);
@@ -906,44 +882,31 @@
             template.style.left = '0';
             template.style.top = '0';
 
-            // تبدیل به تصویر با کیفیت بالا
+            // تبدیل به تصویر
             const canvas = await html2canvas(template, {
-                scale: 2.5,
+                scale: 2,
                 useCORS: true,
                 allowTaint: true,
                 backgroundColor: '#F8FAFC',
                 logging: false,
-                windowWidth: 900,
-                windowHeight: 1200
+                windowWidth: 1000
             });
 
             template.style.left = '-9999px';
 
             // ایجاد PDF
             const { jsPDF } = window.jspdf;
-            const imgWidth = 210; // A4 width in mm
-            const pageHeight = 297; // A4 height in mm
+            const imgWidth = 210;
             const imgHeight = (canvas.height * imgWidth) / canvas.width;
             
             const pdf = new jsPDF({
                 orientation: 'portrait',
                 unit: 'mm',
-                format: 'a4',
-                compress: true
+                format: 'a4'
             });
 
-            const imgData = canvas.toDataURL('image/jpeg', 0.95);
-            
-            // اگر محتوا از یک صفحه بیشتر شد، فشرده‌سازی انجام شود
-            if (imgHeight > pageHeight) {
-                const scaleFactor = pageHeight / imgHeight;
-                const scaledWidth = imgWidth * scaleFactor;
-                const scaledHeight = pageHeight;
-                const xOffset = (imgWidth - scaledWidth) / 2;
-                pdf.addImage(imgData, 'JPEG', xOffset, 0, scaledWidth, scaledHeight);
-            } else {
-                pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
-            }
+            const imgData = canvas.toDataURL('image/png', 1.0);
+            pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
 
             const safeDateStr = today.replace(/\//g, '-');
             pdf.save(`گزارش-BMI-${safeDateStr}.pdf`);
