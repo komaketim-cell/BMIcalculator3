@@ -1144,9 +1144,60 @@
     }
 
     /* =========================================
+     * ✅✅ NEW: تابع پر کردن سال‌ها - سال 1405 در ابتدا
+     * ========================================= */
+    function populateYearDropdown() {
+        const yearSelect = document.getElementById('birth-year');
+        const startYear = 1300;
+        const endYear = 1450;
+        
+        // پاک کردن گزینه‌های قبلی (به جز اولی که "سال" است)
+        while (yearSelect.options.length > 1) {
+            yearSelect.remove(1);
+        }
+        
+        // ✅ ابتدا سال 1405 را اضافه می‌کنیم
+        const option1405 = document.createElement('option');
+        option1405.value = 1405;
+        option1405.textContent = '1405';
+        yearSelect.appendChild(option1405);
+        
+        // ✅ سال‌های بالاتر از 1405 (به ترتیب نزولی: 1450 تا 1406)
+        for (let year = endYear; year > 1405; year--) {
+            const option = document.createElement('option');
+            option.value = year;
+            option.textContent = year;
+            yearSelect.appendChild(option);
+        }
+        
+        // ✅ سال‌های پایین‌تر از 1405 (به ترتیب نزولی: 1404 تا 1300)
+        for (let year = 1404; year >= startYear; year--) {
+            const option = document.createElement('option');
+            option.value = year;
+            option.textContent = year;
+            yearSelect.appendChild(option);
+        }
+        
+        // ✅ انتخاب پیش‌فرض روی 1405
+        yearSelect.value = '1405';
+    }
+
+    /* =========================================
      * Event Listeners
      * ========================================= */
     document.addEventListener('DOMContentLoaded', function () {
+        // ✅✅ فراخوانی تابع جدید برای پر کردن سال‌ها
+        populateYearDropdown();
+
+        // پر کردن روزها
+        const daySelect = document.getElementById('birth-day');
+        for (let d = 1; d <= 31; d++) {
+            const opt = document.createElement('option');
+            opt.value = d;
+            opt.textContent = d;
+            daySelect.appendChild(opt);
+        }
+
         // دکمه PDF
         const pdfBtn = document.getElementById('pdf-btn');
         if (pdfBtn) {
@@ -1162,22 +1213,39 @@
             profileBtn.addEventListener('click', showProfilePage);
         }
 
-        // پر کردن سال‌ها
-        const yearSelect = document.getElementById('birth-year');
-        for (let y = 1450; y >= 1300; y--) {
-            const opt = document.createElement('option');
-            opt.value = y;
-            opt.textContent = y;
-            yearSelect.appendChild(opt);
-        }
-
-        // پر کردن روزها
-        const daySelect = document.getElementById('birth-day');
-        for (let d = 1; d <= 31; d++) {
-            const opt = document.createElement('option');
-            opt.value = d;
-            opt.textContent = d;
-            daySelect.appendChild(opt);
+        // ✅✅ NEW: فعال‌سازی کلید Enter برای محاسبات
+        const calculateButton = document.getElementById('calc-btn');
+        const inputFields = [
+            document.getElementById('birth-year'),
+            document.getElementById('birth-month'),
+            document.getElementById('birth-day'),
+            document.getElementById('height'),
+            document.getElementById('weight'),
+            document.getElementById('gender'),
+            document.getElementById('activity')
+        ];
+        
+        // افزودن event listener به هر فیلد
+        inputFields.forEach(field => {
+            if (field) {
+                field.addEventListener('keypress', function(event) {
+                    if (event.key === 'Enter') {
+                        event.preventDefault();
+                        calculateButton.click();
+                    }
+                });
+            }
+        });
+        
+        // افزودن event listener به کل صفحه ورودی
+        const loginContainer = document.querySelector('.page.active .card');
+        if (loginContainer) {
+            loginContainer.addEventListener('keypress', function(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    calculateButton.click();
+                }
+            });
         }
     });
 
