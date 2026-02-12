@@ -4,10 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>محاسبه BMI، BMR و TDEE</title>
+    <!-- جلوگیری از خطای favicon -->
+    <link rel="icon" href="data:," />
     <link rel="stylesheet" href="style.css">
     
-    <!-- کتابخانه html2pdf برای تولید PDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- کتابخانه jsPDF برای تولید PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     
     <style>
         /* استایل دکمه PDF */
@@ -363,7 +365,7 @@
                             <div><strong>تاریخ:</strong> ${item.date}</div>
                             <div><strong>BMI:</strong> <span style="color: #4F46E5; font-weight: bold;">${item.bmi}</span></div>
                             <div><strong>وزن:</strong> ${item.weight} کیلوگرم</div>
-                            <div><strong>وضعیت:</stron.status}</div>
+                            <div><strong>وضعیت:</strong> ${item.status}</div>
                         </div>
                     </div>
                 `).join('');
@@ -381,7 +383,5 @@
             }
         }
     </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="profile-report-final.js"></script>
 </body>
 </html>
