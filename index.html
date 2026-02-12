@@ -7,9 +7,9 @@
     <link rel="icon" href="data:," />
     <link rel="stylesheet" href="style.css">
 
-    <!-- ✅ کتابخانه jsPDF با پشتیبانی فارسی -->
+    <!-- ✅ کتابخانه‌های PDF با پشتیبانی کامل فارسی -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jspdf-arabic@1.0.1/dist/jspdf-arabic.min.js"></script>
 
     <style>
         #pdf-btn {
@@ -68,6 +68,94 @@
             transition: all 0.3s;
         }
         .btn-outline:hover { background: #64748B; color: white; }
+
+        /* ✅ استایل قالب PDF */
+        #pdf-template {
+            position: fixed;
+            left: -9999px;
+            top: 0;
+            width: 794px;
+            background: white;
+            padding: 40px;
+            font-family: Tahoma, Arial, sans-serif;
+            direction: rtl;
+        }
+        #pdf-template .pdf-header {
+            background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        #pdf-template .pdf-header h1 {
+            margin: 0 0 10px 0;
+            font-size: 28px;
+        }
+        #pdf-template .pdf-header p {
+            margin: 0;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        #pdf-template .pdf-section {
+            background: #F8FAFC;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        #pdf-template .pdf-section h2 {
+            color: #1E293B;
+            font-size: 18px;
+            margin: 0 0 15px 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #4F46E5;
+        }
+        #pdf-template .pdf-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        #pdf-template .pdf-item {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            border-right: 3px solid #4F46E5;
+        }
+        #pdf-template .pdf-item label {
+            display: block;
+            color: #64748B;
+            font-size: 13px;
+            margin-bottom: 5px;
+        }
+        #pdf-template .pdf-item .value {
+            color: #1E293B;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        #pdf-template .bmi-circle-pdf {
+            width: 150px;
+            height: 150px;
+            background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px auto;
+            box-shadow: 0 10px 30px rgba(79, 70, 229, 0.3);
+        }
+        #pdf-template .bmi-circle-pdf span {
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+        }
+        #pdf-template .pdf-footer {
+            text-align: center;
+            color: #64748B;
+            font-size: 12px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #E2E8F0;
+        }
     </style>
 </head>
 <body>
@@ -292,11 +380,91 @@
         </div>
     </div>
 
+    <!-- ✅ قالب مخفی برای PDF (با فونت‌های فارسی) -->
+    <div id="pdf-template">
+        <div class="pdf-header">
+            <h1>گزارش تحلیل شاخص توده بدنی (BMI)</h1>
+            <p>تاریخ: <span id="pdf-date"></span></p>
+        </div>
+
+        <div class="pdf-section">
+            <h2>اطلاعات فردی</h2>
+            <div class="pdf-grid">
+                <div class="pdf-item">
+                    <label>جنسیت</label>
+                    <div class="value" id="pdf-gender">--</div>
+                </div>
+                <div class="pdf-item">
+                    <label>سن</label>
+                    <div class="value" id="pdf-age">--</div>
+                </div>
+                <div class="pdf-item">
+                    <label>قد</label>
+                    <div class="value" id="pdf-height">--</div>
+                </div>
+                <div class="pdf-item">
+                    <label>وزن</label>
+                    <div class="value" id="pdf-weight">--</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="pdf-section">
+            <h2>نتایج شاخص توده بدنی (BMI)</h2>
+            <div class="bmi-circle-pdf">
+                <span id="pdf-bmi">--</span>
+            </div>
+            <div style="text-align: center; margin-top: 15px;">
+                <div style="font-size: 18px; color: #1E293B; font-weight: bold; margin-bottom: 10px;" id="pdf-status">--</div>
+                <div style="font-size: 14px; color: #64748B;" id="pdf-diff">--</div>
+                <div style="font-size: 14px; color: #4F46E5; margin-top: 10px; font-weight: bold;" id="pdf-healthy">--</div>
+            </div>
+        </div>
+
+        <div class="pdf-section">
+            <h2>اطلاعات متابولیسم</h2>
+            <div class="pdf-grid">
+                <div class="pdf-item">
+                    <label>متابولیسم پایه (BMR)</label>
+                    <div class="value" id="pdf-bmr" style="color: #16A34A;">--</div>
+                </div>
+                <div class="pdf-item">
+                    <label>کالری روزانه (TDEE)</label>
+                    <div class="value" id="pdf-tdee" style="color: #16A34A;">--</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="pdf-section">
+            <h2>راهنمای کالری روزانه</h2>
+            <div class="pdf-grid">
+                <div class="pdf-item">
+                    <label>حفظ وزن فعلی</label>
+                    <div class="value" id="pdf-maintain" style="color: #F97316;">--</div>
+                </div>
+                <div class="pdf-item">
+                    <label>افزایش وزن و عضله‌سازی</label>
+                    <div class="value" id="pdf-gain" style="color: #F97316;">--</div>
+                </div>
+                <div class="pdf-item" style="grid-column: span 2;">
+                    <label>کاهش وزن بدون افت عضلات</label>
+                    <div class="value" id="pdf-loss" style="color: #F97316;">--</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="pdf-footer">
+            <p>این گزارش توسط محاسبه‌گر BMI تولید شده است</p>
+            <p>این گزارش جنبه اطلاع‌رسانی دارد و جایگزین مشاوره پزشکی نیست</p>
+            <p style="margin-top: 10px;">توسعه یافته توسط تیم «کمکتیم» - Komaketim.ir</p>
+        </div>
+    </div>
+
     <!-- ✅ لود کردن فایل‌های JS موجود -->
     <script src="who-data.js"></script>
     <script src="bmi.js"></script>
 
-    <!-- ✅ کد ProfileManager و PDF Generator با فونت فارسی -->
+    <!-- ✅ کد ProfileManager و PDF Generator -->
     <script>
     /* =========================================
      * Profile & Report Management System
@@ -335,195 +503,81 @@
     };
 
     /* =========================================
-     * PDF Report Generator با فونت فارسی Amiri
+     * PDF Report Generator با html2canvas
+     * روش مطمئن برای فونت‌های فارسی
      * ========================================= */
     async function generatePDFReport() {
-        console.log('🚀 شروع تولید PDF با فونت فارسی...');
+        console.log('🚀 شروع تولید PDF با html2canvas...');
 
-        if (typeof window.jspdf === 'undefined') {
-            console.error('❌ کتابخانه jsPDF لود نشده است');
-            alert('❌ خطا: کتابخانه PDF لود نشده است.\n\nلطفاً اتصال اینترنت را بررسی کنید.');
+        if (typeof html2canvas === 'undefined' || typeof window.jspdf === 'undefined') {
+            alert('❌ خطا: کتابخانه‌های PDF لود نشده‌اند.\n\nلطفاً اتصال اینترنت را بررسی کنید.');
             return;
         }
-
-        const { jsPDF } = window.jspdf;
 
         const getData = (id, defaultValue = 'نامشخص') => {
             const element = document.getElementById(id);
             return element ? (element.textContent.trim() || defaultValue) : defaultValue;
         };
 
-        const data = {
-            gender:   getData('r-gender'),
-            age:      getData('r-age'),
-            height:   getData('r-height'),
-            weight:   getData('r-weight'),
-            bmi:      getData('bmi-value'),
-            status:   getData('bmi-status-text'),
-            diff:     getData('bmi-difference-text'),
-            healthy:  getData('r-healthy'),
-            bmr:      getData('r-bmr'),
-            tdee:     getData('r-tdee'),
-            maintain: getData('maintain-calories'),
-            gain:     getData('gain-calories'),
-            loss:     getData('loss-calories')
-        };
-
-        if (!data.bmi || data.bmi === '--' || data.bmi === 'نامشخص') {
+        // بررسی وجود داده‌ها
+        const bmiValue = getData('bmi-value');
+        if (!bmiValue || bmiValue === '--' || bmiValue === 'نامشخص') {
             alert('❌ خطا: لطفاً ابتدا محاسبات را انجام دهید.');
             return;
         }
 
-        console.log('📊 داده‌ها خوانده شد:', data);
-
-        const today = new Date().toLocaleDateString('fa-IR');
-
         try {
-            const doc = new jsPDF({
-                orientation: 'portrait',
+            // پر کردن قالب PDF
+            const today = new Date().toLocaleDateString('fa-IR');
+            document.getElementById('pdf-date').textContent = today;
+            document.getElementById('pdf-gender').textContent = getData('r-gender');
+            document.getElementById('pdf-age').textContent = getData('r-age');
+            document.getElementById('pdf-height').textContent = getData('r-height');
+            document.getElementById('pdf-weight').textContent = getData('r-weight');
+            document.getElementById('pdf-bmi').textContent = getData('bmi-value');
+            document.getElementById('pdf-status').textContent = getData('bmi-status-text');
+            document.getElementById('pdf-diff').textContent = getData('bmi-difference-text');
+            document.getElementById('pdf-healthy').textContent = 'محدوده سالم: ' + getData('r-healthy');
+            document.getElementById('pdf-bmr').textContent = getData('r-bmr');
+            document.getElementById('pdf-tdee').textContent = getData('r-tdee');
+            document.getElementById('pdf-maintain').textContent = getData('maintain-calories');
+            document.getElementById('pdf-gain').textContent = getData('gain-calories');
+            document.getElementById('pdf-loss').textContent = getData('loss-calories');
+
+            // نمایش موقت قالب
+            const template = document.getElementById('pdf-template');
+            template.style.left = '0';
+            template.style.top = '0';
+
+            // تبدیل به تصویر با html2canvas
+            const canvas = await html2canvas(template, {
+                scale: 2,
+                useCORS: true,
+                backgroundColor: '#ffffff',
+                logging: false,
+                windowWidth: 794,
+                windowHeight: template.scrollHeight
+            });
+
+            // مخفی کردن قالب
+            template.style.left = '-9999px';
+
+            // ایجاد PDF
+            const { jsPDF } = window.jspdf;
+            const imgWidth = 210;
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+            
+            const pdf = new jsPDF({
+                orientation: imgHeight > imgWidth ? 'portrait' : 'landscape',
                 unit: 'mm',
                 format: 'a4'
             });
 
-            // ✅ تنظیم فونت فارسی Amiri
-            doc.setFont('Amiri', 'normal');
-            doc.setR2L(true);
-
-            const pageW = 210;
-            const margin = 15;
-            const contentW = pageW - margin * 2;
-            let y = 20;
-
-            const fillRect = (x, ry, w, h, r, g, b) => {
-                doc.setFillColor(r, g, b);
-                doc.rect(x, ry, w, h, 'F');
-            };
-
-            const rtl = (text, fontSize, r, g, b, posY) => {
-                doc.setFontSize(fontSize);
-                doc.setTextColor(r, g, b);
-                doc.text(String(text), pageW - margin, posY, { align: 'right' });
-            };
-
-            const center = (text, fontSize, r, g, b, posY) => {
-                doc.setFontSize(fontSize);
-                doc.setTextColor(r, g, b);
-                doc.text(String(text), pageW / 2, posY, { align: 'center' });
-            };
-
-            const hr = (r = 226, g = 232, b = 240) => {
-                doc.setDrawColor(r, g, b);
-                doc.setLineWidth(0.4);
-                doc.line(margin, y, pageW - margin, y);
-                y += 6;
-            };
-
-            // HEADER
-            fillRect(0, 0, pageW, 28, 79, 70, 229);
-            center('گزارش تحلیل شاخص توده بدنی', 18, 255, 255, 255, 13);
-            center('تاریخ: ' + today, 10, 220, 220, 255, 22);
-            y = 38;
-
-            // اطلاعات فردی
-            fillRect(margin, y - 2, contentW, 8, 241, 245, 249);
-            rtl('اطلاعات فردی', 13, 30, 41, 59, y + 4);
-            y += 12;
-
-            const infoRows = [
-                ['جنسیت:', data.gender],
-                ['سن:', data.age],
-                ['قد:', data.height],
-                ['وزن:', data.weight]
-            ];
-
-            infoRows.forEach(([label, value]) => {
-                doc.setFontSize(11);
-                doc.setTextColor(100, 116, 139);
-                doc.text(label, pageW - margin, y, { align: 'right' });
-                doc.setTextColor(30, 41, 59);
-                doc.text(String(value), pageW - margin - 35, y, { align: 'right' });
-                y += 7;
-            });
-
-            y += 5;
-            hr();
-
-            // نتایج BMI
-            fillRect(margin, y - 2, contentW, 8, 238, 242, 255);
-            rtl('نتایج شاخص توده بدنی (BMI)', 13, 79, 70, 229, y + 4);
-            y += 15;
-
-            // دایره BMI
-            doc.setFillColor(79, 70, 229);
-            doc.circle(pageW / 2, y + 8, 18, 'F');
-            center(data.bmi, 22, 255, 255, 255, y + 10);
-            y += 30;
-
-            center(data.status, 14, 30, 41, 59, y);
-            y += 10;
-
-            doc.setFontSize(10);
-            doc.setTextColor(51, 65, 85);
-            const diffLines = doc.splitTextToSize(data.diff, contentW - 10);
-            diffLines.forEach(line => {
-                doc.text(line, pageW - margin, y, { align: 'right' });
-                y += 5;
-            });
-
-            doc.setTextColor(79, 70, 229);
-            doc.text('محدوده سالم: ' + data.healthy, pageW - margin, y, { align: 'right' });
-            y += 10;
-
-            hr();
-
-            // متابولیسم
-            fillRect(margin, y - 2, contentW, 8, 240, 253, 244);
-            rtl('اطلاعات متابولیسم', 13, 22, 163, 74, y + 4);
-            y += 13;
-
-            [
-                ['متابولیسم پایه (BMR):', data.bmr],
-                ['کالری روزانه (TDEE):', data.tdee]
-            ].forEach(([label, value]) => {
-                doc.setFontSize(11);
-                doc.setTextColor(100, 116, 139);
-                doc.text(label, pageW - margin, y, { align: 'right' });
-                doc.setTextColor(22, 163, 74);
-                doc.text(String(value), pageW - margin - 55, y, { align: 'right' });
-                y += 8;
-            });
-
-            y += 3;
-            hr();
-
-            // کالری
-            fillRect(margin, y - 2, contentW, 8, 255, 247, 237);
-            rtl('راهنمای کالری روزانه', 13, 249, 115, 22, y + 4);
-            y += 13;
-
-            [
-                ['حفظ وزن:', data.maintain],
-                ['افزایش وزن:', data.gain],
-                ['کاهش وزن:', data.loss]
-            ].forEach(([label, value]) => {
-                doc.setFontSize(11);
-                doc.setTextColor(71, 85, 105);
-                doc.text(label, pageW - margin, y, { align: 'right' });
-                doc.setTextColor(249, 115, 22);
-                doc.text(String(value), pageW - margin - 40, y, { align: 'right' });
-                y += 8;
-            });
-
-            y += 8;
-
-            // FOOTER
-            hr(226, 232, 240);
-            center('این گزارش توسط محاسبه‌گر BMI تولید شده است', 9, 100, 116, 139, y);
-            y += 6;
-            center('این گزارش جنبه اطلاع‌رسانی دارد و جایگزین مشاوره پزشکی نیست', 9, 220, 38, 38, y);
+            const imgData = canvas.toDataURL('image/png');
+            pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
 
             const safeDateStr = today.replace(/\//g, '-');
-            doc.save('BMI-Report-' + safeDateStr + '.pdf');
+            pdf.save('BMI-Report-' + safeDateStr + '.pdf');
 
             console.log('✅ PDF با موفقیت ایجاد شد');
 
@@ -548,15 +602,12 @@
                 generatePDFReport();
             });
             console.log('✅ دکمه PDF متصل شد');
-        } else {
-            console.warn('⚠️ دکمه PDF یافت نشد');
         }
 
         // دکمه پروفایل
         const profileBtn = document.getElementById('profile-btn');
         if (profileBtn) {
             profileBtn.addEventListener('click', showProfilePage);
-            console.log('✅ دکمه پروفایل متصل شد');
         }
 
         // پر کردن سال‌ها
