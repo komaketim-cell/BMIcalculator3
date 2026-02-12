@@ -5,677 +5,400 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>محاسبه BMI، BMR و TDEE</title>
     <link rel="icon" href="data:," />
-    
-    <!-- ✅ کتابخانه‌های jsPDF با پشتیبانی فونت فارسی -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- ✅ کتابخانه jsPDF با پشتیبانی فارسی -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jspdf-arabic@1.0.1/dist/jspdf-arabic.min.js"></script>
-    
+
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-            direction: rtl;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            overflow: hidden;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        #pdf-btn {
+            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
             color: white;
-            padding: 30px;
-            text-align: center;
-        }
-
-        .header h1 {
-            font-size: 2rem;
-            margin-bottom: 10px;
-        }
-
-        .header p {
-            opacity: 0.9;
-            font-size: 1.1rem;
-        }
-
-        .tabs {
-            display: flex;
-            background: #f1f5f9;
-            border-bottom: 2px solid #e2e8f0;
-        }
-
-        .tab {
-            flex: 1;
-            padding: 20px;
-            text-align: center;
-            cursor: pointer;
-            background: transparent;
+            padding: 12px 24px;
             border: none;
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #64748b;
-            transition: all 0.3s;
-            position: relative;
-        }
-
-        .tab:hover {
-            background: #e2e8f0;
-        }
-
-        .tab.active {
-            color: #4f46e5;
-            background: white;
-        }
-
-        .tab.active::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: #4f46e5;
-        }
-
-        .tab-content {
-            display: none;
-            padding: 30px;
-        }
-
-        .tab-content.active {
-            display: block;
-            animation: fadeIn 0.3s;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .form-group {
-            margin-bottom: 25px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #334155;
-            font-weight: 600;
-            font-size: 1rem;
-        }
-
-        input[type="number"],
-        select {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #e2e8f0;
-            border-radius: 10px;
-            font-size: 1rem;
-            transition: all 0.3s;
-            direction: ltr;
-            text-align: left;
-        }
-
-        input[type="number"]:focus,
-        select:focus {
-            outline: none;
-            border-color: #4f46e5;
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-        }
-
-        .radio-group {
-            display: flex;
-            gap: 15px;
-            margin-top: 10px;
-        }
-
-        .radio-option {
-            flex: 1;
-        }
-
-        .radio-option input[type="radio"] {
-            display: none;
-        }
-
-        .radio-option label {
-            display: block;
-            padding: 15px;
-            border: 2px solid #e2e8f0;
-            border-radius: 10px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-weight: 500;
-        }
-
-        .radio-option input[type="radio"]:checked + label {
-            background: #4f46e5;
-            color: white;
-            border-color: #4f46e5;
-        }
-
-        .btn {
-            width: 100%;
-            padding: 18px;
-            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-top: 10px;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);
-        }
-
-        .btn:active {
-            transform: translateY(0);
-        }
-
-        .btn-secondary {
-            background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
-            margin-top: 15px;
-        }
-
-        .btn-secondary:hover {
-            box-shadow: 0 10px 25px rgba(22, 163, 74, 0.3);
-        }
-
-        .result-card {
-            margin-top: 30px;
-            padding: 25px;
-            background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
-            border-radius: 15px;
-            border: 2px solid #c7d2fe;
-            display: none;
-        }
-
-        .result-card.show {
-            display: block;
-            animation: slideIn 0.4s;
-        }
-
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .bmi-circle {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-            margin: 20px auto;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 2.5rem;
+            border-radius: 12px;
+            font-size: 16px;
             font-weight: bold;
-            box-shadow: 0 10px 30px rgba(79, 70, 229, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
         }
-
-        .status-text {
-            text-align: center;
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin: 15px 0;
-            color: #1e293b;
+        #pdf-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
         }
-
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .info-item {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-
-        .info-label {
-            color: #64748b;
-            font-size: 0.9rem;
-            margin-bottom: 5px;
-        }
-
-        .info-value {
-            color: #1e293b;
-            font-size: 1.3rem;
-            font-weight: 700;
-        }
-
         .history-item {
-            background: #f8fafc;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            border-right: 4px solid #4f46e5;
-        }
-
-        .history-date {
-            color: #64748b;
-            font-size: 0.9rem;
-            margin-bottom: 10px;
-        }
-
-        .history-details {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 10px;
-        }
-
-        .profile-section {
-            background: #f8fafc;
-            padding: 25px;
-            border-radius: 15px;
-            margin-bottom: 25px;
-        }
-
-        .profile-section h3 {
-            color: #1e293b;
-            margin-bottom: 20px;
-            font-size: 1.3rem;
-        }
-
-        .warning-box {
-            background: #fef3c7;
-            border: 2px solid #fbbf24;
-            border-radius: 10px;
+            background: white;
             padding: 15px;
-            margin-top: 20px;
-            color: #92400e;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-right: 4px solid #4F46E5;
+            transition: transform 0.2s;
         }
-
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: #94a3b8;
+        .history-item:hover {
+            transform: translateX(-5px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
-
-        .empty-state svg {
-            width: 80px;
-            height: 80px;
-            margin-bottom: 20px;
-            opacity: 0.5;
+        .history-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            font-size: 14px;
         }
-
-        @media (max-width: 600px) {
-            .header h1 {
-                font-size: 1.5rem;
-            }
-
-            .tab {
-                font-size: 0.9rem;
-                padding: 15px 10px;
-            }
-
-            .info-grid {
-                grid-template-columns: 1fr;
-            }
+        .btn-danger {
+            background: #EF4444;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
         }
+        .btn-danger:hover { background: #DC2626; }
+        .btn-outline {
+            background: transparent;
+            color: #64748B;
+            border: 2px solid #64748B;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .btn-outline:hover { background: #64748B; color: white; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🏃‍♂️ محاسبه‌گر سلامتی</h1>
-            <p>BMI • BMR • TDEE</p>
-        </div>
 
-        <div class="tabs">
-            <button class="tab active" onclick="switchTab(0)">محاسبه‌گر</button>
-            <button class="tab" onclick="switchTab(1)">تاریخچه</button>
-            <button class="tab" onclick="switchTab(2)">پروفایل</button>
-        </div>
+    <!-- ===== صفحه ورودی ===== -->
+    <div class="page active" id="input-page">
+        <div class="container">
+            <div class="header">
+                <h1>محاسبه شاخص‌های سلامت</h1>
+                <p id="motivation-text"></p>
+            </div>
 
-        <!-- تب محاسبه‌گر -->
-        <div class="tab-content active" id="calculator-tab">
-            <form id="health-form">
-                <div class="form-group">
-                    <label>جنسیت</label>
-                    <div class="radio-group">
-                        <div class="radio-option">
-                            <input type="radio" id="male" name="gender" value="male" checked>
-                            <label for="male">مرد 👨</label>
-                        </div>
-                        <div class="radio-option">
-                            <input type="radio" id="female" name="gender" value="female">
-                            <label for="female">زن 👩</label>
-                        </div>
-                    </div>
-                </div>
+            <div class="card">
+                <div id="error-message" class="error"></div>
 
-                <div class="form-group">
-                    <label for="age">سن (سال)</label>
-                    <input type="number" id="age" min="1" max="120" value="25" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="height">قد (سانتی‌متر)</label>
-                    <input type="number" id="height" min="50" max="250" value="170" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="weight">وزن (کیلوگرم)</label>
-                    <input type="number" id="weight" min="20" max="300" step="0.1" value="70" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="activity">سطح فعالیت روزانه</label>
-                    <select id="activity" required>
-                        <option value="1.2">کم‌تحرک (بدون ورزش)</option>
-                        <option value="1.375" selected>فعالیت سبک (ورزش ۱-۳ روز در هفته)</option>
-                        <option value="1.55">فعالیت متوسط (ورزش ۳-۵ روز در هفته)</option>
-                        <option value="1.725">فعالیت زیاد (ورزش ۶-۷ روز در هفته)</option>
-                        <option value="1.9">فعالیت بسیار زیاد (ورزش حرفه‌ای)</option>
+                <div class="input-group">
+                    <label>جنسیت:</label>
+                    <select id="gender">
+                        <option value="مرد">مرد</option>
+                        <option value="زن">زن</option>
                     </select>
                 </div>
 
-                <button type="submit" class="btn">محاسبه کن 🎯</button>
-            </form>
-
-            <div class="result-card" id="result-card">
-                <div class="bmi-circle">
-                    <span id="bmi-value">0</span>
-                </div>
-                
-                <div class="status-text" id="bmi-status-text">محاسبه نشده</div>
-                
-                <p style="text-align: center; color: #475569; margin: 10px 0;" id="bmi-difference-text"></p>
-                <p style="text-align: center; color: #4f46e5; font-weight: 600;" id="r-healthy"></p>
-
-                <div class="info-grid">
-                    <div class="info-item">
-                        <div class="info-label">متابولیسم پایه (BMR)</div>
-                        <div class="info-value" id="r-bmr">-</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">کالری روزانه (TDEE)</div>
-                        <div class="info-value" id="r-tdee">-</div>
-                    </div>
-                </div>
-
-                <div class="profile-section">
-                    <h3>📊 راهنمای کالری روزانه</h3>
-                    <div class="info-grid">
-                        <div class="info-item">
-                            <div class="info-label">حفظ وزن</div>
-                            <div class="info-value" id="maintain-calories" style="color: #16a34a;">-</div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-label">افزایش وزن (+0.5kg/هفته)</div>
-                            <div class="info-value" id="gain-calories" style="color: #2563eb;">-</div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-label">کاهش وزن (-0.5kg/هفته)</div>
-                            <div class="info-value" id="loss-calories" style="color: #dc2626;">-</div>
-                        </div>
+                <div class="input-group">
+                    <label>تاریخ تولد (شمسی):</label>
+                    <div style="display: flex; gap: 10px;">
+                        <select id="birth-year" style="flex: 2;"><option value="">سال</option></select>
+                        <select id="birth-month" style="flex: 1;">
+                            <option value="">ماه</option>
+                            <option value="1">فروردین</option>
+                            <option value="2">اردیبهشت</option>
+                            <option value="3">خرداد</option>
+                            <option value="4">تیر</option>
+                            <option value="5">مرداد</option>
+                            <option value="6">شهریور</option>
+                            <option value="7">مهر</option>
+                            <option value="8">آبان</option>
+                            <option value="9">آذر</option>
+                            <option value="10">دی</option>
+                            <option value="11">بهمن</option>
+                            <option value="12">اسفند</option>
+                        </select>
+                        <select id="birth-day" style="flex: 1;"><option value="">روز</option></select>
                     </div>
                 </div>
 
-                <div class="warning-box">
-                    ⚠️ این محاسبات جنبه اطلاع‌رسانی دارند و جایگزین مشاوره پزشکی نیستند.
+                <div class="input-group">
+                    <label>قد (سانتی‌متر):</label>
+                    <input type="number" id="height" min="50" max="250" placeholder="مثال: 175">
                 </div>
 
-                <button class="btn btn-secondary" onclick="generatePDFReport()">دانلود گزارش PDF 📥</button>
-            </div>
-        </div>
+                <div class="input-group">
+                    <label>وزن (کیلوگرم):</label>
+                    <input type="number" id="weight" min="2" max="300" step="0.1" placeholder="مثال: 70">
+                </div>
 
-        <!-- تب تاریخچه -->
-        <div class="tab-content" id="history-tab">
-            <h2 style="color: #1e293b; margin-bottom: 25px;">📅 تاریخچه محاسبات</h2>
-            <div id="history-list"></div>
-        </div>
+                <div class="input-group">
+                    <label>سطح فعالیت:</label>
+                    <select id="activity">
+                        <option value="1.2">کم‌تحرک (بدون ورزش)</option>
+                        <option value="1.375">فعالیت سبک (1-3 روز در هفته)</option>
+                        <option value="1.55" selected>فعالیت متوسط (3-5 روز در هفته)</option>
+                        <option value="1.725">فعالیت زیاد (6-7 روز در هفته)</option>
+                        <option value="1.9">فعالیت بسیار زیاد (ورزشکار حرفه‌ای)</option>
+                    </select>
+                </div>
 
-        <!-- تب پروفایل -->
-        <div class="tab-content" id="profile-tab">
-            <div class="profile-section">
-                <h3>👤 اطلاعات پروفایل</h3>
-                <div class="info-grid">
-                    <div class="info-item">
-                        <div class="info-label">جنسیت</div>
-                        <div class="info-value" id="r-gender">-</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">سن</div>
-                        <div class="info-value" id="r-age">-</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">قد</div>
-                        <div class="info-value" id="r-height">-</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">وزن</div>
-                        <div class="info-value" id="r-weight">-</div>
-                    </div>
+                <button id="calc-btn" class="btn-primary">محاسبه</button>
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <button id="help-btn" class="btn-secondary" style="flex: 1;">راهنما</button>
+                    <button id="profile-btn" class="btn-secondary" style="flex: 1;">📋 پروفایل و تاریخچه</button>
                 </div>
             </div>
 
-            <div class="profile-section">
-                <h3>🎯 آخرین نتایج BMI</h3>
-                <div class="bmi-circle" style="width: 120px; height: 120px; font-size: 2rem;">
-                    <span id="profile-bmi">-</span>
-                </div>
-                <div class="status-text" id="profile-status">-</div>
+            <div class="footer-credit">
+                توسعه یافته توسط تیم «کمکتیم»<br>
+                <a href="https://Komaketim.ir" target="_blank">Komaketim.ir</a>
             </div>
         </div>
     </div>
 
-    <script>
-        // مدیریت تب‌ها
-        function switchTab(index) {
-            const tabs = document.querySelectorAll('.tab');
-            const contents = document.querySelectorAll('.tab-content');
-            
-            tabs.forEach(t => t.classList.remove('active'));
-            contents.forEach(c => c.classList.remove('active'));
-            
-            tabs[index].classList.add('active');
-            contents[index].classList.add('active');
-            
-            if (index === 1) loadHistory();
-            if (index === 2) loadProfile();
-        }
+    <!-- ===== صفحه نتایج ===== -->
+    <div class="page" id="results-page">
+        <div class="container">
+            <div class="header">
+                <h1>نتایج محاسبات</h1>
+            </div>
 
-        // فرم محاسبه
-        document.getElementById('health-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            calculate();
-        });
+            <div class="card info-card">
+                <h3>اطلاعات شما</h3>
+                <div class="info-grid">
+                    <div><strong>جنسیت:</strong> <span id="r-gender"></span></div>
+                    <div><strong>سن:</strong> <span id="r-age"></span></div>
+                    <div><strong>قد:</strong> <span id="r-height"></span></div>
+                    <div><strong>وزن:</strong> <span id="r-weight"></span></div>
+                </div>
+            </div>
 
-        function calculate() {
-            const gender = document.querySelector('input[name="gender"]:checked').value;
-            const age = parseFloat(document.getElementById('age').value);
-            const height = parseFloat(document.getElementById('height').value);
-            const weight = parseFloat(document.getElementById('weight').value);
-            const activity = parseFloat(document.getElementById('activity').value);
-
-            // محاسبه BMI
-            const heightM = height / 100;
-            const bmi = (weight / (heightM * heightM)).toFixed(1);
-
-            // تعیین وضعیت
-            let status, color, healthyMin, healthyMax, diff;
-            
-            if (bmi < 18.5) {
-                status = 'کمبود وزن';
-                color = '#3b82f6';
-                healthyMin = 18.5;
-                healthyMax = 24.9;
-                diff = `شما ${(18.5 * heightM * heightM - weight).toFixed(1)} کیلوگرم کمتر از حد طبیعی وزن دارید.`;
-            } else if (bmi < 25) {
-                status = 'وزن طبیعی';
-                color = '#16a34a';
-                healthyMin = 18.5;
-                healthyMax = 24.9;
-                diff = 'وزن شما در محدوده سالم قرار دارد! 🎉';
-            } else if (bmi < 30) {
-                status = 'اضافه وزن';
-                color = '#f59e0b';
-                healthyMin = 18.5;
-                healthyMax = 24.9;
-                diff = `شما ${(weight - 24.9 * heightM * heightM).toFixed(1)} کیلوگرم بیشتر از حد طبیعی وزن دارید.`;
-            } else {
-                status = 'چاقی';
-                color = '#dc2626';
-                healthyMin = 18.5;
-                healthyMax = 24.9;
-                diff = `شما ${(weight - 24.9 * heightM * heightM).toFixed(1)} کیلوگرم بیشتر از حد طبیعی وزن دارید.`;
-            }
-
-            // محاسبه BMR
-            let bmr;
-            if (gender === 'male') {
-                bmr = 10 * weight + 6.25 * height - 5 * age + 5;
-            } else {
-                bmr = 10 * weight + 6.25 * height - 5 * age - 161;
-            }
-
-            // محاسبه TDEE
-            const tdee = bmr * activity;
-
-            // نمایش نتایج
-            document.getElementById('bmi-value').textContent = bmi;
-            document.getElementById('bmi-status-text').textContent = status;
-            document.getElementById('bmi-status-text').style.color = color;
-            document.getElementById('bmi-difference-text').textContent = diff;
-            document.getElementById('r-healthy').textContent = `محدوده سالم: ${(healthyMin * heightM * heightM).toFixed(1)} - ${(healthyMax * heightM * heightM).toFixed(1)} کیلوگرم`;
-            
-            document.getElementById('r-bmr').textContent = Math.round(bmr) + ' کالری';
-            document.getElementById('r-tdee').textContent = Math.round(tdee) + ' کالری';
-            
-            document.getElementById('maintain-calories').textContent = Math.round(tdee) + ' کالری';
-            document.getElementById('gain-calories').textContent = Math.round(tdee + 500) + ' کالری';
-            document.getElementById('loss-calories').textContent = Math.round(tdee - 500) + ' کالری';
-
-            document.querySelector('.bmi-circle').style.background = `linear-gradient(135deg, ${color} 0%, ${color}dd 100%)`;
-            
-            document.getElementById('result-card').classList.add('show');
-
-            // ذخیره در تاریخچه
-            saveToHistory({
-                date: new Date().toLocaleString('fa-IR'),
-                gender: gender === 'male' ? 'مرد' : 'زن',
-                age, height, weight, bmi, status, bmr: Math.round(bmr), tdee: Math.round(tdee)
-            });
-
-            // به‌روزرسانی پروفایل
-            updateProfile();
-        }
-
-        function saveToHistory(data) {
-            let history = JSON.parse(localStorage.getItem('bmiHistory') || '[]');
-            history.unshift(data);
-            if (history.length > 10) history = history.slice(0, 10);
-            localStorage.setItem('bmiHistory', JSON.stringify(history));
-        }
-
-        function loadHistory() {
-            const history = JSON.parse(localStorage.getItem('bmiHistory') || '[]');
-            const container = document.getElementById('history-list');
-            
-            if (history.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                        </svg>
-                        <p style="font-size: 1.2rem; margin-bottom: 10px;">هنوز محاسبه‌ای انجام نشده</p>
-                        <p>اولین محاسبه خود را انجام دهید!</p>
+            <div class="card bmi-card">
+                <h3>شاخص توده بدنی (BMI)</h3>
+                <div class="bmi-display">
+                    <div id="bmi-circle" class="bmi-circle">
+                        <span id="bmi-value">--</span>
                     </div>
-                `;
-                return;
-            }
-            
-            container.innerHTML = history.map(item => `
-                <div class="history-item">
-                    <div class="history-date">📅 ${item.date}</div>
-                    <div class="history-details">
-                        <div><strong>BMI:</strong> ${item.bmi}</div>
-                        <div><strong>وضعیت:</strong> ${item.status}</div>
-                        <div><strong>وزن:</strong> ${item.weight} کیلوگرم</div>
-                        <div><strong>BMR:</strong> ${item.bmr} کالری</div>
-                        <div><strong>TDEE:</strong> ${item.tdee} کالری</div>
+                    <div class="bmi-details">
+                        <div class="bmi-status">
+                            <strong>وضعیت:</strong> <span id="bmi-status-text"></span>
+                        </div>
+                        <div class="bmi-difference">
+                            <span id="bmi-difference-text"></span>
+                        </div>
                     </div>
                 </div>
-            `).join('');
-        }
+            </div>
 
-        function updateProfile() {
-            const gender = document.querySelector('input[name="gender"]:checked').value;
-            const age = document.getElementById('age').value;
-            const height = document.getElementById('height').value;
-            const weight = document.getElementById('weight').value;
-            const bmi = document.getElementById('bmi-value').textContent;
-            const status = document.getElementById('bmi-status-text').textContent;
+            <div class="card result-card">
+                <h3>محدوده وزن سالم</h3>
+                <div class="result-value" id="r-healthy">--</div>
+            </div>
 
-            document.getElementById('r-gender').textContent = gender === 'male' ? 'مرد 👨' : 'زن 👩';
-            document.getElementById('r-age').textContent = age + ' سال';
-            document.getElementById('r-height').textContent = height + ' سانتی‌متر';
-            document.getElementById('r-weight').textContent = weight + ' کیلوگرم';
-            document.getElementById('profile-bmi').textContent = bmi;
-            document.getElementById('profile-status').textContent = status;
-        }
+            <div class="results-grid">
+                <div class="card result-card">
+                    <h3>BMR</h3>
+                    <p class="result-label">متابولیسم پایه</p>
+                    <div class="result-value" id="r-bmr">--</div>
+                </div>
+                <div class="card result-card">
+                    <h3>TDEE</h3>
+                    <p class="result-label">کالری روزانه</p>
+                    <div class="result-value" id="r-tdee">--</div>
+                </div>
+            </div>
 
-        function loadProfile() {
-            const bmi = document.getElementById('bmi-value').textContent;
-            if (bmi !== '0') {
-                updateProfile();
-            } else {
-                document.getElementById('profile-bmi').textContent = '-';
-                document.getElementById('profile-status').textContent = 'هنوز محاسبه‌ای انجام نشده';
+            <div class="card">
+                <h3>توصیه‌های کالری</h3>
+                <div class="calorie-recommendations">
+                    <div class="calorie-item">
+                        <span class="calorie-label">کالری ثابت نگه داشتن وزن:</span>
+                        <span class="calorie-value" id="maintain-calories">--</span>
+                    </div>
+                    <div class="calorie-item">
+                        <span class="calorie-label">کالری افزایش وزن و حجم عضلات:</span>
+                        <span class="calorie-value" id="gain-calories">--</span>
+                    </div>
+                    <div class="calorie-item">
+                        <span class="calorie-label">کالری کاهش وزن بدون افت عضلات:</span>
+                        <span class="calorie-value" id="loss-calories">--</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>💡 توصیه‌های کاربردی</h3>
+                <div id="practical-tips"></div>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button id="back-btn" class="btn-primary" style="flex: 1;">محاسبه مجدد</button>
+                <button id="pdf-btn" style="flex: 1;">📄 دانلود PDF</button>
+            </div>
+
+            <button id="help-btn2" class="btn-secondary" style="width: 100%; margin-top: 10px;">راهنما</button>
+        </div>
+    </div>
+
+    <!-- ===== صفحه پروفایل و تاریخچه ===== -->
+    <div class="page" id="profile-page">
+        <div class="container">
+            <div class="header">
+                <h1>📋 پروفایل و تاریخچه</h1>
+            </div>
+
+            <div class="card" style="background: #F8FAFC;">
+                <h3 style="color: #1E293B; margin-bottom: 15px;">📊 تاریخچه محاسبات (آخرین ۱۰ مورد)</h3>
+                <div id="history-list"></div>
+            </div>
+
+            <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: center;">
+                <button onclick="clearHistoryConfirm()" class="btn-danger">🗑️ پاک کردن تاریخچه</button>
+                <button onclick="showPage('input-page')" class="btn-outline">بازگشت</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== صفحه راهنما ===== -->
+    <div class="page" id="guide-page">
+        <div class="container">
+            <div class="header">
+                <h1>راهنمای استفاده</h1>
+            </div>
+
+            <div class="card">
+                <h3>📊 شاخص توده بدنی (BMI)</h3>
+                <p>نسبت وزن به مجذور قد که وضعیت وزن را نشان می‌دهد.</p>
+                <ul>
+                    <li><strong>کودکان و نوجوانان (5-19 سال):</strong> براساس نمودارهای رشد WHO</li>
+                    <li><strong>بزرگسالان:</strong> کمتر از 18.5 (کم‌وزن)، 18.5-24.9 (نرمال)، 25-29.9 (اضافه‌وزن)، بالای 30 (چاقی)</li>
+                </ul>
+
+                <h3>🔥 BMR (متابولیسم پایه)</h3>
+                <p>کالری مورد نیاز بدن در حالت استراحت کامل.</p>
+
+                <h3>⚡ TDEE (کالری روزانه)</h3>
+                <p>کالری کل مورد نیاز با در نظر گرفتن سطح فعالیت.</p>
+
+                <h3>🎯 توصیه‌های کالری</h3>
+                <ul>
+                    <li><strong>کاهش وزن:</strong> 500 کالری کمتر از TDEE</li>
+                    <li><strong>حفظ وزن:</strong> برابر با TDEE</li>
+                    <li><strong>افزایش وزن:</strong> 300 کالری بیشتر از TDEE</li>
+                </ul>
+
+                <h3>⚠️ نکات مهم</h3>
+                <ul>
+                    <li>این محاسبات تخمینی هستند و نباید جایگزین مشاوره پزشکی شوند</li>
+                    <li>برای کودکان و نوجوانان حتماً با متخصص تغذیه مشورت کنید</li>
+                    <li>تغییرات وزن باید تدریجی و با نظارت پزشک باشد</li>
+                </ul>
+            </div>
+
+            <button id="back-guide-btn" class="btn-primary">بازگشت</button>
+        </div>
+    </div>
+
+    <!-- ✅ لود کردن فایل‌های JS موجود -->
+    <script src="who-data.js"></script>
+    <script src="bmi.js"></script>
+
+    <!-- ✅ کد ProfileManager و PDF Generator با فونت فارسی -->
+    <script>
+    /* =========================================
+     * Profile & Report Management System
+     * ========================================= */
+    const ProfileManager = {
+        STORAGE_KEY: 'bmi_user_profile',
+        HISTORY_KEY: 'bmi_calculation_history',
+        MAX_HISTORY: 50,
+
+        saveProfile(profileData) {
+            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(profileData));
+        },
+
+        loadProfile() {
+            const data = localStorage.getItem(this.STORAGE_KEY);
+            return data ? JSON.parse(data) : null;
+        },
+
+        saveResult(result) {
+            let history = this.loadHistory();
+            history.unshift(result);
+            if (history.length > this.MAX_HISTORY) {
+                history = history.slice(0, this.MAX_HISTORY);
             }
+            localStorage.setItem(this.HISTORY_KEY, JSON.stringify(history));
+        },
+
+        loadHistory() {
+            const data = localStorage.getItem(this.HISTORY_KEY);
+            return data ? JSON.parse(data) : [];
+        },
+
+        clearHistory() {
+            localStorage.removeItem(this.HISTORY_KEY);
+        }
+    };
+
+    /* =========================================
+     * PDF Report Generator با فونت فارسی Amiri
+     * ========================================= */
+    async function generatePDFReport() {
+        console.log('🚀 شروع تولید PDF با فونت فارسی...');
+
+        if (typeof window.jspdf === 'undefined') {
+            console.error('❌ کتابخانه jsPDF لود نشده است');
+            alert('❌ خطا: کتابخانه PDF لود نشده است.\n\nلطفاً اتصال اینترنت را بررسی کنید.');
+            return;
         }
 
-        // ✅ تابع تولید PDF با فونت فارسی
-        async function generatePDFReport() {
-            console.log('🚀 شروع تولید PDF با فونت فارسی...');
+        const { jsPDF } = window.jspdf;
 
-            if (typeof window.jspdf === 'undefined') {
-                alert('❌ خطا: کتابخانه PDF لود نشده است. لطفاً صفحه را رفرش کنید.');
-                return;
-            }
+        const getData = (id, defaultValue = 'نامشخص') => {
+            const element = document.getElementById(id);
+            return element ? (element.textContent.trim() || defaultValue) : defaultValue;
+        };
 
-            const { jsPDF } = window.jspdf;
+        const data = {
+            gender:   getData('r-gender'),
+            age:      getData('r-age'),
+            height:   getData('r-height'),
+            weight:   getData('r-weight'),
+            bmi:      getData('bmi-value'),
+            status:   getData('bmi-status-text'),
+            diff:     getData('bmi-difference-text'),
+            healthy:  getData('r-healthy'),
+            bmr:      getData('r-bmr'),
+            tdee:     getData('r-tdee'),
+            maintain: getData('maintain-calories'),
+            gain:     getData('gain-calories'),
+            loss:     getData('loss-calories')
+        };
 
+        if (!data.bmi || data.bmi === '--' || data.bmi === 'نامشخص') {
+            alert('❌ خطا: لطفاً ابتدا محاسبات را انجام دهید.');
+            return;
+        }
+
+        console.log('📊 داده‌ها خوانده شد:', data);
+
+        const today = new Date().toLocaleDateString('fa-IR');
+
+        try {
             const doc = new jsPDF({
                 orientation: 'portrait',
                 unit: 'mm',
                 format: 'a4'
             });
 
-            // ✅ تنظیم فونت عربی/فارسی
+            // ✅ تنظیم فونت فارسی Amiri
             doc.setFont('Amiri', 'normal');
             doc.setR2L(true);
 
             const pageW = 210;
             const margin = 15;
+            const contentW = pageW - margin * 2;
             let y = 20;
 
-            // ✅ توابع کمکی برای نوشتن متن
+            const fillRect = (x, ry, w, h, r, g, b) => {
+                doc.setFillColor(r, g, b);
+                doc.rect(x, ry, w, h, 'F');
+            };
+
             const rtl = (text, fontSize, r, g, b, posY) => {
                 doc.setFontSize(fontSize);
                 doc.setTextColor(r, g, b);
@@ -688,40 +411,21 @@
                 doc.text(String(text), pageW / 2, posY, { align: 'center' });
             };
 
-            // ✅ خواندن داده‌ها از DOM
-            const getData = (id, def = 'نامشخص') => {
-                const el = document.getElementById(id);
-                return el ? (el.textContent.trim() || def) : def;
+            const hr = (r = 226, g = 232, b = 240) => {
+                doc.setDrawColor(r, g, b);
+                doc.setLineWidth(0.4);
+                doc.line(margin, y, pageW - margin, y);
+                y += 6;
             };
 
-            const data = {
-                gender:   getData('r-gender'),
-                age:      getData('r-age'),
-                height:   getData('r-height'),
-                weight:   getData('r-weight'),
-                bmi:      getData('bmi-value'),
-                status:   getData('bmi-status-text'),
-                diff:     getData('bmi-difference-text'),
-                healthy:  getData('r-healthy'),
-                bmr:      getData('r-bmr'),
-                tdee:     getData('r-tdee'),
-                maintain: getData('maintain-calories'),
-                gain:     getData('gain-calories'),
-                loss:     getData('loss-calories')
-            };
-
-            const today = new Date().toLocaleDateString('fa-IR');
-
-            // ✅ هدر
-            doc.setFillColor(79, 70, 229);
-            doc.rect(0, 0, pageW, 28, 'F');
+            // HEADER
+            fillRect(0, 0, pageW, 28, 79, 70, 229);
             center('گزارش تحلیل شاخص توده بدنی', 18, 255, 255, 255, 13);
             center('تاریخ: ' + today, 10, 220, 220, 255, 22);
             y = 38;
 
-            // ✅ اطلاعات فردی
-            doc.setFillColor(241, 245, 249);
-            doc.rect(margin, y - 2, pageW - margin * 2, 8, 'F');
+            // اطلاعات فردی
+            fillRect(margin, y - 2, contentW, 8, 241, 245, 249);
             rtl('اطلاعات فردی', 13, 30, 41, 59, y + 4);
             y += 12;
 
@@ -741,14 +445,15 @@
                 y += 7;
             });
 
-            y += 10;
+            y += 5;
+            hr();
 
-            // ✅ نتایج BMI
-            doc.setFillColor(238, 242, 255);
-            doc.rect(margin, y - 2, pageW - margin * 2, 8, 'F');
+            // نتایج BMI
+            fillRect(margin, y - 2, contentW, 8, 238, 242, 255);
             rtl('نتایج شاخص توده بدنی (BMI)', 13, 79, 70, 229, y + 4);
             y += 15;
 
+            // دایره BMI
             doc.setFillColor(79, 70, 229);
             doc.circle(pageW / 2, y + 8, 18, 'F');
             center(data.bmi, 22, 255, 255, 255, y + 10);
@@ -757,21 +462,22 @@
             center(data.status, 14, 30, 41, 59, y);
             y += 10;
 
-            const diffLines = doc.splitTextToSize(data.diff, pageW - margin * 2 - 10);
+            doc.setFontSize(10);
+            doc.setTextColor(51, 65, 85);
+            const diffLines = doc.splitTextToSize(data.diff, contentW - 10);
             diffLines.forEach(line => {
-                doc.setFontSize(10);
-                doc.setTextColor(51, 65, 85);
                 doc.text(line, pageW - margin, y, { align: 'right' });
                 y += 5;
             });
 
             doc.setTextColor(79, 70, 229);
             doc.text('محدوده سالم: ' + data.healthy, pageW - margin, y, { align: 'right' });
-            y += 15;
+            y += 10;
 
-            // ✅ اطلاعات متابولیسم
-            doc.setFillColor(240, 253, 244);
-            doc.rect(margin, y - 2, pageW - margin * 2, 8, 'F');
+            hr();
+
+            // متابولیسم
+            fillRect(margin, y - 2, contentW, 8, 240, 253, 244);
             rtl('اطلاعات متابولیسم', 13, 22, 163, 74, y + 4);
             y += 13;
 
@@ -783,15 +489,15 @@
                 doc.setTextColor(100, 116, 139);
                 doc.text(label, pageW - margin, y, { align: 'right' });
                 doc.setTextColor(22, 163, 74);
-                doc.text(String(value), pageW - margin - 60, y, { align: 'right' });
+                doc.text(String(value), pageW - margin - 55, y, { align: 'right' });
                 y += 8;
             });
 
-            y += 8;
+            y += 3;
+            hr();
 
-            // ✅ راهنمای کالری
-            doc.setFillColor(255, 247, 237);
-            doc.rect(margin, y - 2, pageW - margin * 2, 8, 'F');
+            // کالری
+            fillRect(margin, y - 2, contentW, 8, 255, 247, 237);
             rtl('راهنمای کالری روزانه', 13, 249, 115, 22, y + 4);
             y += 13;
 
@@ -808,14 +514,10 @@
                 y += 8;
             });
 
-            y += 15;
+            y += 8;
 
-            // ✅ Footer
-            doc.setDrawColor(226, 232, 240);
-            doc.setLineWidth(0.4);
-            doc.line(margin, y, pageW - margin, y);
-            y += 6;
-
+            // FOOTER
+            hr(226, 232, 240);
             center('این گزارش توسط محاسبه‌گر BMI تولید شده است', 9, 100, 116, 139, y);
             y += 6;
             center('این گزارش جنبه اطلاع‌رسانی دارد و جایگزین مشاوره پزشکی نیست', 9, 220, 38, 38, y);
@@ -823,18 +525,90 @@
             const safeDateStr = today.replace(/\//g, '-');
             doc.save('BMI-Report-' + safeDateStr + '.pdf');
 
-            console.log('✅ PDF با فونت فارسی ایجاد شد');
+            console.log('✅ PDF با موفقیت ایجاد شد');
+
+        } catch (err) {
+            console.error('❌ خطا در تولید PDF:', err);
+            alert('❌ خطا در تولید PDF:\n' + err.message);
+        }
+    }
+
+    /* =========================================
+     * Event Listeners و توابع مدیریت صفحات
+     * ========================================= */
+    document.addEventListener('DOMContentLoaded', function () {
+        console.log('📱 سیستم پروفایل و گزارش‌گیری آماده است');
+
+        // دکمه PDF
+        const pdfBtn = document.getElementById('pdf-btn');
+        if (pdfBtn) {
+            pdfBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                console.log('🖱️ کلیک روی دکمه PDF');
+                generatePDFReport();
+            });
+            console.log('✅ دکمه PDF متصل شد');
+        } else {
+            console.warn('⚠️ دکمه PDF یافت نشد');
         }
 
-        // بارگذاری اولیه
-        window.addEventListener('load', function() {
-            console.log('✅ صفحه بارگذاری شد');
-            if (typeof window.jspdf !== 'undefined') {
-                console.log('✅ کتابخانه jsPDF آماده است');
-            } else {
-                console.error('❌ کتابخانه jsPDF لود نشد');
-            }
-        });
+        // دکمه پروفایل
+        const profileBtn = document.getElementById('profile-btn');
+        if (profileBtn) {
+            profileBtn.addEventListener('click', showProfilePage);
+            console.log('✅ دکمه پروفایل متصل شد');
+        }
+
+        // پر کردن سال‌ها
+        const yearSelect = document.getElementById('birth-year');
+        for (let y = 1450; y >= 1300; y--) {
+            const opt = document.createElement('option');
+            opt.value = y;
+            opt.textContent = y;
+            yearSelect.appendChild(opt);
+        }
+
+        // پر کردن روزها
+        const daySelect = document.getElementById('birth-day');
+        for (let d = 1; d <= 31; d++) {
+            const opt = document.createElement('option');
+            opt.value = d;
+            opt.textContent = d;
+            daySelect.appendChild(opt);
+        }
+    });
+
+    function showProfilePage() {
+        const history = ProfileManager.loadHistory();
+        const historyList = document.getElementById('history-list');
+
+        if (history.length === 0) {
+            historyList.innerHTML = '<p style="text-align:center;color:#64748B;padding:20px;">تاریخچه‌ای موجود نیست</p>';
+        } else {
+            const last10 = history.slice(0, 10);
+            historyList.innerHTML = last10.map(item => `
+                <div class="history-item">
+                    <div class="history-grid">
+                        <div><strong>تاریخ:</strong> ${item.date}</div>
+                        <div><strong>BMI:</strong> <span style="color:#4F46E5;font-weight:bold;">${item.bmi}</span></div>
+                        <div><strong>وزن:</strong> ${item.weight} کیلوگرم</div>
+                        <div><strong>وضعیت:</strong> ${item.status}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        showPage('profile-page');
+    }
+
+    function clearHistoryConfirm() {
+        if (confirm('آیا مطمئن هستید که می‌خواهید تمام تاریخچه را پاک کنید؟')) {
+            ProfileManager.clearHistory();
+            alert('✅ تاریخچه با موفقیت پاک شد');
+            showProfilePage();
+        }
+    }
     </script>
+
 </body>
 </html>
