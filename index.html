@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>محاسبه‌گر BMI پیشرفته</title>
+    <title>محاسبه‌گر شاخص‌های سلامت</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -80,8 +80,20 @@
                     </select>
                 </div>
 
-                <button id="calculate-btn" class="btn-primary">محاسبه</button>
-                <button id="help-btn" class="btn-secondary" style="width: 100%; margin-top: 10px;">راهنما</button>
+                <button id="calc-btn" class="btn-primary">محاسبه</button>
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <button id="help-btn" class="btn-secondary" style="flex: 1;">راهنما</button>
+                    <button id="profile-btn" class="btn-secondary" style="flex: 1;">📋 پروفایل و تاریخچه</button>
+                </div>
+            </div>
+
+            <!-- فوتر با لوگو -->
+            <div class="footer-credit">
+                <img src="logo.png" alt="لوگو کمکتیم" class="footer-logo">
+                <div class="footer-text">
+                    <strong>توسعه یافته توسط تیم «کمکتیم»</strong>
+                    <a href="https://Komaketim.ir" target="_blank">Komaketim.ir</a>
+                </div>
             </div>
         </div>
     </div>
@@ -191,10 +203,8 @@
 
             <div style="display: flex; gap: 10px; margin-top: 20px;">
                 <button id="back-btn" class="btn-primary" style="flex: 1;">محاسبه مجدد</button>
-                <button id="pdf-btn" style="flex: 1;">📄 دانلود PDF</button>
+                <button id="pdf-btn" class="btn-primary" style="flex: 1;">📄 دانلود PDF</button>
             </div>
-
-            <button id="help-btn2" class="btn-secondary" style="width: 100%; margin-top: 10px;">راهنما</button>
         </div>
     </div>
 
@@ -253,7 +263,7 @@
                 شاخص توده بدنی (BMI)
             </h2>
             <div class="pdf-bmi-container">
-                <div class="pdf-bmi-circle" id="pdf-bmi-circle-style">
+                <div class="pdf-bmi-circle">
                     <span class="pdf-bmi-value" id="pdf-bmi">--</span>
                     <span class="pdf-bmi-label">BMI</span>
                 </div>
@@ -281,7 +291,7 @@
                 نسبت دور کمر به قد (WHtR)
             </h2>
             <div class="pdf-whtr-container">
-                <div class="pdf-whtr-circle" id="pdf-whtr-circle-style">
+                <div class="pdf-whtr-circle">
                     <span class="pdf-whtr-value" id="pdf-whtr">--</span>
                     <span class="pdf-whtr-label">WHtR</span>
                 </div>
@@ -356,13 +366,11 @@
         </div>
     </div>
 
-    <!-- ✅ لود کردن کتابخانه‌های خارجی -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-    <!-- ✅ لود کردن فایل‌های JS -->
     <script src="who-data.js"></script>
     <script src="bmi.js"></script>
     <script src="profile-report.js"></script>
 
-</body
+</body>
+</html>
