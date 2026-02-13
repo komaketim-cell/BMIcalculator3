@@ -1,5 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap');
-
+/* =========================================
+ * Global Styles & Reset
+ * ========================================= */
 * {
     margin: 0;
     padding: 0;
@@ -7,7 +8,7 @@
 }
 
 body {
-    font-family: 'Vazirmatn', sans-serif;
+    font-family: 'Vazirmatn', Tahoma, Arial, sans-serif;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     min-height: 100vh;
     padding: 20px;
@@ -19,6 +20,26 @@ body {
     margin: 0 auto;
 }
 
+/* =========================================
+ * Page Management
+ * ========================================= */
+.page {
+    display: none;
+}
+
+.page.active {
+    display: block;
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* =========================================
+ * Header
+ * ========================================= */
 .header {
     text-align: center;
     color: white;
@@ -26,131 +47,118 @@ body {
 }
 
 .header h1 {
-    font-size: 2.5rem;
-    font-weight: 700;
+    font-size: clamp(1.8rem, 4vw, 2.5rem);
+    font-weight: 800;
     margin-bottom: 10px;
     text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
 }
 
 .header p {
-    font-size: 1.1rem;
+    font-size: clamp(0.9rem, 2vw, 1.1rem);
     opacity: 0.95;
-    font-weight: 400;
 }
 
-.page {
-    display: none;
-}
-
-.page.active {
-    display: block;
-    animation: fadeIn 0.5s ease;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(16px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
+/* =========================================
+ * Cards
+ * ========================================= */
 .card {
     background: white;
-    border-radius: 20px;
-    padding: 30px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    border-radius: 15px;
+    padding: 25px;
     margin-bottom: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
 }
 
+.card h3 {
+    color: #1e293b;
+    font-size: 1.3rem;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+/* =========================================
+ * Input Groups
+ * ========================================= */
 .input-group {
-    margin-bottom: 25px;
+    margin-bottom: 20px;
 }
 
 .input-group label {
     display: block;
+    color: #334155;
     font-weight: 600;
     margin-bottom: 8px;
-    color: #333;
-    font-size: 1rem;
+    font-size: 0.95rem;
 }
 
 .input-group input,
 .input-group select {
     width: 100%;
-    padding: 12px 15px;
+    padding: 12px 16px;
     border: 2px solid #e0e0e0;
-    border-radius: 10px;
-    font-size: 1rem;
-    font-family: 'Vazirmatn', sans-serif;
+    border-radius: 8px;
+    font-size: clamp(0.9rem, 2vw, 1rem);
     transition: all 0.3s ease;
-    background: #f8f9fa;
+    font-family: inherit;
 }
 
 .input-group input:focus,
 .input-group select:focus {
     outline: none;
-    border-color: #667eea;
-    background: white;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    border-color: #4F46E5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
 }
 
+/* =========================================
+ * Buttons
+ * ========================================= */
 .btn-primary,
 .btn-secondary {
     width: 100%;
-    padding: 15px;
+    padding: 14px;
     border: none;
     border-radius: 10px;
-    font-size: 1.1rem;
-    font-weight: 600;
-    font-family: 'Vazirmatn', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
     cursor: pointer;
     transition: all 0.3s ease;
+    font-family: inherit;
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
     color: white;
-    margin-bottom: 10px;
+    box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
 }
 
 .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 6px 20px rgba(79, 70, 229, 0.5);
 }
 
 .btn-secondary {
-    background: white;
-    color: #667eea;
-    border: 2px solid #667eea;
+    background: linear-gradient(135deg, #64748B 0%, #475569 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(100, 116, 139, 0.3);
 }
 
 .btn-secondary:hover {
-    background: #f8f9fa;
     transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(100, 116, 139, 0.4);
 }
 
+/* =========================================
+ * Error Messages
+ * ========================================= */
 .error {
-    background: #fee;
-    color: #c33;
-    padding: 12px;
+    background: linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%);
+    color: #991B1B;
+    padding: 12px 16px;
     border-radius: 8px;
-    margin-bottom: 20px;
-    font-weight: 500;
+    margin-bottom: 15px;
+    border-right: 4px solid #DC2626;
+    font-weight: 600;
     display: none;
 }
 
@@ -158,516 +166,739 @@ body {
     display: block;
 }
 
-/* اطلاعات کلی */
-.info-card h3 {
-    color: #667eea;
-    margin-bottom: 20px;
-    font-size: 1.3rem;
-}
-
-.info-grid {
+/* =========================================
+ * Results Page - Info Summary
+ * ========================================= */
+.info-summary {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     gap: 15px;
+    margin-bottom: 25px;
 }
 
-.info-grid div {
-    padding: 12px;
-    background: #f8f9fa;
-    border-radius: 10px;
-    font-size: 1rem;
-}
-
-.info-grid strong {
-    color: #555;
-    margin-left: 8px;
-}
-
-/* کارت BMI با نمایش وضعیت */
-.bmi-card h3 {
-    color: #667eea;
-    margin-bottom: 20px;
-    font-size: 1.3rem;
+.info-item {
+    background: white;
+    padding: 15px;
+    border-radius: 12px;
     text-align: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.info-label {
+    display: block;
+    color: #64748B;
+    font-size: 0.85rem;
+    margin-bottom: 5px;
+}
+
+.info-value {
+    display: block;
+    color: #1e293b;
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+/* =========================================
+ * BMI Card & Circle
+ * ========================================= */
+.bmi-card {
+    background: linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%);
+    border: 2px solid #7DD3FC;
 }
 
 .bmi-display {
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 30px;
+    justify-content: space-around;
+    gap: 20px;
     flex-wrap: wrap;
 }
 
 .bmi-circle {
-    width: 150px;
-    height: 150px;
+    width: 180px;
+    height: 180px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 2.5rem;
-    font-weight: 700;
+    font-size: 3rem;
+    font-weight: 800;
     color: white;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-    transition: all 0.3s ease;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    flex-shrink: 0;
 }
 
 .bmi-details {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
     flex: 1;
-    min-width: 250px;
+    min-width: 200px;
 }
 
 .bmi-status,
 .bmi-difference {
-    padding: 15px;
-    background: #f8f9fa;
-    border-radius: 10px;
-    font-size: 1.1rem;
+    background: white;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 10px;
 }
 
 .bmi-status strong,
 .bmi-difference strong {
-    color: #555;
-    margin-left: 8px;
+    color: #334155;
 }
 
-.bmi-status span {
-    font-weight: 600;
-    font-size: 1.2rem;
+/* =========================================
+ * WHtR Card & Circle
+ * ========================================= */
+.whtr-card {
+    background: linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%);
+    border: 2px solid #FED7AA;
 }
 
-.bmi-difference span {
-    font-weight: 600;
-    color: #667eea;
+.whtr-display {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    gap: 20px;
+    flex-wrap: wrap;
 }
 
-/* کارت‌های نتیجه */
+.whtr-circle {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    font-weight: 800;
+    color: white;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    flex-shrink: 0;
+    background: linear-gradient(135deg, #EA580C 0%, #F97316 100%);
+}
+
+.whtr-details {
+    flex: 1;
+    min-width: 200px;
+}
+
+.whtr-status,
+.whtr-risk {
+    background: white;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+.whtr-status strong,
+.whtr-risk strong {
+    color: #334155;
+}
+
+/* =========================================
+ * Results Grid
+ * ========================================= */
+.results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
 .result-card {
     text-align: center;
 }
 
-.result-card h3 {
-    color: #667eea;
-    margin-bottom: 8px;
-    font-size: 1.3rem;
-}
-
 .result-label {
-    color: #888;
-    font-size: 0.95rem;
-    margin-bottom: 15px;
+    color: #64748B;
+    font-size: 0.9rem;
+    margin-bottom: 10px;
 }
 
 .result-value {
+    color: #1e293b;
     font-size: 1.8rem;
-    font-weight: 700;
-    color: #333;
+    font-weight: 800;
 }
 
-.results-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-}
-
-/* توصیه‌های کالری */
+/* =========================================
+ * Calorie Recommendations
+ * ========================================= */
 .calorie-recommendations {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 12px;
 }
 
 .calorie-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px;
-    background: #f8f9fa;
-    border-radius: 10px;
-    transition: all 0.3s ease;
-}
-
-.calorie-item:hover {
-    background: #e9ecef;
-    transform: translateX(-5px);
+    background: linear-gradient(135deg, #F8FAFC 0%, #E8EAF6 100%);
+    padding: 12px 15px;
+    border-radius: 8px;
+    border-right: 4px solid #4F46E5;
 }
 
 .calorie-label {
-    font-weight: 500;
-    color: #555;
-    font-size: 1rem;
+    color: #334155;
+    font-weight: 600;
 }
 
 .calorie-value {
-    font-weight: 700;
-    color: #667eea;
+    color: #4F46E5;
     font-size: 1.2rem;
-}
-
-/* راهنما */
-#guide-page .card h3 {
-    color: #667eea;
-    margin: 25px 0 15px 0;
-    font-size: 1.3rem;
-}
-
-#guide-page .card h3:first-child {
-    margin-top: 0;
-}
-
-#guide-page .card p {
-    line-height: 1.8;
-    color: #555;
-    margin-bottom: 10px;
-}
-
-#guide-page .card ul {
-    margin: 15px 0 15px 20px;
-    line-height: 1.8;
-}
-
-#guide-page .card ul li {
-    margin-bottom: 8px;
-    color: #555;
-}
-
-#guide-page .card ul li strong {
-    color: #333;
-}
-
-/* Responsive */
-@media (max-width: 600px) {
-    .header h1 {
-        font-size: 1.8rem;
-    }
-
-    .header p {
-        font-size: 1rem;
-    }
-
-    .card {
-        padding: 20px;
-    }
-
-    .bmi-circle {
-        width: 120px;
-        height: 120px;
-        font-size: 2rem;
-    }
-
-    .result-value {
-        font-size: 1.5rem;
-    }
-
-    .calorie-item {
-        flex-direction: column;
-        gap: 10px;
-        align-items: flex-start;
-    }
-
-    .info-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
-.footer-credit {
-    margin-top: 30px;
-    padding: 20px;
-    text-align: center;
-    font-size: 14px;
-    color: #FF9800;
-    line-height: 1.8;
-    font-weight: 500;
-}
-
-.footer-credit a {
-    color: #FF9800;
-    text-decoration: none;
-    font-weight: 600;
-    transition: all 0.3s;
-}
-
-.footer-credit a:hover {
-    color: #FFB74D;
-    text-decoration: underline;
+    font-weight: 800;
 }
 
 /* =========================================
- * WHtR Card Styles
+ * Profile Page - History
  * ========================================= */
-
-/* بج اختیاری روی لیبل */
-.optional-badge {
-    display: inline-block;
-    font-size: 0.68rem;
-    background: #e0e7ff;
-    color: #4f46e5;
-    border-radius: 20px;
-    padding: 1px 8px;
-    margin-right: 6px;
-    font-weight: 600;
-    vertical-align: middle;
+.history-item {
+    background: linear-gradient(135deg, #F8FAFC 0%, #E8EAF6 100%);
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 12px;
+    border-right: 4px solid #4F46E5;
 }
 
-.input-hint {
-    font-size: 0.75rem;
-    color: #94a3b8;
-    margin-top: 4px;
-    margin-bottom: 0;
+.history-date {
+    color: #64748B;
+    font-size: 0.85rem;
+    margin-bottom: 8px;
 }
 
-/* کارت WHtR */
-.whtr-card {
-    background: linear-gradient(135deg, #fafafa 0%, #f0f4ff 100%);
-    border: 1.5px solid #c7d2fe;
-    border-radius: 20px;
-    padding: 24px;
-    margin-bottom: 20px;
-    animation: fadeInUp 0.5s ease both;
+.history-data {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px;
 }
 
-.whtr-card .card-header {
+.history-data-item {
+    text-align: center;
+}
+
+.history-data-label {
+    display: block;
+    color: #64748B;
+    font-size: 0.8rem;
+    margin-bottom: 3px;
+}
+
+.history-data-value {
+    display: block;
+    color: #1e293b;
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.profile-buttons-container {
+    margin-top: 25px;
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.profile-buttons-container button {
+    flex: 1;
+    min-width: 180px;
+    max-width: 250px;
+}
+
+.storage-info-box {
+    background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+    border: 2px solid #FCD34D;
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 20px;
+    box-shadow: 0 4px 15px rgba(252, 211, 77, 0.3);
+}
+
+.storage-info-title {
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-bottom: 20px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid #e0e7ff;
-}
-
-.whtr-card .card-icon {
-    font-size: 1.5rem;
-}
-
-.whtr-card .card-title {
-    font-size: 1.1rem;
+    color: #78350F;
+    font-size: 16px;
     font-weight: 700;
-    color: #1e293b;
-    margin: 0;
+    margin-bottom: 12px;
 }
 
-/* بخش اصلی WHtR */
-.whtr-main {
-    display: flex;
-    align-items: center;
-    gap: 24px;
-    margin-bottom: 24px;
+.storage-info-title::before {
+    content: "💾";
+    font-size: 24px;
 }
 
-/* دایره WHtR */
-.whtr-circle-wrapper {
-    flex-shrink: 0;
+.storage-info-content {
+    color: #92400E;
+    font-size: 14px;
+    line-height: 1.8;
 }
 
-.whtr-circle {
-    width: 110px;
-    height: 110px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+.storage-info-content p {
+    margin: 8px 0;
+}
+
+.storage-info-content strong {
+    color: #78350F;
+    font-weight: 700;
+}
+
+.storage-info-list {
+    margin: 10px 0 0 20px;
+    padding: 0;
+    list-style: none;
+}
+
+.storage-info-list li {
+    position: relative;
+    padding-right: 20px;
+    margin-bottom: 8px;
+}
+
+.storage-info-list li::before {
+    content: "⚠️";
+    position: absolute;
+    right: 0;
+    font-size: 14px;
+}
+
+/* =========================================
+ * Footer Credit (Input Page)
+ * ========================================= */
+.footer-credit {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 8px 25px rgba(79, 70, 229, 0.35);
-    transition: background 0.4s ease;
-}
-
-.whtr-circle.status-low      { background: linear-gradient(135deg, #0ea5e9, #38bdf8); box-shadow: 0 8px 25px rgba(14,165,233,0.35); }
-.whtr-circle.status-normal   { background: linear-gradient(135deg, #22c55e, #4ade80); box-shadow: 0 8px 25px rgba(34,197,94,0.35); }
-.whtr-circle.status-medium   { background: linear-gradient(135deg, #f59e0b, #fbbf24); box-shadow: 0 8px 25px rgba(245,158,11,0.35); }
-.whtr-circle.status-high     { background: linear-gradient(135deg, #f97316, #fb923c); box-shadow: 0 8px 25px rgba(249,115,22,0.35); }
-.whtr-circle.status-veryhigh { background: linear-gradient(135deg, #ef4444, #f87171); box-shadow: 0 8px 25px rgba(239,68,68,0.35); }
-
-.whtr-value {
-    font-size: 1.7rem;
-    font-weight: 800;
-    color: #fff;
-    line-height: 1;
-}
-
-.whtr-label-inside {
-    font-size: 0.7rem;
-    color: rgba(255,255,255,0.85);
-    font-weight: 600;
-    margin-top: 3px;
-    letter-spacing: 0.05em;
-}
-
-/* اطلاعات WHtR */
-.whtr-info {
-    flex: 1;
-}
-
-.whtr-status-text {
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: #1e293b;
-    margin: 0 0 8px 0;
-}
-
-.whtr-description {
-    font-size: 0.9rem;
-    color: #475569;
-    line-height: 1.7;
-    margin: 0;
-}
-
-/* نوار رنگی WHtR */
-.whtr-bar-container {
-    margin-bottom: 20px;
-}
-
-.whtr-bar {
-    position: relative;
-    display: flex;
-    height: 14px;
-    border-radius: 10px;
-    overflow: visible;
-    margin-bottom: 6px;
-}
-
-.whtr-bar-segment {
-    flex: 1;
-    height: 100%;
-}
-
-.whtr-bar-segment:first-child { border-radius: 10px 0 0 10px; }
-.whtr-bar-segment:last-child  { border-radius: 0 10px 10px 0; }
-
-.seg-low      { background: #38bdf8; flex: 1; }
-.seg-normal   { background: #4ade80; flex: 2; }
-.seg-medium   { background: #fbbf24; flex: 1.5; }
-.seg-high     { background: #fb923c; flex: 1.5; }
-.seg-veryhigh { background: #f87171; flex: 1; }
-
-/* نشانگر موقعیت روی نوار */
-.whtr-indicator {
-    position: absolute;
-    top: -4px;
-    width: 6px;
-    height: 22px;
-    background: #1e293b;
-    border-radius: 3px;
-    transform: translateX(50%);
-    transition: left 0.6s cubic-bezier(.34,1.56,.64,1);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
-    pointer-events: none;
-    z-index: 2;
-}
-
-.whtr-bar-labels {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.65rem;
-    color: #94a3b8;
-    padding: 0 2px;
-    direction: ltr;
-}
-
-/* جدول مرجع */
-.whtr-reference {
-    background: #fff;
+    gap: 15px;
+    margin-top: 30px;
+    padding: 25px;
+    background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%);
     border-radius: 12px;
-    padding: 14px 16px;
-    margin-bottom: 16px;
-    border: 1px solid #e2e8f0;
+    direction: rtl;
+    text-align: center;
 }
 
-.whtr-ref-title {
-    font-size: 0.85rem;
+.footer-logo {
+    width: 70px;
+    height: 70px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+}
+
+.footer-text {
+    text-align: center;
+    line-height: 2;
+}
+
+.footer-text strong {
+    font-size: 18px;
+    color: #1E293B;
     font-weight: 700;
-    color: #334155;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.footer-text a {
+    color: #4F46E5;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s;
+    font-size: 16px;
+}
+
+.footer-text a:hover {
+    color: #7C3AED;
+    text-decoration: underline;
+}
+
+/* =========================================
+ * PDF Template Styles
+ * ========================================= */
+#pdf-template {
+    position: fixed;
+    left: -9999px;
+    top: 0;
+    width: 900px;
+    background: linear-gradient(135deg, #F8FAFC 0%, #FFFFFF 100%);
+    padding: 35px;
+    font-family: 'Vazirmatn', Tahoma, Arial, sans-serif;
+    direction: rtl;
+    contain: layout style;
+}
+
+#pdf-template .pdf-header {
+    background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    margin-bottom: 20px;
+    color: white;
+}
+
+#pdf-template .pdf-header h1 {
+    font-size: 24px;
+    margin-bottom: 5px;
+}
+
+#pdf-template .pdf-date {
+    font-size: 12px;
+    opacity: 0.9;
+}
+
+#pdf-template .pdf-section {
+    background: white;
+    padding: 18px;
+    border-radius: 12px;
+    margin-bottom: 15px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+    border: 2px solid #E2E8F0;
+}
+
+#pdf-template .pdf-section-title {
+    color: #1E293B;
+    font-size: 18px;
+    font-weight: 700;
     margin: 0 0 12px 0;
-}
-
-.whtr-ref-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-}
-
-.whtr-ref-item {
+    padding-bottom: 8px;
+    border-bottom: 2px solid #4F46E5;
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 0.78rem;
-    color: #475569;
 }
 
-.ref-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    flex-shrink: 0;
+#pdf-template .pdf-section-icon {
+    font-size: 20px;
 }
 
-.ref-range {
-    font-weight: 600;
-    color: #1e293b;
-    direction: ltr;
-    font-size: 0.72rem;
-}
-
-.ref-label {
-    color: #64748b;
-}
-
-.ref-low      .ref-dot { background: #38bdf8; }
-.ref-normal   .ref-dot { background: #4ade80; }
-.ref-normal2  .ref-dot { background: #22c55e; }
-.ref-medium   .ref-dot { background: #fbbf24; }
-.ref-high     .ref-dot { background: #fb923c; }
-.ref-veryhigh .ref-dot { background: #f87171; }
-
-/* توصیه WHtR */
-.whtr-advice {
-    display: flex;
-    align-items: flex-start;
+#pdf-template .pdf-info-cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
     gap: 10px;
-    background: #eff6ff;
-    border-right: 4px solid #4f46e5;
+    margin-top: 12px;
+}
+
+#pdf-template .pdf-info-card {
+    background: linear-gradient(135deg, #F8FAFC 0%, #E8EAF6 100%);
+    padding: 12px;
     border-radius: 10px;
-    padding: 12px 14px;
+    text-align: center;
+    border: 2px solid #C7D2FE;
 }
 
-.whtr-advice .advice-icon {
-    font-size: 1.1rem;
-    flex-shrink: 0;
-    margin-top: 2px;
+#pdf-template .pdf-info-card-label {
+    color: #64748B;
+    font-size: 11px;
+    font-weight: 500;
+    margin-bottom: 5px;
 }
 
-.whtr-advice p {
-    margin: 0;
-    font-size: 0.85rem;
-    color: #1e40af;
-    line-height: 1.7;
+#pdf-template .pdf-info-card-value {
+    color: #1E293B;
+    font-size: 16px;
+    font-weight: 700;
 }
 
-/* ریسپانسیو WHtR */
-@media (max-width: 480px) {
-    .whtr-main {
+#pdf-template .pdf-bmi-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    margin: 15px 0;
+}
+
+#pdf-template .pdf-bmi-circle {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 30px rgba(79, 70, 229, 0.4);
+}
+
+#pdf-template .pdf-bmi-value {
+    color: white;
+    font-size: 42px;
+    font-weight: 800;
+    text-shadow: 2px 2px 6px rgba(0,0,0,0.3);
+}
+
+#pdf-template .pdf-bmi-label {
+    color: rgba(255,255,255,0.95);
+    font-size: 12px;
+    font-weight: 600;
+    margin-top: 3px;
+}
+
+#pdf-template .pdf-bmi-details {
+    flex: 1;
+    padding-right: 20px;
+}
+
+#pdf-template .pdf-bmi-status {
+    background: linear-gradient(135deg, #F8FAFC 0%, #E8EAF6 100%);
+    padding: 12px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    border-right: 4px solid #4F46E5;
+}
+
+#pdf-template .pdf-bmi-status-label {
+    color: #64748B;
+    font-size: 11px;
+    font-weight: 500;
+    margin-bottom: 3px;
+}
+
+#pdf-template .pdf-bmi-status-value {
+    color: #1E293B;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+/* WHtR section in PDF */
+#pdf-template .pdf-whtr-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    margin: 15px 0;
+}
+
+#pdf-template .pdf-whtr-circle {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #EA580C 0%, #F97316 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 30px rgba(234, 88, 12, 0.4);
+}
+
+#pdf-template .pdf-whtr-value {
+    color: white;
+    font-size: 42px;
+    font-weight: 800;
+    text-shadow: 2px 2px 6px rgba(0,0,0,0.3);
+}
+
+#pdf-template .pdf-whtr-label {
+    color: rgba(255,255,255,0.95);
+    font-size: 12px;
+    font-weight: 600;
+    margin-top: 3px;
+}
+
+#pdf-template .pdf-whtr-details {
+    flex: 1;
+    padding-right: 20px;
+}
+
+#pdf-template .pdf-whtr-status {
+    background: linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%);
+    padding: 12px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    border-right: 4px solid #EA580C;
+}
+
+#pdf-template .pdf-whtr-status-label {
+    color: #64748B;
+    font-size: 11px;
+    font-weight: 500;
+    margin-bottom: 3px;
+}
+
+#pdf-template .pdf-whtr-status-value {
+    color: #1E293B;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+#pdf-template .pdf-metabolism-cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+#pdf-template .pdf-metabolism-card {
+    background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%);
+    padding: 15px;
+    border-radius: 12px;
+    text-align: center;
+    border: 2px solid #86EFAC;
+}
+
+#pdf-template .pdf-metabolism-label {
+    color: #064E3B;
+    font-size: 11px;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+#pdf-template .pdf-metabolism-value {
+    color: #059669;
+    font-size: 24px;
+    font-weight: 800;
+}
+
+#pdf-template .pdf-calories-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+#pdf-template .pdf-calorie-card {
+    background: linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%);
+    padding: 12px;
+    border-radius: 10px;
+    text-align: center;
+    border: 2px solid #FED7AA;
+}
+
+#pdf-template .pdf-calorie-label {
+    color: #7C2D12;
+    font-size: 10px;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+#pdf-template .pdf-calorie-value {
+    color: #EA580C;
+    font-size: 20px;
+    font-weight: 800;
+}
+
+#pdf-template .pdf-tips-section {
+    background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+    border: 2px solid #FCD34D;
+}
+
+#pdf-template .pdf-tips-title {
+    color: #78350F;
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#pdf-template .pdf-tips-list {
+    list-style: none;
+    padding: 0;
+}
+
+#pdf-template .pdf-tips-list li {
+    color: #92400E;
+    font-size: 12px;
+    margin-bottom: 8px;
+    padding-right: 20px;
+    position: relative;
+}
+
+#pdf-template .pdf-tips-list li::before {
+    content: "✓";
+    position: absolute;
+    right: 0;
+    color: #78350F;
+    font-weight: 700;
+}
+
+#pdf-template .pdf-footer {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 2px solid #E2E8F0;
+    text-align: center;
+}
+
+#pdf-template .pdf-footer-logo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+#pdf-template .pdf-footer-logo img {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+}
+
+#pdf-template .pdf-footer-text {
+    color: #475569;
+    font-size: 10px;
+    line-height: 1.6;
+    font-weight: 500;
+    text-align: center;
+}
+
+#pdf-template .pdf-footer-text strong {
+    color: #1E293B;
+    font-weight: 700;
+    display: block;
+    margin-bottom: 3px;
+}
+
+#pdf-template .pdf-footer-website {
+    color: #4F46E5;
+    font-weight: 700;
+    font-size: 11px;
+    margin-top: 3px;
+}
+
+/* Year selector styling */
+#birth-year {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: clamp(0.9rem, 2vw, 1rem);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+#birth-year:hover {
+    border-color: #4F46E5;
+}
+
+#birth-year:focus {
+    outline: none;
+    border-color: #4F46E5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+#birth-year option.current-year {
+    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+    font-weight: 700;
+    color: #1E293B;
+}
+
+/* =========================================
+ * Responsive Design
+ * ========================================= */
+@media (max-width: 640px) {
+    .profile-buttons-container {
         flex-direction: column;
-        text-align: center;
     }
-
-    .whtr-info {
-        width: 100%;
+    
+    .profile-buttons-container button {
+        max-width: 100%;
     }
-
-    .whtr-ref-grid {
-        grid-template-columns: 1fr;
+    
+    .bmi-display,
+    .whtr-display {
+        flex-direction: column;
     }
-
-    .whtr-circle {
-        width: 90px;
-        height: 90px;
-    }
-
-    .whtr-value {
-        font-size: 1.4rem;
+    
+    .info-summary {
+        grid-template-columns: repeat(2, 1fr);
     }
 }
