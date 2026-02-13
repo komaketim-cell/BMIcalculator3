@@ -1,13 +1,54 @@
-/* =========================================
- * Core BMI / BMR / TDEE Logic
- * WHO LMS + Adult BMI
- * Exact Jalali Age with Leap Year Support
- * ========================================= */
+/* ==========================================
+   🧮 BMI Calculator Logic with:
+   * WHO LMS Z-Score (Children & Teens 5-19 years)
+   * Adult BMI + WHtR
+   * Exact Jalali Age with Leap Year Support
+   * Auto-Update Current Date
+   ========================================== */
 
-/* ---------- تاریخ جاری شمسی ---------- */
-const CURRENT_JALALI_YEAR = 1404;
-const CURRENT_JALALI_MONTH = 11;
-const CURRENT_JALALI_DAY = 22;
+/* ---------- تاریخ جاری شمسی (Auto-Update) ---------- */
+function getCurrentJalaliDate() {
+    // تبدیل تاریخ میلادی به شمسی با الگوریتم دقیق
+    const now = new Date();
+    const gy = now.getFullYear();
+    const gm = now.getMonth() + 1;
+    const gd = now.getDate();
+    
+    let g_d_no, jy, jm, jd;
+    const g_d_arr = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
+    
+    if (gm > 2) {
+        g_d_no = 355666 + (365 * gy) + Math.floor((gy + 3) / 4) - Math.floor((gy + 99) / 100) + Math.floor((gy + 399) / 400) + gd + g_d_arr[gm - 1];
+    } else {
+        g_d_no = 355666 + (365 * gy) + Math.floor((gy + 2) / 4) - Math.floor((gy + 98) / 100) + Math.floor((gy + 398) / 400) + gd + g_d_arr[gm - 1];
+    }
+    
+    jy = -1595 + 33 * Math.floor(g_d_no / 12053);
+    g_d_no = g_d_no % 12053;
+    
+    jy += 4 * Math.floor(g_d_no / 1461);
+    g_d_no = g_d_no % 1461;
+    
+    if (g_d_no > 365) {
+        jy += Math.floor((g_d_no - 1) / 365);
+        g_d_no = (g_d_no - 1) % 365;
+    }
+    
+    if (g_d_no < 186) {
+        jm = 1 + Math.floor(g_d_no / 31);
+        jd = 1 + (g_d_no % 31);
+    } else {
+        jm = 7 + Math.floor((g_d_no - 186) / 30);
+        jd = 1 + ((g_d_no - 186) % 30);
+    }
+    
+    return { year: jy, month: jm, day: jd };
+}
+
+const jalaliNow = getCurrentJalaliDate();
+const CURRENT_JALALI_YEAR = jalaliNow.year;
+const CURRENT_JALALI_MONTH = jalaliNow.month;
+const CURRENT_JALALI_DAY = jalaliNow.day;
 
 /* ---------- Motivation Quotes ---------- */
 const MOTIVATIONS = [
@@ -138,6 +179,23 @@ function calculateBMI(weight, heightCm) {
     return weight / (h * h);
 }
 
+/* ---------- WHtR (Waist-to-Height Ratio) ---------- */
+function calculateWHtR(waist, heightCm) {
+    return waist / heightCm;
+}
+
+function getWHtRStatus(whtr) {
+    if (whtr < 0.40) {
+        return { label: "کم‌وزن غیرطبیعی", color: "#3B82F6", risk: "کم" };
+    } else if (whtr >= 0.40 && whtr < 0.50) {
+        return { label: "سالم", color: "#22C55E", risk: "طبیعی" };
+    } else if (whtr >= 0.50 && whtr < 0.60) {
+        return { label: "ریسک متوسط", color: "#EAB308", risk: "افزایش خطر" };
+    } else {
+        return { label: "ریسک بالا", color: "#DC2626", risk: "خطر جدی" };
+    }
+}
+
 /* ---------- WHO Z-Score ---------- */
 function calculateZScore(bmi, L, M, S) {
     if (L === 0) return Math.log(bmi / M) / S;
@@ -235,10 +293,11 @@ function calculateAndGo() {
     const jd = +document.getElementById("birth-day").value;
     const height = +document.getElementById("height").value;
     const weight = +document.getElementById("weight").value;
+    const waist = +document.getElementById("waist").value || 0; // اختیاری
     const activity = +document.getElementById("activity").value;
 
     if (!jy || !jm || !jd || !height || !weight) {
-        showError("❌ لطفاً همه فیلدها را کامل وارد کنید.");
+        showError("❌ لطفاً همه فیلدهای ضروری را کامل وارد کنید.");
         return;
     }
 
@@ -327,6 +386,16 @@ function calculateAndGo() {
     const bmr = calculateBMR(gender, weight, height, age.years);
     const tdee = calculateTDEE(bmr, activity);
 
+    /* ---------- محاسبه WHtR (اختیاری) ---------- */
+    let whtrData = null;
+    if (waist > 0) {
+        const whtr = calculateWHtR(waist, height);
+        whtrData = {
+            value: whtr.toFixed(3),
+            ...getWHtRStatus(whtr)
+        };
+    }
+
     /* ---------- UI ---------- */
     document.getElementById("r-gender").textContent = gender;
     document.getElementById("r-height").textContent = `${height} سانتی‌متر`;
@@ -352,31 +421,24 @@ function calculateAndGo() {
     document.getElementById("loss-calories").textContent =
         `${Math.round(tdee - 500)} kcal`;
 
+    /* ---------- نمایش WHtR ---------- */
+    const whtrCard = document.getElementById("whtr-card");
+    if (whtrData) {
+        whtrCard.style.display = "block";
+        document.getElementById("whtr-value").textContent = whtrData.value;
+        document.getElementById("whtr-circle").style.backgroundColor = whtrData.color;
+        document.getElementById("whtr-status-text").textContent = whtrData.label;
+        document.getElementById("whtr-risk-text").textContent = `سطح ریسک: ${whtrData.risk}`;
+    } else {
+        whtrCard.style.display = "none";
+    }
+
     /* ---------- نمایش توصیه‌های کاربردی ---------- */
     const practicalTips = generatePracticalTips(statusText, bmi, age.years);
     const tipsHTML = practicalTips.map(tip => `<p class="tip-item">✦ ${tip}</p>`).join("");
     document.getElementById("practical-tips").innerHTML = tipsHTML;
 
     showPage("results-page");
-
-    /* ========================================
-     * ✅ اضافه شده: ذخیره نتایج در پروفایل
-     * (فقط اگر profile-report.js لود شده باشد)
-     * ======================================== */
-    if (typeof ProfileManager !== "undefined") {
-        ProfileManager.saveResult({
-            date: `${CURRENT_JALALI_YEAR}/${CURRENT_JALALI_MONTH}/${CURRENT_JALALI_DAY}`,
-            gender: gender,
-            age: `${age.years} سال، ${age.months} ماه و ${age.days} روز`,
-            height: height,
-            weight: weight,
-            bmi: bmi.toFixed(2),
-            status: statusText,
-            bmr: Math.round(bmr),
-            tdee: Math.round(tdee),
-            healthyRange: healthyText
-        });
-    }
 }
 
 /* ---------- Events ---------- */
@@ -386,7 +448,7 @@ document.getElementById("help-btn").onclick = () => showPage("guide-page");
 document.getElementById("help-btn2").onclick = () => showPage("guide-page");
 document.getElementById("back-guide-btn").onclick = () => showPage("input-page");
 
-/* ---------- Motivation with Blink Effect ---------- */
+/* ---------- Motivation with Smooth Transition ---------- */
 function showMotivation() {
     const el = document.getElementById("motivation-text");
     const randomQuote = MOTIVATIONS[Math.floor(Math.random() * MOTIVATIONS.length)];
