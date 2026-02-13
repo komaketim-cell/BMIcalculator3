@@ -1,6 +1,6 @@
 /* =========================================
  * Profile & Report Management System (FINAL VERSION)
- * با پشتیبانی کامل از فونت فارسی در PDF
+ * با پشتیبانی کامل از فونت فارسی در PDF + WHtR
  * ========================================= */
 
 const ProfileManager = {
@@ -39,11 +39,11 @@ const ProfileManager = {
 /* =========================================
  * PDF Report Generator با jsPDF خالص
  * بدون وابستگی به html2canvas
+ * با پشتیبانی کامل از WHtR
  * ========================================= */
 async function generatePDFReport() {
     console.log('🚀 شروع تولید PDF با jsPDF...');
 
-    // بررسی وجود jsPDF
     if (typeof window.jspdf === 'undefined') {
         console.error('❌ کتابخانه jsPDF لود نشده است');
         alert('❌ خطا: کتابخانه PDF لود نشده است.\n\nلطفاً اتصال اینترنت را بررسی کنید.');
@@ -52,35 +52,42 @@ async function generatePDFReport() {
 
     const { jsPDF } = window.jspdf;
 
-    // خواندن داده‌ها از صفحه
     const getData = (id, defaultValue = 'نامشخص') => {
         const element = document.getElementById(id);
         return element ? (element.textContent.trim() || defaultValue) : defaultValue;
     };
 
     const data = {
-        gender:   getData('r-gender'),
-        age:      getData('r-age'),
-        height:   getData('r-height'),
-        weight:   getData('r-weight'),
-        bmi:      getData('bmi-value'),
-        status:   getData('bmi-status-text'),
-        diff:     getData('bmi-difference-text'),
-        healthy:  getData('r-healthy'),
-        bmr:      getData('r-bmr'),
-        tdee:     getData('r-tdee'),
-        maintain: getData('maintain-calories'),
-        gain:     getData('gain-calories'),
-        loss:     getData('loss-calories')
+        gender:     getData('r-gender'),
+        age:        getData('r-age'),
+        height:     getData('r-height'),
+        weight:     getData('r-weight'),
+        bmi:        getData('bmi-value'),
+        status:     getData('bmi-status-text'),
+        diff:       getData('bmi-difference-text'),
+        healthy:    getData('r-healthy'),
+        bmr:        getData('r-bmr'),
+        tdee:       getData('r-tdee'),
+        maintain:   getData('maintain-calories'),
+        gain:       getData('gain-calories'),
+        loss:       getData('loss-calories'),
+        // --- WHtR جدید ---
+        whtr:       getData('whtr-value',       '---'),
+        whtrStatus: getData('whtr-status-text', '---'),
+        whtrAdvice: getData('whtr-advice-text', '---')
     };
 
-    // بررسی اینکه محاسبه انجام شده
     if (!data.bmi || data.bmi === '--' || data.bmi === 'نامشخص') {
         alert('❌ خطا: لطفاً ابتدا محاسبات را انجام دهید.');
         return;
     }
 
-    console.log('📊 داده‌ها خوانده شد:', data);
+    // بررسی وجود WHtR در گزارش
+    const hasWHtR = document.getElementById('whtr-card') &&
+                    document.getElementById('whtr-card').style.display !== 'none' &&
+                    data.whtr !== '---' && data.whtr !== '--';
+
+    console.log('📊 داده‌ها خوانده شد:', data, '| WHtR موجود:', hasWHtR);
 
     const today = new Date().toLocaleDateString('fa-IR');
 
@@ -91,7 +98,7 @@ async function generatePDFReport() {
             format: 'a4'
         });
 
-        const pageW = 210;
+        const pageW  = 210;
         const margin = 15;
         const contentW = pageW - margin * 2;
         let y = 20;
@@ -121,6 +128,14 @@ async function generatePDFReport() {
             y += 6;
         };
 
+        // بررسی نیاز به صفحه جدید
+        const checkPageBreak = (neededSpace = 20) => {
+            if (y + neededSpace > 275) {
+                doc.addPage();
+                y = 20;
+            }
+        };
+
         // ==== HEADER ====
         fillRect(0, 0, pageW, 28, 79, 70, 229);
         center('گزارش تحلیل شاخص توده بدنی', 18, 255, 255, 255, 13);
@@ -134,9 +149,9 @@ async function generatePDFReport() {
 
         const infoRows = [
             ['جنسیت:', data.gender],
-            ['سن:', data.age],
-            ['قد:', data.height],
-            ['وزن:', data.weight]
+            ['سن:',    data.age],
+            ['قد:',    data.height],
+            ['وزن:',   data.weight]
         ];
 
         infoRows.forEach(([label, value]) => {
@@ -152,6 +167,7 @@ async function generatePDFReport() {
         hr();
 
         // ==== نتایج BMI ====
+        checkPageBreak(55);
         fillRect(margin, y - 2, contentW, 8, 238, 242, 255);
         rtl('نتایج شاخص توده بدنی (BMI)', 13, 79, 70, 229, y + 4);
         y += 15;
@@ -179,14 +195,94 @@ async function generatePDFReport() {
 
         hr();
 
+        // ==== WHtR (در صورت وجود) ====
+        if (hasWHtR) {
+            checkPageBreak(60);
+
+            // هدر WHtR با رنگ مجزا
+            fillRect(margin, y - 2, contentW, 8, 236, 254, 255);
+            rtl('نسبت دور کمر به قد (WHtR)', 13, 8, 145, 178, y + 4);
+            y += 15;
+
+            // باکس اصلی WHtR
+            fillRect(margin, y - 2, contentW, 26, 240, 249, 255);
+            doc.setDrawColor(186, 230, 253);
+            doc.setLineWidth(0.5);
+            doc.rect(margin, y - 2, contentW, 26);
+
+            // مقدار WHtR - در یک دایره کوچک
+            doc.setFillColor(8, 145, 178);
+            doc.circle(pageW - margin - 10, y + 10, 11, 'F');
+            center(data.whtr, 16, 255, 255, 255, y + 12);
+
+            // برچسب WHtR
+            doc.setFontSize(10);
+            doc.setTextColor(100, 116, 139);
+            doc.text('مقدار WHtR:', pageW - margin - 30, y + 6, { align: 'right' });
+
+            // وضعیت
+            doc.setFontSize(12);
+            doc.setTextColor(8, 145, 178);
+            doc.text(data.whtrStatus, pageW - margin - 30, y + 15, { align: 'right' });
+
+            y += 32;
+
+            // توضیح WHtR
+            checkPageBreak(25);
+            doc.setFontSize(9);
+            doc.setTextColor(51, 65, 85);
+            const whtrAdviceLines = doc.splitTextToSize(data.whtrAdvice, contentW - 5);
+            whtrAdviceLines.forEach(line => {
+                checkPageBreak(8);
+                doc.text(line, pageW - margin, y, { align: 'right' });
+                y += 5;
+            });
+
+            y += 5;
+
+            // جدول مرجع WHtR مختصر
+            checkPageBreak(45);
+            fillRect(margin, y, contentW, 7, 248, 250, 252);
+            rtl('راهنمای مرجع WHtR:', 9, 100, 116, 139, y + 5);
+            y += 10;
+
+            const whtrRef = [
+                ['< 0.34',        'بسیار لاغر',       [14, 165, 233]],
+                ['0.34 – 0.46',   'سالم (زنان)',       [34, 197, 94]],
+                ['0.34 – 0.53',   'سالم (مردان)',      [22, 163, 74]],
+                ['0.46 – 0.58',   'اضافه‌وزن (زنان)',  [245, 158, 11]],
+                ['0.53 – 0.63',   'اضافه‌وزن (مردان)', [249, 115, 22]],
+                ['> 0.58/0.63',   'چاقی مرکزی',        [239, 68, 68]]
+            ];
+
+            whtrRef.forEach(([range, label, [cr, cg, cb]]) => {
+                checkPageBreak(8);
+                // نقطه رنگی
+                doc.setFillColor(cr, cg, cb);
+                doc.circle(pageW - margin - 3, y - 1, 2, 'F');
+                // برچسب
+                doc.setFontSize(9);
+                doc.setTextColor(30, 41, 59);
+                doc.text(label, pageW - margin - 8, y, { align: 'right' });
+                // بازه
+                doc.setTextColor(100, 116, 139);
+                doc.text(range, margin + 40, y, { align: 'left' });
+                y += 6;
+            });
+
+            y += 4;
+            hr(186, 230, 253);
+        }
+
         // ==== متابولیسم ====
+        checkPageBreak(30);
         fillRect(margin, y - 2, contentW, 8, 240, 253, 244);
         rtl('اطلاعات متابولیسم', 13, 22, 163, 74, y + 4);
         y += 13;
 
         [
             ['متابولیسم پایه (BMR):', data.bmr],
-            ['کالری روزانه (TDEE):', data.tdee]
+            ['کالری روزانه (TDEE):',  data.tdee]
         ].forEach(([label, value]) => {
             doc.setFontSize(11);
             doc.setTextColor(100, 116, 139);
@@ -200,14 +296,15 @@ async function generatePDFReport() {
         hr();
 
         // ==== کالری ====
+        checkPageBreak(40);
         fillRect(margin, y - 2, contentW, 8, 255, 247, 237);
         rtl('راهنمای کالری روزانه', 13, 249, 115, 22, y + 4);
         y += 13;
 
         [
-            ['حفظ وزن:', data.maintain],
+            ['حفظ وزن:',    data.maintain],
             ['افزایش وزن:', data.gain],
-            ['کاهش وزن:', data.loss]
+            ['کاهش وزن:',   data.loss]
         ].forEach(([label, value]) => {
             doc.setFontSize(11);
             doc.setTextColor(71, 85, 105);
@@ -220,6 +317,7 @@ async function generatePDFReport() {
         y += 8;
 
         // ==== FOOTER ====
+        checkPageBreak(20);
         hr(226, 232, 240);
         center('این گزارش توسط محاسبه‌گر BMI تولید شده است', 9, 100, 116, 139, y);
         y += 6;
@@ -246,11 +344,11 @@ document.addEventListener('DOMContentLoaded', function () {
     if (pdfBtn) {
         pdfBtn.addEventListener('click', function (e) {
             e.preventDefault();
-            console.log('🖱️ کلیک رومه PDF');
+            console.log('🖱️ کلیک روی دکمه PDF');
             generatePDFReport();
         });
         console.log('✅ دکمه PDF متصل شد');
     } else {
-        console.warn('⚠️ دکمه PDF یافت نشد');
+        console.warn('کمه PDF یافت نشد');
     }
 });
