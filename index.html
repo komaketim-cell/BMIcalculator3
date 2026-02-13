@@ -1,377 +1,229 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>محاسبه BMI هوشمند (WHO + WHtR)</title>
-    <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محاسبه‌گر شاخص توده بدنی (BMI) و WHtR</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Page 1: Input -->
-    <div id="input-page" class="page active">
-        <div class="container">
-            <div class="header-section">
-                <h1 class="main-title">🏥 محاسبه‌گر BMI هوشمند</h1>
-                <p class="subtitle">بر اساس استانداردهای WHO + نسبت دور کمر به قد (WHtR)</p>
-            </div>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1 class="title">محاسبه‌گر BMI و WHtR</h1>
+            <p class="subtitle">محاسبه شاخص توده بدنی و نسبت دور کمر به قد</p>
+        </header>
 
-            <!-- انگیزه‌بخش متحرک -->
-            <div class="motivation-box">
-                <p id="motivation-text" class="motivation-text">سلامتی سرمایه‌ای است که هر روز باید به آن سرمایه‌گذاری کنید 🌱</p>
-            </div>
-
-            <!-- خطا -->
-            <div id="error-message" class="error-message"></div>
-
-            <form id="bmi-form" class="bmi-form">
-                <!-- جنسیت -->
+        <!-- Input Form -->
+        <div class="card">
+            <form id="bmi-form">
+                <!-- Gender Selection -->
                 <div class="form-group">
-                    <label for="gender" class="form-label">👤 جنسیت</label>
-                    <select id="gender" class="form-select">
-                        <option value="مرد">مرد</option>
-                        <option value="زن">زن</option>
-                    </select>
-                </div>
-
-                <!-- تاریخ تولد -->
-                <div class="form-group-row">
-                    <div class="form-group">
-                        <label for="birth-year" class="form-label">📅 سال تولد</label>
-                        <select id="birth-year" class="form-select birth-year-select">
-                            <option value="">انتخاب سال</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="birth-month" class="form-label">ماه</label>
-                        <select id="birth-month" class="form-select">
-                            <option value="">ماه</option>
-                            <option value="1">فروردین</option>
-                            <option value="2">اردیبهشت</option>
-                            <option value="3">خرداد</option>
-                            <option value="4">تیر</option>
-                            <option value="5">مرداد</option>
-                            <option value="6">شهریور</option>
-                            <option value="7">مهر</option>
-                            <option value="8">آبان</option>
-                            <option value="9">آذر</option>
-                            <option value="10">دی</option>
-                            <option value="11">بهمن</option>
-                            <option value="12">اسفند</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="birth-day" class="form-label">روز</label>
-                        <select id="birth-day" class="form-select">
-                            <option value="">روز</option>
-                        </select>
+                    <label class="form-label">جنسیت:</label>
+                    <div class="gender-buttons">
+                        <button type="button" class="gender-btn" data-gender="male">
+                            <span class="icon">👨</span>
+                            مرد
+                        </button>
+                        <button type="button" class="gender-btn" data-gender="female">
+                            <span class="icon">👩</span>
+                            زن
+                        </button>
                     </div>
                 </div>
 
-                <!-- قد و وزن -->
-                <div class="form-group-row">
-                    <div class="form-group">
-                        <label for="height" class="form-label">📏 قد (سانتی‌متر)</label>
-                        <input type="number" id="height" class="form-input" placeholder="مثال: 175" min="50" max="250" />
-                    </div>
-                    <div class="form-group">
-                        <label for="weight" class="form-label">⚖️ وزن (کیلوگرم)</label>
-                        <input type="number" id="weight" class="form-input" placeholder="مثال: 70" min="10" max="300" step="0.1" />
-                    </div>
-                </div>
-
-                <!-- دور کمر (اختیاری) -->
+                <!-- Birth Date -->
                 <div class="form-group">
-                    <label for="waist" class="form-label">📐 دور کمر (سانتی‌متر) - اختیاری</label>
-                    <input type="number" id="waist" class="form-input" placeholder="برای محاسبه WHtR وارد کنید" min="40" max="200" step="0.1" />
-                    <small class="form-hint">💡 برای دقت بیشتر، دور کمر را در باریک‌ترین نقطه شکم اندازه بگیرید</small>
+                    <label class="form-label">تاریخ تولد (شمسی):</label>
+                    <div class="date-inputs">
+                        <input type="number" id="birth-year" placeholder="سال" min="1300" max="1404" required>
+                        <input type="number" id="birth-month" placeholder="ماه" min="1" max="12" required>
+                        <input type="number" id="birth-day" placeholder="روز" min="1" max="31" required>
+                    </div>
                 </div>
 
-                <!-- سطح فعالیت -->
+                <!-- Height -->
                 <div class="form-group">
-                    <label for="activity" class="form-label">🏃 سطح فعالیت روزانه</label>
-                    <select id="activity" class="form-select">
+                    <label for="height" class="form-label">قد (سانتی‌متر):</label>
+                    <input type="number" id="height" placeholder="مثال: 170" min="50" max="250" step="0.1" required>
+                </div>
+
+                <!-- Weight -->
+                <div class="form-group">
+                    <label for="weight" class="form-label">وزن (کیلوگرم):</label>
+                    <input type="number" id="weight" placeholder="مثال: 70" min="10" max="300" step="0.1" required>
+                </div>
+
+                <!-- Waist Circumference (NEW) -->
+                <div class="form-group">
+                    <label for="waist" class="form-label">دور کمر (سانتی‌متر) - اختیاری:</label>
+                    <input type="number" id="waist" placeholder="مثال: 80" min="30" max="200" step="0.1">
+                    <small class="form-hint">برای محاسبه WHtR (نسبت دور کمر به قد)</small>
+                </div>
+
+                <!-- Activity Level -->
+                <div class="form-group">
+                    <label for="activity" class="form-label">سطح فعالیت روزانه:</label>
+                    <select id="activity" required>
+                        <option value="">انتخاب کنید</option>
                         <option value="1.2">کم‌تحرک (بدون ورزش)</option>
-                        <option value="1.375">سبک (ورزش ۱-۳ بار در هفته)</option>
-                        <option value="1.55" selected>متوسط (ورزش ۳-۵ بار در هفته)</option>
-                        <option value="1.725">زیاد (ورزش ۶-۷ بار در هفته)</option>
-                        <option value="1.9">بسیار زیاد (ورزشکار حرفه‌ای)</option>
+                        <option value="1.375">فعالیت کم (ورزش 1-3 روز در هفته)</option>
+                        <option value="1.55">فعالیت متوسط (ورزش 3-5 روز در هفته)</option>
+                        <option value="1.725">فعالیت زیاد (ورزش 6-7 روز در هفته)</option>
+                        <option value="1.9">فعالیت بسیار زیاد (ورزش روزانه + کار سنگین)</option>
                     </select>
                 </div>
 
-                <!-- دکمه‌ها -->
-                <div class="button-group">
-                    <button type="button" id="calc-btn" class="btn btn-primary">
-                        ✨ محاسبه کن
-                    </button>
-                    <button type="button" id="help-btn" class="btn btn-secondary">
-                        ❓ راهنما
-                    </button>
-                </div>
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-primary">محاسبه</button>
             </form>
-
-            <footer class="footer">
-                <p>🔬 بر اساس استانداردهای WHO (5-19 سال) و BMI استاندارد (بزرگسالان)</p>
-                <p style="margin-top: 8px; font-size: 0.85rem; opacity: 0.7;">
-                    📊 محاسبه WHtR برای ارزیابی توزیع چربی شکمی
-                </p>
-            </footer>
         </div>
-    </div>
 
-    <!-- Page 2: Results -->
-    <div id="results-page" class="page">
-        <div class="container">
-            <div class="header-section">
-                <h1 class="main-title">📊 نتایج سنجش سلامت</h1>
-            </div>
-
-            <!-- کارت‌های اطلاعات -->
-            <div class="info-cards">
-                <div class="info-card">
-                    <span class="info-label">👤 جنسیت</span>
-                    <span class="info-value" id="r-gender">-</span>
-                </div>
-                <div class="info-card">
-                    <span class="info-label">🎂 سن</span>
-                    <span class="info-value" id="r-age">-</span>
-                </div>
-                <div class="info-card">
-                    <span class="info-label">📏 قد</span>
-                    <span class="info-value" id="r-height">-</span>
-                </div>
-                <div class="info-card">
-                    <span class="info-label">⚖️ وزن</span>
-                    <span class="info-value" id="r-weight">-</span>
-                </div>
-            </div>
-
-            <!-- کارت BMI -->
-            <div class="result-card">
-                <div class="result-header">
-                    <h2 class="result-title">📊 شاخص توده بدنی (BMI)</h2>
-                </div>
-                <div class="result-content">
-                    <div class="bmi-display">
-                        <div id="bmi-circle" class="bmi-circle">
-                            <span id="bmi-value" class="bmi-value">0</span>
-                        </div>
-                        <div class="bmi-info">
-                            <p class="bmi-status" id="bmi-status-text">-</p>
-                            <p class="bmi-difference" id="bmi-difference-text">-</p>
-                        </div>
+        <!-- Results Section -->
+        <div id="results" class="results-section hidden">
+            <!-- Personal Info Card -->
+            <div class="card">
+                <h2 class="section-title">اطلاعات شخصی</h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">جنسیت:</span>
+                        <span class="info-value" id="r-gender">--</span>
                     </div>
-                    <div class="healthy-range">
-                        <span class="healthy-label">🎯 محدوده وزن سالم:</span>
-                        <span class="healthy-value" id="r-healthy">-</span>
+                    <div class="info-item">
+                        <span class="info-label">سن:</span>
+                        <span class="info-value" id="r-age">--</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">قد:</span>
+                        <span class="info-value" id="r-height">--</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">وزن:</span>
+                        <span class="info-value" id="r-weight">--</span>
                     </div>
                 </div>
             </div>
 
-            <!-- کارت WHtR (نمایش شرطی) -->
-            <div id="whtr-card" class="result-card" style="display: none;">
-                <div class="result-header">
-                    <h2 class="result-title">📐 نسبت دور کمر به قد (WHtR)</h2>
+            <!-- BMI Results Card -->
+            <div class="card">
+                <h2 class="section-title">شاخص توده بدنی (BMI)</h2>
+                <div class="bmi-circle">
+                    <div class="bmi-value" id="bmi-value">--</div>
+                    <div class="bmi-unit">BMI</div>
                 </div>
-                <div class="result-content">
-                    <div class="bmi-display">
-                        <div id="whtr-circle" class="bmi-circle">
-                            <span id="whtr-value" class="bmi-value">0</span>
-                        </div>
-                        <div class="bmi-info">
-                            <p class="bmi-status" id="whtr-status-text">-</p>
-                            <p class="bmi-difference" id="whtr-risk-text">-</p>
-                        </div>
+                <div class="bmi-status">
+                    <div class="status-badge" id="bmi-status-badge">
+                        <span id="bmi-status-text">در انتظار محاسبه</span>
                     </div>
-                    <div class="whtr-info-box">
-                        <p style="font-size: 0.9rem; line-height: 1.6; color: #64748b;">
-                            <strong>💡 WHtR چیست?</strong><br>
-                            نسبت دور کمر به قد یکی از دقیق‌ترین شاخص‌های ارزیابی چربی شکمی و ریسک بیماری‌های متابولیک است.
-                            حتی افرادی که BMI نرمال دارند، ممکن است با WHtR بالا در معرض خطر باشند.
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- کارت‌های کالری -->
-            <div class="result-card">
-                <div class="result-header">
-                    <h2 class="result-title">🔥 نیاز کالری روزانه</h2>
-                </div>
-                <div class="result-content">
-                    <div class="calorie-cards">
-                        <div class="calorie-card">
-                            <span class="calorie-label">💤 متابولیسم پایه (BMR)</span>
-                            <span class="calorie-value" id="r-bmr">-</span>
-                        </div>
-                        <div class="calorie-card">
-                            <span class="calorie-label">⚡ کالری کل روزانه (TDEE)</span>
-                            <span class="calorie-value" id="r-tdee">-</span>
-                        </div>
-                    </div>
-
-                    <div class="calorie-goals">
-                        <div class="goal-item">
-                            <span class="goal-emoji">✅</span>
-                            <span class="goal-text">حفظ وزن:</span>
-                            <span class="goal-value" id="maintain-calories">-</span>
-                        </div>
-                        <div class="goal-item">
-                            <span class="goal-emoji">📈</span>
-                            <span class="goal-text">افزایش وزن:</span>
-                            <span class="goal-value" id="gain-calories">-</span>
-                        </div>
-                        <div class="goal-item">
-                            <span class="goal-emoji">📉</span>
-                            <span class="goal-text">کاهش وزن:</span>
-                            <span class="goal-value" id="loss-calories">-</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- توصیه‌های کاربردی -->
-            <div class="result-card">
-                <div class="result-header">
-                    <h2 class="result-title">💡 توصیه‌های کاربردی</h2>
-                </div>
-                <div class="result-content">
-                    <div id="practical-tips" class="tips-container">
-                        <!-- تولید پویا از JS -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- دکمه‌های عملیاتی -->
-            <div class="button-group">
-                <button type="button" id="back-btn" class="btn btn-secondary">
-                    ↩️ بازگشت
-                </button>
-                <button type="button" id="help-btn2" class="btn btn-info">
-                    ❓ راهنما
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Page 3: Guide -->
-    <div id="guide-page" class="page">
-        <div class="container">
-            <div class="header-section">
-                <h1 class="main-title">📚 راهنمای کامل استفاده</h1>
-            </div>
-
-            <div class="guide-content">
-                <section class="guide-section">
-                    <h2 class="guide-title">🎯 درباره این ابزار</h2>
-                    <p class="guide-text">
-                        این ماشین‌حساب پیشرفته از استانداردهای جهانی WHO برای کودکان و نوجوانان ۵ تا ۱۹ سال
-                        و استاندارد BMI برای بزرگسالان استفاده می‌کند. همچنین قابلیت محاسبه WHtR (نسبت دور کمر به قد)
-                        برای ارزیابی دقیق‌تر توزیع چربی بدن را دارد.
+                    <p class="bmi-difference" id="bmi-difference-text">--</p>
+                    <p class="healthy-range">
+                        محدوده سالم: <span id="r-healthy">--</span>
                     </p>
-                </section>
-
-                <section class="guide-section">
-                    <h2 class="guide-title">📊 شاخص‌های محاسبه شده</h2>
-                    <div class="guide-list">
-                        <div class="guide-item">
-                            <strong>BMI (Body Mass Index):</strong>
-                            شاخص توده بدنی که نسبت وزن به قد را نشان می‌دهد
-                        </div>
-                        <div class="guide-item">
-                            <strong>WHtR (Waist-to-Height Ratio):</strong>
-                            نسبت دور کمر به قد - شاخص دقیق‌تر برای چربی شکمی
-                        </div>
-                        <div class="guide-item">
-                            <strong>BMR (Basal Metabolic Rate):</strong>
-                            میزان کالری مورد نیاز بدن در حالت استراحت کامل
-                        </div>
-                        <div class="guide-item">
-                            <strong>TDEE (Total Daily Energy Expenditure):</strong>
-                            کل کالری مورد نیاز روزانه با توجه به سطح فعالیت
-                        </div>
-                    </div>
-                </section>
-
-                <section class="guide-section">
-                    <h2 class="guide-title">🎯 استانداردهای WHtR</h2>
-                    <div class="guide-list">
-                        <div class="guide-item">
-                            <strong style="color: #3B82F6;">کمتر از 0.40:</strong> کم‌وزن غیرطبیعی
-                        </div>
-                        <div class="guide-item">
-                            <strong style="color: #22C55E;">0.40 - 0.49:</strong> محدوده سالم
-                        </div>
-                        <div class="guide-item">
-                            <strong style="color: #EAB308;">0.50 - 0.59:</strong> ریسک متوسط
-                        </div>
-                        <div class="guide-item">
-                            <strong style="color: #DC2626;">0.60 یا بیشتر:</strong> ریسک بالا
-                        </div>
-                    </div>
-                </section>
-
-                <section class="guide-section">
-                    <h2 class="guide-title">📏 نحوه اندازه‌گیری دور کمر</h2>
-                    <p class="guide-text">
-                        ۱. در حالت ایستاده و استراحت، نفس را به‌طور طبیعی بیرون دهید<br>
-                        ۲. متر را در باریک‌ترین نقطه شکم (معمولاً بالای ناف) قرار دهید<br>
-                        ۳. متر باید محکم اما نه خیلی سفت باشد<br>
-                        ۴. اندازه را در سانتی‌متر یادداشت کنید
-                    </p>
-                </section>
-
-                <section class="guide-section">
-                    <h2 class="guide-title">⚠️ نکات مهم</h2>
-                    <div class="guide-list">
-                        <div class="guide-item">
-                            این ابزار فقط برای افراد ۵ سال به بالا طراحی شده است
-                        </div>
-                        <div class="guide-item">
-                            نتایج راهنما هستند و جایگزین مشاوره پزشکی نمی‌شوند
-                        </div>
-                        <div class="guide-item">
-                            تاریخ تولد با توجه به سال‌های کبیسه شمسی محاسبه می‌شود
-                        </div>
-                        <div class="guide-item">
-                            WHtR برای افرادی که توزیع چربی شکمی دارند، دقیق‌تر از BMI است
-                        </div>
-                    </div>
-                </section>
+                </div>
             </div>
 
-            <div class="button-group">
-                <button type="button" id="back-guide-btn" class="btn btn-primary">
-                    ↩️ بازگشت به ماشین‌حساب
+            <!-- WHtR Results Card (NEW) -->
+            <div class="card" id="whtr-card" style="display: none;">
+                <h2 class="section-title">نسبت دور کمر به قد (WHtR)</h2>
+                <div class="whtr-result">
+                    <div class="whtr-value-container">
+                        <div class="whtr-value" id="whtr-value">--</div>
+                        <div class="whtr-unit">WHtR</div>
+                    </div>
+                    <div class="whtr-status">
+                        <div class="status-badge" id="whtr-status-badge">
+                            <span id="whtr-status-text">در انتظار محاسبه</span>
+                        </div>
+                        <p class="whtr-description" id="whtr-description">--</p>
+                        <div class="whtr-info">
+                            <p class="info-text">📏 WHtR شاخصی برای ارزیابی چاقی شکمی است</p>
+                            <p class="info-text">✅ محدوده سالم: 0.40 - 0.49</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Metabolism Card -->
+            <div class="card">
+                <h2 class="section-title">اطلاعات متابولیسم</h2>
+                <div class="metabolism-grid">
+                    <div class="metabolism-item">
+                        <span class="metabolism-label">متابولیسم پایه (BMR):</span>
+                        <span class="metabolism-value" id="r-bmr">--</span>
+                    </div>
+                    <div class="metabolism-item">
+                        <span class="metabolism-label">کالری روزانه (TDEE):</span>
+                        <span class="metabolism-value" id="r-tdee">--</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calorie Guide Card -->
+            <div class="card">
+                <h2 class="section-title">راهنمای کالری روزانه</h2>
+                <div class="calorie-guide">
+                    <div class="calorie-item calorie-maintain">
+                        <div class="calorie-icon">⚖️</div>
+                        <div class="calorie-info">
+                            <h3>حفظ وزن</h3>
+                            <p class="calorie-value" id="maintain-calories">--</p>
+                        </div>
+                    </div>
+                    <div class="calorie-item calorie-gain">
+                        <div class="calorie-icon">📈</div>
+                        <div class="calorie-info">
+                            <h3>افزایش وزن</h3>
+                            <p class="calorie-value" id="gain-calories">--</p>
+                        </div>
+                    </div>
+                    <div class="calorie-item calorie-loss">
+                        <div class="calorie-icon">📉</div>
+                        <div class="calorie-info">
+                            <h3>کاهش وزن</h3>
+                            <p class="calorie-value" id="loss-calories">--</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recommendations Card -->
+            <div class="card">
+                <h2 class="section-title">توصیه‌های سلامتی</h2>
+                <div class="recommendations" id="recommendations">
+                    <p>در انتظار محاسبه...</p>
+                </div>
+            </div>
+
+            <!-- Motivational Quote -->
+            <div class="card motivational-card">
+                <div class="quote-icon">💪</div>
+                <p class="motivational-quote" id="motivational-quote">در انتظار محاسبه...</p>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button class="btn btn-secondary" onclick="window.print()">
+                    🖨️ چاپ نتایج
+                </button>
+                <button class="btn btn-secondary" id="pdf-btn">
+                    📄 دانلود PDF
+                </button>
+                <button class="btn btn-outline" onclick="location.reload()">
+                    🔄 محاسبه جدید
                 </button>
             </div>
         </div>
     </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>این ابزار جنبه اطلاع‌رسانی دارد و جایگزین مشاوره پزشکی نیست.</p>
+    </footer>
 
     <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="who-data.js"></script>
     <script src="bmi.js"></script>
-
-    <script>
-        // تولید پویای سال‌های تولد
-        const yearSelect = document.getElementById("birth-year");
-        const currentYear = new Date().getFullYear();
-        const currentJalaliYear = currentYear - 621; // تقریبی برای تبدیل میلادی به شمسی
-        
-        for (let y = currentJalaliYear; y >= 1300; y--) {
-            const opt = document.createElement("option");
-            opt.value = y;
-            opt.textContent = y;
-            yearSelect.appendChild(opt);
-        }
-
-        // تولید پویای روزهای ماه
-        const daySelect = document.getElementById("birth-day");
-        for (let d = 1; d <= 31; d++) {
-            const opt = document.createElement("option");
-            opt.value = d;
-            opt.textContent = d;
-            daySelect.appendChild(opt);
-        }
-    </script>
+    <script src="profile-report.js"></script>
 </body>
 </html>
