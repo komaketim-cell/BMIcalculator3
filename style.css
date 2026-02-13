@@ -58,6 +58,17 @@ body {
     }
 }
 
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 .card {
     background: white;
     border-radius: 20px;
@@ -362,24 +373,301 @@ body {
         grid-template-columns: 1fr;
     }
 }
+
 .footer-credit {
     margin-top: 30px;
     padding: 20px;
     text-align: center;
     font-size: 14px;
-    color: #FF9800; /* نارنجی خوش‌رنگ */
+    color: #FF9800;
     line-height: 1.8;
     font-weight: 500;
 }
 
 .footer-credit a {
-    color: #FF9800; /* نارنجی خوش‌رنگ */
+    color: #FF9800;
     text-decoration: none;
     font-weight: 600;
     transition: all 0.3s;
 }
 
 .footer-credit a:hover {
-    color: #FFB74D; /* نارنجی روشن‌تر هنگام hover */
+    color: #FFB74D;
     text-decoration: underline;
+}
+
+/* =========================================
+ * WHtR Card Styles
+ * ========================================= */
+
+/* بج اختیاری روی لیبل */
+.optional-badge {
+    display: inline-block;
+    font-size: 0.68rem;
+    background: #e0e7ff;
+    color: #4f46e5;
+    border-radius: 20px;
+    padding: 1px 8px;
+    margin-right: 6px;
+    font-weight: 600;
+    vertical-align: middle;
+}
+
+.input-hint {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    margin-top: 4px;
+    margin-bottom: 0;
+}
+
+/* کارت WHtR */
+.whtr-card {
+    background: linear-gradient(135deg, #fafafa 0%, #f0f4ff 100%);
+    border: 1.5px solid #c7d2fe;
+    border-radius: 20px;
+    padding: 24px;
+    margin-bottom: 20px;
+    animation: fadeInUp 0.5s ease both;
+}
+
+.whtr-card .card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e0e7ff;
+}
+
+.whtr-card .card-icon {
+    font-size: 1.5rem;
+}
+
+.whtr-card .card-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+}
+
+/* بخش اصلی WHtR */
+.whtr-main {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+/* دایره WHtR */
+.whtr-circle-wrapper {
+    flex-shrink: 0;
+}
+
+.whtr-circle {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 25px rgba(79, 70, 229, 0.35);
+    transition: background 0.4s ease;
+}
+
+.whtr-circle.status-low      { background: linear-gradient(135deg, #0ea5e9, #38bdf8); box-shadow: 0 8px 25px rgba(14,165,233,0.35); }
+.whtr-circle.status-normal   { background: linear-gradient(135deg, #22c55e, #4ade80); box-shadow: 0 8px 25px rgba(34,197,94,0.35); }
+.whtr-circle.status-medium   { background: linear-gradient(135deg, #f59e0b, #fbbf24); box-shadow: 0 8px 25px rgba(245,158,11,0.35); }
+.whtr-circle.status-high     { background: linear-gradient(135deg, #f97316, #fb923c); box-shadow: 0 8px 25px rgba(249,115,22,0.35); }
+.whtr-circle.status-veryhigh { background: linear-gradient(135deg, #ef4444, #f87171); box-shadow: 0 8px 25px rgba(239,68,68,0.35); }
+
+.whtr-value {
+    font-size: 1.7rem;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1;
+}
+
+.whtr-label-inside {
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.85);
+    font-weight: 600;
+    margin-top: 3px;
+    letter-spacing: 0.05em;
+}
+
+/* اطلاعات WHtR */
+.whtr-info {
+    flex: 1;
+}
+
+.whtr-status-text {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0 0 8px 0;
+}
+
+.whtr-description {
+    font-size: 0.9rem;
+    color: #475569;
+    line-height: 1.7;
+    margin: 0;
+}
+
+/* نوار رنگی WHtR */
+.whtr-bar-container {
+    margin-bottom: 20px;
+}
+
+.whtr-bar {
+    position: relative;
+    display: flex;
+    height: 14px;
+    border-radius: 10px;
+    overflow: visible;
+    margin-bottom: 6px;
+}
+
+.whtr-bar-segment {
+    flex: 1;
+    height: 100%;
+}
+
+.whtr-bar-segment:first-child { border-radius: 10px 0 0 10px; }
+.whtr-bar-segment:last-child  { border-radius: 0 10px 10px 0; }
+
+.seg-low      { background: #38bdf8; flex: 1; }
+.seg-normal   { background: #4ade80; flex: 2; }
+.seg-medium   { background: #fbbf24; flex: 1.5; }
+.seg-high     { background: #fb923c; flex: 1.5; }
+.seg-veryhigh { background: #f87171; flex: 1; }
+
+/* نشانگر موقعیت روی نوار */
+.whtr-indicator {
+    position: absolute;
+    top: -4px;
+    width: 6px;
+    height: 22px;
+    background: #1e293b;
+    border-radius: 3px;
+    transform: translateX(50%);
+    transition: left 0.6s cubic-bezier(.34,1.56,.64,1);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    pointer-events: none;
+    z-index: 2;
+}
+
+.whtr-bar-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.65rem;
+    color: #94a3b8;
+    padding: 0 2px;
+    direction: ltr;
+}
+
+/* جدول مرجع */
+.whtr-reference {
+    background: #fff;
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    border: 1px solid #e2e8f0;
+}
+
+.whtr-ref-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #334155;
+    margin: 0 0 12px 0;
+}
+
+.whtr-ref-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.whtr-ref-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.78rem;
+    color: #475569;
+}
+
+.ref-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.ref-range {
+    font-weight: 600;
+    color: #1e293b;
+    direction: ltr;
+    font-size: 0.72rem;
+}
+
+.ref-label {
+    color: #64748b;
+}
+
+.ref-low      .ref-dot { background: #38bdf8; }
+.ref-normal   .ref-dot { background: #4ade80; }
+.ref-normal2  .ref-dot { background: #22c55e; }
+.ref-medium   .ref-dot { background: #fbbf24; }
+.ref-high     .ref-dot { background: #fb923c; }
+.ref-veryhigh .ref-dot { background: #f87171; }
+
+/* توصیه WHtR */
+.whtr-advice {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: #eff6ff;
+    border-right: 4px solid #4f46e5;
+    border-radius: 10px;
+    padding: 12px 14px;
+}
+
+.whtr-advice .advice-icon {
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.whtr-advice p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #1e40af;
+    line-height: 1.7;
+}
+
+/* ریسپانسیو WHtR */
+@media (max-width: 480px) {
+    .whtr-main {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .whtr-info {
+        width: 100%;
+    }
+
+    .whtr-ref-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .whtr-circle {
+        width: 90px;
+        height: 90px;
+    }
+
+    .whtr-value {
+        font-size: 1.4rem;
+    }
 }
