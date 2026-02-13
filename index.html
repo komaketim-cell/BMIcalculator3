@@ -1,376 +1,110 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>محاسبه‌گر شاخص‌های سلامت</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>محاسبه شاخص‌های سلامت</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- ===== صفحه ورودی ===== -->
-    <div class="page active" id="input-page">
-        <div class="container">
-            <div class="header">
-                <h1>محاسبه شاخص‌های سلامت</h1>
-                <p id="motivation-text"></p>
-            </div>
-
-            <div class="card">
-                <div id="error-message" class="error"></div>
-
-                <div class="input-group">
-                    <label>جنسیت:</label>
-                    <select id="gender">
-                        <option value="مرد">مرد</option>
-                        <option value="زن">زن</option>
-                    </select>
-                </div>
-
-                <div class="input-group">
-                    <label>تاریخ تولد (شمسی):</label>
-                    <div style="display: flex; gap: 10px;">
-                        <select id="birth-year" style="flex: 2;"><option value="">سال</option></select>
-                        <select id="birth-month" style="flex: 1;">
-                            <option value="">ماه</option>
-                            <option value="1">فروردین</option>
-                            <option value="2">اردیبهشت</option>
-                            <option value="3">خرداد</option>
-                            <option value="4">تیر</option>
-                            <option value="5">مرداد</option>
-                            <option value="6">شهریور</option>
-                            <option value="7">مهر</option>
-                            <option value="8">آبان</option>
-                            <option value="9">آذر</option>
-                            <option value="10">دی</option>
-                            <option value="11">بهمن</option>
-                            <option value="12">اسفند</option>
-                        </select>
-                        <select id="birth-day" style="flex: 1;"><option value="">روز</option></select>
-                    </div>
-                </div>
-
-                <div class="input-group">
-                    <label>قد (سانتی‌متر):</label>
-                    <input type="number" id="height" min="50" max="250" placeholder="مثال: 175">
-                </div>
-
-                <div class="input-group">
-                    <label>وزن (کیلوگرم):</label>
-                    <input type="number" id="weight" min="2" max="300" step="0.1" placeholder="مثال: 70">
-                </div>
-
-                <!-- ✅ فیلد جدید: دور کمر (اختیاری) -->
-                <div class="input-group">
-                    <label>دور کمر (سانتی‌متر) - اختیاری:</label>
-                    <input type="number" id="waist" min="40" max="200" step="0.1" placeholder="مثال: 85 (در صورت تمایل وارد کنید)">
-                    <small style="color: #64748B; font-size: 0.85em; display: block; margin-top: 5px;">
-                        💡 برای تحلیل دقیق‌تر چربی شکم، دور کمر را اندازه بگیرید
-                    </small>
-                </div>
-
-                <div class="input-group">
-                    <label>سطح فعالیت:</label>
-                    <select id="activity">
-                        <option value="1.2">کم‌تحرک (بدون ورزش)</option>
-                        <option value="1.375">فعالیت سبک (1-3 روز در هفته)</option>
-                        <option value="1.55" selected>فعالیت متوسط (3-5 روز در هفته)</option>
-                        <option value="1.725">فعالیت زیاد (6-7 روز در هفته)</option>
-                        <option value="1.9">فعالیت بسیار زیاد (ورزشکار حرفه‌ای)</option>
-                    </select>
-                </div>
-
-                <button id="calc-btn" class="btn-primary">محاسبه</button>
-                <div style="display: flex; gap: 10px; margin-top: 10px;">
-                    <button id="help-btn" class="btn-secondary" style="flex: 1;">راهنما</button>
-                    <button id="profile-btn" class="btn-secondary" style="flex: 1;">📋 پروفایل و تاریخچه</button>
-                </div>
-            </div>
-
-            <!-- فوتر با لوگو -->
-            <div class="footer-credit">
-                <img src="logo.png" alt="لوگو کمکتیم" class="footer-logo">
-                <div class="footer-text">
-                    <strong>توسعه یافته توسط تیم «کمکتیم»</strong>
-                    <a href="https://Komaketim.ir" target="_blank">Komaketim.ir</a>
-                </div>
-            </div>
-        </div>
+<div class="page active" id="input-page">
+  <div class="container">
+    <div class="header">
+      <h1>محاسبه شاخص‌های سلامت</h1>
+      <p id="motivation-text"></p>
     </div>
 
-    <!-- ===== صفحه نتایج ===== -->
-    <div class="page" id="results-page">
-        <div class="container">
-            <div class="header">
-                <h1>نتایج تحلیل سلامت</h1>
-                <p>تحلیل جامع شاخص‌های بدن شما</p>
-            </div>
+    <div class="card">
+      <div id="error-message" class="error"></div>
 
-            <div class="info-summary">
-                <div class="info-item">
-                    <span class="info-label">جنسیت:</span>
-                    <span class="info-value" id="r-gender">--</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">سن:</span>
-                    <span class="info-value" id="r-age">--</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">قد:</span>
-                    <span class="info-value" id="r-height">--</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">وزن:</span>
-                    <span class="info-value" id="r-weight">--</span>
-                </div>
-            </div>
+      <div class="input-group">
+        <label>جنسیت</label>
+        <select id="gender">
+          <option value="مرد">مرد</option>
+          <option value="زن">زن</option>
+        </select>
+      </div>
 
-            <div class="card bmi-card">
-                <h3>شاخص توده بدنی (BMI)</h3>
-                <div class="bmi-display">
-                    <div id="bmi-circle" class="bmi-circle">
-                        <span id="bmi-value">--</span>
-                    </div>
-                    <div class="bmi-details">
-                        <div class="bmi-status">
-                            <strong>وضعیت:</strong> <span id="bmi-status-text"></span>
-                        </div>
-                        <div class="bmi-difference">
-                            <span id="bmi-difference-text"></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ✅ کارت جدید: نسبت دور کمر به قد (WHtR) -->
-            <div class="card whtr-card" id="whtr-card" style="display: none;">
-                <h3>نسبت دور کمر به قد (WHtR)</h3>
-                <div class="whtr-display">
-                    <div id="whtr-circle" class="whtr-circle">
-                        <span id="whtr-value">--</span>
-                    </div>
-                    <div class="whtr-details">
-                        <div class="whtr-status">
-                            <strong>وضعیت:</strong> <span id="whtr-status-text"></span>
-                        </div>
-                        <div class="whtr-risk">
-                            <span id="whtr-risk-text"></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card result-card">
-                <h3>محدوده وزن سالم</h3>
-                <div class="result-value" id="r-healthy">--</div>
-            </div>
-
-            <div class="results-grid">
-                <div class="card result-card">
-                    <h3>BMR</h3>
-                    <p class="result-label">متابولیسم پایه</p>
-                    <div class="result-value" id="r-bmr">--</div>
-                </div>
-                <div class="card result-card">
-                    <h3>TDEE</h3>
-                    <p class="result-label">کالری روزانه</p>
-                    <div class="result-value" id="r-tdee">--</div>
-                </div>
-            </div>
-
-            <div class="card">
-                <h3>توصیه‌های کالری</h3>
-                <div class="calorie-recommendations">
-                    <div class="calorie-item">
-                        <span class="calorie-label">کالری ثابت نگه داشتن وزن:</span>
-                        <span class="calorie-value" id="maintain-calories">--</span>
-                    </div>
-                    <div class="calorie-item">
-                        <span class="calorie-label">کالری افزایش وزن و حجم عضلات:</span>
-                        <span class="calorie-value" id="gain-calories">--</span>
-                    </div>
-                    <div class="calorie-item">
-                        <span class="calorie-label">کالری کاهش وزن بدون افت عضلات:</span>
-                        <span class="calorie-value" id="loss-calories">--</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <h3>💡 توصیه‌های کاربردی</h3>
-                <div id="practical-tips"></div>
-            </div>
-
-            <div style="display: flex; gap: 10px; margin-top: 20px;">
-                <button id="back-btn" class="btn-primary" style="flex: 1;">محاسبه مجدد</button>
-                <button id="pdf-btn" class="btn-primary" style="flex: 1;">📄 دانلود PDF</button>
-            </div>
+      <div class="input-group">
+        <label>تاریخ تولد (شمسی)</label>
+        <div style="display:flex;gap:10px">
+          <select id="birth-year"><option value="">سال</option></select>
+          <select id="birth-month"><option value="">ماه</option></select>
+          <select id="birth-day"><option value="">روز</option></select>
         </div>
+      </div>
+
+      <div class="input-group">
+        <label>قد (cm)</label>
+        <input type="number" id="height">
+      </div>
+
+      <div class="input-group">
+        <label>وزن (kg)</label>
+        <input type="number" id="weight" step="0.1">
+      </div>
+
+      <!-- ✅ WHtR -->
+      <div class="input-group">
+        <label>دور کمر (cm) <small>(اختیاری)</small></label>
+        <input type="number" id="waist" step="0.1">
+      </div>
+
+      <div class="input-group">
+        <label>سطح فعالیت</label>
+        <select id="activity">
+          <option value="1.2">کم‌تحرک</option>
+          <option value="1.375">سبک</option>
+          <option value="1.55" selected>متوسط</option>
+          <option value="1.725">زیاد</option>
+          <option value="1.9">بسیار زیاد</option>
+        </select>
+      </div>
+
+      <button id="calculate-btn" class="btn-primary">محاسبه</button>
+    </div>
+  </div>
+</div>
+
+<div class="page" id="results-page">
+  <div class="container">
+
+    <div class="card bmi-card">
+      <h3>BMI</h3>
+      <div class="bmi-display">
+        <div class="bmi-circle"><span id="bmi-value">--</span></div>
+        <div>
+          <div id="bmi-status-text"></div>
+          <div id="bmi-difference-text"></div>
+        </div>
+      </div>
     </div>
 
-    <!-- ===== صفحه پروفایل و تاریخچه ===== -->
-    <div class="page" id="profile-page">
-        <div class="container">
-            <div class="header">
-                <h1>📋 پروفایل و تاریخچه</h1>
-            </div>
-
-            <div class="card">
-                <h3>تاریخچه محاسبات</h3>
-                <div id="history-list"></div>
-                <button id="clear-history-btn" class="btn-secondary" style="margin-top: 15px;">پاک کردن تاریخچه</button>
-            </div>
-
-            <button id="profile-back-btn" class="btn-primary" style="width: 100%; margin-top: 20px;">بازگشت</button>
+    <!-- ✅ WHtR Result -->
+    <div class="card whtr-card" id="whtr-card" style="display:none">
+      <h3>نسبت دور کمر به قد</h3>
+      <div class="whtr-display">
+        <div class="whtr-circle"><span id="whtr-value">--</span></div>
+        <div>
+          <div id="whtr-status-text"></div>
+          <div id="whtr-risk-text"></div>
         </div>
+      </div>
     </div>
 
-    <!-- ===== قالب PDF مخفی ===== -->
-    <div id="pdf-template" style="display: none;">
-        <div class="pdf-header">
-            <h1>گزارش تحلیل شاخص‌های سلامت</h1>
-            <p class="pdf-date" id="pdf-date"></p>
-        </div>
-
-        <div class="pdf-section">
-            <h2 class="pdf-section-title">
-                <span class="pdf-section-icon">👤</span>
-                اطلاعات فردی
-            </h2>
-            <div class="pdf-info-cards">
-                <div class="pdf-info-card">
-                    <div class="pdf-info-card-label">جنسیت</div>
-                    <div class="pdf-info-card-value" id="pdf-gender">--</div>
-                </div>
-                <div class="pdf-info-card">
-                    <div class="pdf-info-card-label">سن</div>
-                    <div class="pdf-info-card-value" id="pdf-age">--</div>
-                </div>
-                <div class="pdf-info-card">
-                    <div class="pdf-info-card-label">قد</div>
-                    <div class="pdf-info-card-value" id="pdf-height">--</div>
-                </div>
-                <div class="pdf-info-card">
-                    <div class="pdf-info-card-label">وزن</div>
-                    <div class="pdf-info-card-value" id="pdf-weight">--</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="pdf-section">
-            <h2 class="pdf-section-title">
-                <span class="pdf-section-icon">📊</span>
-                شاخص توده بدنی (BMI)
-            </h2>
-            <div class="pdf-bmi-container">
-                <div class="pdf-bmi-circle">
-                    <span class="pdf-bmi-value" id="pdf-bmi">--</span>
-                    <span class="pdf-bmi-label">BMI</span>
-                </div>
-                <div class="pdf-bmi-details">
-                    <div class="pdf-bmi-status">
-                        <div class="pdf-bmi-status-label">وضعیت فعلی</div>
-                        <div class="pdf-bmi-status-value" id="pdf-status">--</div>
-                    </div>
-                    <div class="pdf-bmi-status">
-                        <div class="pdf-bmi-status-label">تفاوت با وزن سالم</div>
-                        <div class="pdf-bmi-status-value" id="pdf-diff" style="font-size: 14px;">--</div>
-                    </div>
-                    <div class="pdf-bmi-status" style="border-right-color: #16A34A;">
-                        <div class="pdf-bmi-status-label">محدوده وزن سالم</div>
-                        <div class="pdf-bmi-status-value" id="pdf-healthy" style="color: #16A34A; font-size: 14px;">--</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ✅ بخش WHtR در PDF -->
-        <div class="pdf-section" id="pdf-whtr-section" style="display: none;">
-            <h2 class="pdf-section-title">
-                <span class="pdf-section-icon">📏</span>
-                نسبت دور کمر به قد (WHtR)
-            </h2>
-            <div class="pdf-whtr-container">
-                <div class="pdf-whtr-circle">
-                    <span class="pdf-whtr-value" id="pdf-whtr">--</span>
-                    <span class="pdf-whtr-label">WHtR</span>
-                </div>
-                <div class="pdf-whtr-details">
-                    <div class="pdf-whtr-status">
-                        <div class="pdf-whtr-status-label">وضعیت</div>
-                        <div class="pdf-whtr-status-value" id="pdf-whtr-status">--</div>
-                    </div>
-                    <div class="pdf-whtr-status">
-                        <div class="pdf-whtr-status-label">ریسک سلامتی</div>
-                        <div class="pdf-whtr-status-value" id="pdf-whtr-risk" style="font-size: 13px;">--</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="pdf-section">
-            <h2 class="pdf-section-title">
-                <span class="pdf-section-icon">🔥</span>
-                اطلاعات متابولیسم
-            </h2>
-            <div class="pdf-metabolism-cards">
-                <div class="pdf-metabolism-card">
-                    <div class="pdf-metabolism-label">متابولیسم پایه (BMR)</div>
-                    <div class="pdf-metabolism-value" id="pdf-bmr">--</div>
-                </div>
-                <div class="pdf-metabolism-card">
-                    <div class="pdf-metabolism-label">کالری روزانه (TDEE)</div>
-                    <div class="pdf-metabolism-value" id="pdf-tdee">--</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="pdf-section">
-            <h2 class="pdf-section-title">
-                <span class="pdf-section-icon">🍽️</span>
-                راهنمای کالری روزانه
-            </h2>
-            <div class="pdf-calories-grid">
-                <div class="pdf-calorie-card">
-                    <div class="pdf-calorie-label">حفظ وزن</div>
-                    <div class="pdf-calorie-value" id="pdf-maintain">--</div>
-                </div>
-                <div class="pdf-calorie-card">
-                    <div class="pdf-calorie-label">افزایش وزن</div>
-                    <div class="pdf-calorie-value" id="pdf-gain">--</div>
-                </div>
-                <div class="pdf-calorie-card">
-                    <div class="pdf-calorie-label">کاهش وزن</div>
-                    <div class="pdf-calorie-value" id="pdf-loss">--</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="pdf-section pdf-tips-section">
-            <h2 class="pdf-tips-title">
-                <span>💡</span>
-                توصیه‌های کاربردی
-            </h2>
-            <ul class="pdf-tips-list" id="pdf-tips-content"></ul>
-        </div>
-
-        <div class="pdf-footer">
-            <div class="pdf-footer-logo">
-                <img src="logo.png" alt="کمکتیم" onerror="this.style.display='none'">
-                <div class="pdf-footer-text">
-                    <strong>این گزارش توسط تیم کمکتیم تولید شده است</strong>
-                    این گزارش جنبه اطلاع‌رسانی دارد و جایگزین مشاوره پزشکی نیست
-                    <div class="pdf-footer-website">Komaketim.ir</div>
-                </div>
-            </div>
-        </div>
+    <div class="card">
+      <h3>💡 توصیه‌ها</h3>
+      <div id="practical-tips"></div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="who-data.js"></script>
-    <script src="bmi.js"></script>
-    <script src="profile-report.js"></script>
+    <button id="pdf-btn">📄 PDF</button>
+    <button id="back-btn">بازگشت</button>
+  </div>
+</div>
 
+<script src="who-data.js"></script>
+<script src="bmi.js"></script>
+<script src="profile-report.js"></script>
 </body>
 </html>
