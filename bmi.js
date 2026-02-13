@@ -1,3 +1,13 @@
+(function loadChartJS() {
+    if (window.Chart) return;
+
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js';
+    script.onload = () => console.log('✅ Chart.js loaded');
+    script.onerror = () => alert('❌ خطا در لود Chart.js');
+    document.head.appendChild(script);
+})();
+
 /* =========================================
  * BMI Calculator with WHtR Support
  * محاسبه‌گر BMI، BMR، TDEE و WHtR
